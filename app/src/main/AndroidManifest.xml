@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Track_My_Grade"
-        tools:targetApi="31">
+        tools:targetApi="34">
         <activity
             android:name=".CalculatorFragment"
             android:exported="false" />

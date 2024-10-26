@@ -20,12 +20,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
+import com.student_developer.track_my_grade.*;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -189,46 +188,37 @@ public class LoginActivity extends BaseActivity {
             // Check if the email exists in Firestore under the "GPA" collection
             db.collection("Users").whereEqualTo("Email", ReEmail).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                    // Email exists in Firestore, show AlertDialog to confirm sending the reset email
                     showResetEmailConfirmationDialog(ReEmail);
                 } else {
-                    // Email does not exist in Firestore
                    setError(et_PwdReset, "Email not found in records.");
                      }
             });
         });
     }
 
-    // Method to show an AlertDialog to confirm reset email
     private void showResetEmailConfirmationDialog(String ReEmail) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Reset Password");
         builder.setMessage("Do you want to send a password reset link to " + ReEmail + "?");
 
-        // Positive button: Send reset email and open email app
         builder.setPositiveButton("Yes", (dialog, which) -> sendResetPasswordEmail(ReEmail));
 
-        // Negative button: Dismiss the dialog
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    // Method to send the reset password email
     private void sendResetPasswordEmail(String email) {
         authLogin.sendPasswordResetEmail(email)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Notify user that reset link is sent
                        showToast("Reset link sent to " + email);
-                        // Intent to open the user's email app
                         Intent emailIntent = new Intent(Intent.ACTION_MAIN);
                         emailIntent.addCategory(Intent.CATEGORY_APP_EMAIL);
                         emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(Intent.createChooser(emailIntent, "Open email app"));
                     } else {
-                        // Handle error
                         String errorMessage = task.getException().getMessage();
                         showErrorMessage("Error : "+errorMessage);
                           }
@@ -265,7 +255,6 @@ public class LoginActivity extends BaseActivity {
             FirebaseUser firebaseUser = authLogin.getCurrentUser();
 
             if (firebaseUser.isEmailVerified()) {
-                // Fetch the Roll No from Firestore
                 String email = firebaseUser.getEmail();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 

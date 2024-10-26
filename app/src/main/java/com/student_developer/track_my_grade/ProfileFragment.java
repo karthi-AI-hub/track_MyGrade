@@ -99,7 +99,6 @@ public class ProfileFragment extends Fragment {
         tvCGPATotal = view.findViewById((R.id.tvCgpaTotal));
 
 
-        // Assuming you have already initialized your TextViews
         TextView[] textViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
 
         setButtonsEnabled(false);
@@ -110,23 +109,18 @@ public class ProfileFragment extends Fragment {
         btnLogOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Sign out from Firebase Authentication
                 FirebaseAuth.getInstance().signOut();
 
 
-                // Create an Intent to navigate back to the LoginActivity
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
 
-                // Add flags to clear the activity stack, preventing users from coming back to the previous activity with the back button
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-                // Start the LoginActivity
                 startActivity(intent);
 
                 getActivity().overridePendingTransition(0, 0);
 
 
-                // Finish the current activity to prevent the user from returning to it
                 if (getActivity() != null) {
                     getActivity().finish();
                 }
@@ -135,9 +129,7 @@ public class ProfileFragment extends Fragment {
 
 
 
-        // Access the TextView from the activity (activity_calculator.xml)
         if (getActivity() != null) {
-            // Accessing TextViews and Views in the activity layout
             TextView tvActivityProfile = getActivity().findViewById(R.id.tv_profile);
             TextView tvCgpa = getActivity().findViewById(R.id.tv_cgpa);
             TextView tvGraph = getActivity().findViewById(R.id.tv_graph);
@@ -145,7 +137,6 @@ public class ProfileFragment extends Fragment {
             View vCgpa = getActivity().findViewById(R.id.v_cgpa);
             View vGraph = getActivity().findViewById(R.id.v_graph);
 
-            // Change the text color of the TextViews in the activity
             if (tvActivityProfile != null) {
                 tvActivityProfile.setTextColor(ContextCompat.getColor(requireContext(), R.color.purple_500));
             }
@@ -156,24 +147,21 @@ public class ProfileFragment extends Fragment {
                 tvGraph.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue_600));
             }
 
-            // Set visibility for specific views
             if (vProfile != null) {
-                vProfile.setVisibility(View.VISIBLE); // Show profile view
+                vProfile.setVisibility(View.VISIBLE);
             }
             if (vCgpa != null) {
-                vCgpa.setVisibility(View.GONE); // Hide CGPA view
+                vCgpa.setVisibility(View.GONE);
             }
             if (vGraph != null) {
-                vGraph.setVisibility(View.GONE); // Hide graph view
+                vGraph.setVisibility(View.GONE);
             }
         }
 
 
 
-// Retrieve the document
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists() && getContext() != null) {
-                // Retrieve GPA values safely
                 Float gpa1 = getGpaFromDocument(documentSnapshot, "Sem 1");
                 Float gpa2 = getGpaFromDocument(documentSnapshot, "Sem 2");
                 Float gpa3 = getGpaFromDocument(documentSnapshot, "Sem 3");
@@ -183,7 +171,6 @@ public class ProfileFragment extends Fragment {
                 Float gpa7 = getGpaFromDocument(documentSnapshot, "Sem 7");
                 Float gpa8 = getGpaFromDocument(documentSnapshot, "Sem 8");
 
-                // Set the retrieved values to the corresponding TextViews and handle nulls
                 setGPAColorAndText(tvpro1, gpa1);
                 setGPAColorAndText(tvpro2, gpa2);
                 setGPAColorAndText(tvpro3, gpa3);
@@ -193,7 +180,6 @@ public class ProfileFragment extends Fragment {
                 setGPAColorAndText(tvpro7, gpa7);
                 setGPAColorAndText(tvpro8, gpa8);
 
-                // Calculate CGPA only if we have valid GPAs
                 Float[] gpas = {gpa1, gpa2, gpa3, gpa4, gpa5, gpa6, gpa7, gpa8};
                 double sum = 0.0;
                 int count = 0;
@@ -213,13 +199,16 @@ public class ProfileFragment extends Fragment {
                 }
 
                 progressBar.setVisibility(View.GONE);
+                tvCGPATotal.setVisibility(View.VISIBLE);
+                btnLogOut.setVisibility(View.VISIBLE);
                 setButtonsEnabled(true);
                 if (getActivity() instanceof CalculatorActivity) {
                     ((CalculatorActivity) getActivity()).setProfileLoading(false);
                 }
             } else {
-                clearTextViews();
                 progressBar.setVisibility(View.GONE);
+                tvCGPATotal.setVisibility(View.VISIBLE);
+                btnLogOut.setVisibility(View.VISIBLE);
                 setButtonsEnabled(true);
                 if (getActivity() != null && getActivity() instanceof CalculatorActivity) {
                     ((CalculatorActivity) getActivity()).setProfileLoading(false);
@@ -227,28 +216,27 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        // Return the fragment view
         return view;
     }
 
 
 
     private Float getGpaFromDocument(DocumentSnapshot documentSnapshot, String key) {
-        Object gpaValue = documentSnapshot.get(key); // Use Object to handle different types
+        Object gpaValue = documentSnapshot.get(key);
         if (gpaValue instanceof Double) {
-            return ((Double) gpaValue).floatValue(); // Convert to float if it's a Double
+            return ((Double) gpaValue).floatValue();
         } else if (gpaValue instanceof String && "N/A".equals(gpaValue)) {
-            return null; // Return null if the value is "N/A"
+            return null;
         }
-        return null; // Default return null for any other case
+        return null;
     }
 
 
     private void setGPAColorAndText(TextView textView, Float gpa) {
         if (gpa == null) {
             textView.setText("N/A");
-            textView.setTextColor(getResources().getColor(R.color.gray)); // Or any color to indicate a missing value
-            return; // Exit the method if GPA is null
+            textView.setTextColor(getResources().getColor(R.color.gray));
+            return;
         }
 
         textView.setText(String.valueOf(gpa));
@@ -259,6 +247,7 @@ public class ProfileFragment extends Fragment {
         } else {
             textView.setTextColor(getResources().getColor(R.color.red)); // Poor GPA
         }
+
     }
 
 

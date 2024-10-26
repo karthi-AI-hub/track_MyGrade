@@ -88,7 +88,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:text="N/A"
                     android:textSize="16sp"
                     android:padding="8dp"
@@ -116,7 +116,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:text="N/A"
                     android:textSize="16sp"
                     android:padding="8dp"
@@ -145,7 +145,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:text="N/A"
                     android:padding="8dp"
                     android:background="?android:attr/selectableItemBackground"/>
@@ -173,7 +173,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:text="N/A"
                     android:padding="8dp"
                     android:background="?android:attr/selectableItemBackground"/>
@@ -201,7 +201,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:text="N/A"
                     android:padding="8dp"
                     android:background="?android:attr/selectableItemBackground"/>
@@ -229,7 +229,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:padding="8dp"
                     android:text="N/A"
                     android:background="?android:attr/selectableItemBackground"/>
@@ -259,7 +259,7 @@
                     android:textSize="16sp"
                     android:padding="8dp"
                     android:text="N/A"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:background="?android:attr/selectableItemBackground"/>
             </LinearLayout>
 
@@ -286,7 +286,7 @@
                     android:layout_height="wrap_content"
                     android:text="N/A"
                     android:textSize="16sp"
-                    android:textColor="@color/red"
+                    android:textColor="@color/gray"
                     android:padding="8dp"
                     android:background="?android:attr/selectableItemBackground"/>
             </LinearLayout>
@@ -300,11 +300,12 @@
             android:id="@+id/tvCgpaTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your CGPA for all Semester      :"
+            android:text="Enter GPA for semester to calculate CGPA"
             android:textColor="@color/purple_500"
             android:textSize="20sp"
             android:layout_marginTop="10dp"
             android:textStyle="bold"
+            android:visibility="gone"
             android:paddingBottom="16dp"/>
 
         <Button
@@ -314,6 +315,7 @@
             android:layout_marginTop="10dp"
             android:layout_gravity="center"
             android:text="Log Out"
+            android:visibility="gone"
             android:textColor="@color/white"
             android:backgroundTint="@color/blue_600"
             />
