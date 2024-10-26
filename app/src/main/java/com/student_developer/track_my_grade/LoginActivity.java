@@ -36,7 +36,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class LoginActivity extends BaseActivity {
+public class  LoginActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
 
@@ -70,7 +70,7 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-
+        showToast("You Can Login Now");
         initializeUIElements();
         setOnClickListeners();
         etEmail.requestFocus();

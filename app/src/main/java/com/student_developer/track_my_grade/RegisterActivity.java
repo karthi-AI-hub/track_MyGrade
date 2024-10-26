@@ -94,9 +94,11 @@ public class RegisterActivity extends BaseActivity {
 
 
     private void setupListeners() {
-        // Navigate to Login
         View.OnClickListener loginClickListener = v -> {hideKeyboard(btnRegisterSubmit);startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-            overridePendingTransition(0, 0);};
+        overridePendingTransition(0, 0);
+        finish();
+        };
+        
         btnMoveToLogin.setOnClickListener(loginClickListener);
         tvPrompt.setOnClickListener(loginClickListener);
 

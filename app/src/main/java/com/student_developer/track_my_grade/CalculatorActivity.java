@@ -23,14 +23,12 @@ public class CalculatorActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
-        loadFragment(new CalculatorFragment());
+        loadFragment(new ProfileFragment());
 
-        // Find the buttons in the layout
         btnProfile = findViewById(R.id.btn_profile);
         btnCalculator = findViewById(R.id.btn_calculator);
         btnGraph = findViewById(R.id.btn_graph);
 
-        // Disable buttons while loading profile data
         btnProfile.setEnabled(!isProfileLoading);
         btnCalculator.setEnabled(!isProfileLoading);
         btnGraph.setEnabled(!isProfileLoading);
@@ -82,8 +80,7 @@ public class CalculatorActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-
-        showExitConfirmationDialog(); // Call the method to show the dialog
+        showExitConfirmationDialog();
     }
 
 }

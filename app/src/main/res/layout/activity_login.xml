@@ -70,19 +70,18 @@
         android:paddingEnd="8dp"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
-        android:autofillHints="emailAddress"
         android:layout_marginTop="16dp"
         android:background="@drawable/edittext_backgrouond"
-    android:inputType="textEmailAddress"
-    android:focusable="true"
-    android:focusableInTouchMode="true" />
+        android:focusable="true"
+    android:focusableInTouchMode="true"
+        android:autofillHints="emailAddress"
+        android:inputType="textEmailAddress"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp">
 
-        <!-- Password EditText -->
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
@@ -95,6 +94,7 @@
             android:maxLength="15"
             android:inputType="textPassword"
             android:drawablePadding="20dp"
+            android:autofillHints="password"
             android:background="@drawable/edittext_backgrouond"/>
 
         <ImageView

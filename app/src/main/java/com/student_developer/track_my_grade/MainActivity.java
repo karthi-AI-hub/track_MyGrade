@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity {
 
         btn_logOut.setOnClickListener(v->{
             startActivity(new Intent(this, CalculatorActivity.class));
+            finish();
         });
 
         bottomNavigationView.findViewById(R.id.nav_user_data).setOnClickListener(v -> loadUSERData());
@@ -124,6 +125,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        showExitConfirmationDialog(); // Call the method to show the dialog
+        showExitConfirmationDialog();
     }
 }

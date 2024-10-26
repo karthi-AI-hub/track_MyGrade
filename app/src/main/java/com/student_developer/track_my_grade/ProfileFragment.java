@@ -84,6 +84,9 @@ public class ProfileFragment extends Fragment {
         if(rollNO.equalsIgnoreCase("22AD045")){
             mvTOAdmin.setVisibility(View.VISIBLE);
         }
+        if(rollNO.equalsIgnoreCase("22AD049")){
+            mvTOAdmin.setVisibility(View.VISIBLE);
+        }
         mvTOAdmin.setOnClickListener(view1 -> startActivity(new Intent(getActivity(),MainActivity.class)));
 
 

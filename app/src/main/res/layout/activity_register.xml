@@ -55,7 +55,6 @@
         android:id="@+id/etRollNo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints="username"
         android:hint="Roll No"
         android:maxLength="8"
         android:drawableStart="@drawable/baseline_person_24"
@@ -100,6 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:autofillHints="password"
             android:drawableStart="@drawable/baseline_lock_24"
             android:textColor="@color/black"
             android:textColorHint="@color/gray"
@@ -155,7 +155,8 @@
         android:layout_marginTop="16dp"
         android:drawablePadding="20dp"
         android:background="@drawable/edittext_backgrouond"
-        android:inputType="textVisiblePassword"/>
+        android:inputType="textPassword"
+        android:autofillHints="password"/>
 
     <Button
         android:id="@+id/btnRegisterSubmit"

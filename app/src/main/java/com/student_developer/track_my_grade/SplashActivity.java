@@ -14,18 +14,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends BaseActivity {
 
-    private static final int SPLASH_DISPLAY_LENGTH = 3000; // Initial delay for the splash screen
-    private static final int NETWORK_CHECK_INTERVAL = 3000; // Interval to check for network connectivity (2 seconds)
+    private static final int SPLASH_DISPLAY_LENGTH = 2000;
+    private static final int NETWORK_CHECK_INTERVAL = 1000;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private FirebaseAuth authLogin;
+    private FirebaseFirestore db;
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable networkCheckRunnable;
 
     @Override
@@ -34,55 +35,62 @@ public class SplashActivity extends BaseActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        // Initialize views
+        authLogin = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
         ImageView logo = findViewById(R.id.logo);
         TextView title = findViewById(R.id.titleTextView);
         ProgressBar progressBar = findViewById(R.id.progressBar);
 
-        // Start animations
         animateSplashScreen(logo, title, progressBar);
-
-        // Start network check after splash display length
-        handler.postDelayed(() -> {
-            if (isUserLoggedIn()) {
-                // If user is logged in, proceed to CalculatorActivity
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                overridePendingTransition(0, 0);
-                finish(); // Finish SplashActivity
-            } else {
-                // User is not logged in, check for network connectivity
-                checkNetworkAndProceed();
-            }
-        }, SPLASH_DISPLAY_LENGTH);
-    }
-
-
-    private boolean isUserLoggedIn() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        return auth.getCurrentUser() != null; // Return true if user is logged in
+        handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
     }
 
     private void checkNetworkAndProceed() {
-        // Runnable to check network connectivity periodically
         networkCheckRunnable = new Runnable() {
             @Override
             public void run() {
                 if (isNetworkConnected()) {
-                    // If connected, proceed to LoginActivity and finish SplashActivity
-                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                    overridePendingTransition(0, 0);
-                    finish();
+                    if (isUserLoggedIn()) {
+                        String userId = authLogin.getCurrentUser().getUid();
+                        checkIfAdmin(userId, isAdmin -> {
+                            if (isAdmin) {
+                                navigateTo(MainActivity.class);
+                            } else {
+                                navigateTo(CalculatorActivity.class);
+                            }
+                        });
+                    } else {
+                        navigateTo(LoginActivity.class);
+                    }
                 } else {
-                    // Show a message about no internet and check again after a delay
                     Snackbar.make(findViewById(android.R.id.content), "No Internet. Waiting for connection...", Snackbar.LENGTH_LONG).show();
-                    handler.postDelayed(this, NETWORK_CHECK_INTERVAL); // Recheck after a delay
+                    handler.postDelayed(this, NETWORK_CHECK_INTERVAL);
                 }
             }
         };
-
-        // Start the first check immediately
         handler.post(networkCheckRunnable);
+    }
+
+    private boolean isUserLoggedIn() {
+        return authLogin.getCurrentUser() != null;
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
+
+    private void checkIfAdmin(String userId, OnAdminCheckListener listener) {
+        db.collection("Admins").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> listener.onAdminCheck(documentSnapshot.exists()));
+    }
+
+    private void navigateTo(Class<?> activityClass) {
+        startActivity(new Intent(SplashActivity.this, activityClass));
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     private void animateSplashScreen(ImageView logo, TextView title, ProgressBar progressBar) {
@@ -90,7 +98,6 @@ public class SplashActivity extends BaseActivity {
         title.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
 
-        // Logo animation
         logo.setScaleX(0f);
         logo.setScaleY(0f);
         logo.animate()
@@ -102,7 +109,6 @@ public class SplashActivity extends BaseActivity {
                 .withStartAction(() -> logo.setVisibility(View.VISIBLE))
                 .start();
 
-        // Title animation
         title.setTranslationY(100f);
         title.animate()
                 .translationY(0f)
@@ -112,9 +118,8 @@ public class SplashActivity extends BaseActivity {
                 .withStartAction(() -> title.setVisibility(View.VISIBLE))
                 .start();
 
-        // Progress bar animation
-        progressBar.setAlpha(0f); // Start with alpha 0
-        progressBar.setVisibility(View.VISIBLE); // Make it visible before animating
+        progressBar.setAlpha(0f);
+        progressBar.setVisibility(View.VISIBLE);
         progressBar.animate()
                 .alpha(1f)
                 .setDuration(800)
@@ -122,16 +127,9 @@ public class SplashActivity extends BaseActivity {
                 .start();
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Remove the network check runnable when activity is destroyed to avoid memory leaks
         if (handler != null && networkCheckRunnable != null) {
             handler.removeCallbacks(networkCheckRunnable);
         }
@@ -139,6 +137,10 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        showExitConfirmationDialog(); // Call the method to show the dialog
+        showExitConfirmationDialog();
+    }
+
+    private interface OnAdminCheckListener {
+        void onAdminCheck(boolean isAdmin);
     }
 }
