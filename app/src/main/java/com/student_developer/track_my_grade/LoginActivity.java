@@ -99,16 +99,9 @@ public class  LoginActivity extends BaseActivity {
             return;
         }
 
-        setContentDescriptions();
+
     }
 
-    private void setContentDescriptions() {
-
-        etEmail.setContentDescription("Email input field");
-        etPassword.setContentDescription("Password input field");
-        btnSubmitLogin.setContentDescription("Login button");
-        btnMvToLogin.setContentDescription("Navigate to register");
-    }
 
     private void setOnClickListeners() {
 
@@ -274,7 +267,7 @@ public class  LoginActivity extends BaseActivity {
                                     editor.apply();
 
                                     // Now navigate to CalculatorActivity
-                                    navigateTo(CalculatorActivity.class);
+                                    navigateTo(UserInputActivity.class);
                                 } else {
                                     showToast("Roll No not found.");
                                 }

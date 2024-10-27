@@ -50,12 +50,12 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
 
     // Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
 
     // Firebase services
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-
+    implementation("com.google.firebase:firebase-database")
     // Lottie animations
     implementation("com.airbnb.android:lottie-compose:5.0.3")
 
@@ -66,6 +66,7 @@ dependencies {
 
     // Material Design Components (if needed)
     implementation("com.google.android.material:material:1.9.0")
+    implementation(libs.firebase.database)
 
     // Testing Libraries
     testImplementation(libs.junit)
