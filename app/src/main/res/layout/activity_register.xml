@@ -54,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Roll No"
-        android:maxLength="8"
+        android:maxLength="20"
         android:drawableStart="@drawable/baseline_person_24"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"

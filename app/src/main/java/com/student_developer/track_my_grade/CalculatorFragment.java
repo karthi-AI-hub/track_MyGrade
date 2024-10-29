@@ -53,7 +53,8 @@ public class CalculatorFragment extends Fragment {
     LinearLayout ll_results;
     LinearLayout ll_SvSem;
     LinearLayout llconfirmRoll;
-    String rollno;// New container for subject marks
+    String rollno;
+    int sem;
 
     float gpa;
 
@@ -63,6 +64,7 @@ public class CalculatorFragment extends Fragment {
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         String rollNO = sharedPref.getString("roll_no", null);
+        sem = sharedPref.getInt("sem",1);
 
 
         FirebaseFirestore.setLoggingEnabled(true);
@@ -179,7 +181,6 @@ public class CalculatorFragment extends Fragment {
         btnsvToSem.setOnClickListener((View v) -> {
             hideKeyboard(v);
 
-            // Check if the EditText is empty
             String semesterInput = etsvToSem.getText().toString().trim();
             if (TextUtils.isEmpty(semesterInput)) {
                 etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
@@ -189,16 +190,14 @@ public class CalculatorFragment extends Fragment {
                 int saveToSem = Integer.parseInt(semesterInput);
 
                 // Check if the semester number is within a valid range
-                if (saveToSem > 0 && saveToSem <= 8) {
+                if (saveToSem > 0 && saveToSem <= sem) {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
-
-                    // Save GPA and show success message
                     saveGpa(saveToSem, gpa, rollno);
                     tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
                 } else {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                     etsvToSem.requestFocus();
-                    Toast.makeText(requireContext(), "Please enter a semester number between 1 and 8", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Not eligible to set GPA in SEM-"+sem, Toast.LENGTH_SHORT).show();
                 }
 
             }

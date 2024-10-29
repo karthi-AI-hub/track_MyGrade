@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,11 +22,21 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import com.airbnb.lottie.parser.IntegerParser;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,18 +47,26 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class ProfileFragment extends Fragment {
 
-    TextView tvpro1,tvpro2,tvpro3,tvpro4,tvpro5,tvpro6,tvpro7,tvpro8,tvCGPATotal;
-    Button btnLogOut,mvTOAdmin;
+    TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
+    TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
+    Button btnLogOut, mvTOAdmin;
     private FirebaseFirestore db;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    FirebaseUser firebaseUser;
     public static ProgressBar progressBar;
     String rollNO;
+    String email;
+    Double meanGPA;
+    int currentSemester;
+    LinearLayout[] semesterLayouts;
+    private Map<String, String> departmentNames;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment (fragment_profile.xml)
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         getActivity().getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
@@ -56,39 +76,58 @@ public class ProfileFragment extends Fragment {
                         View.SYSTEM_UI_FLAG_FULLSCREEN |
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
+
         if (getActivity() != null) {
             View decorView = getActivity().getWindow().getDecorView();
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
         }
+        initializeDepartmentNames();
 
+        semesterLayouts = new LinearLayout[]{
+                view.findViewById(R.id.llS1),
+                view.findViewById(R.id.llS2),
+                view.findViewById(R.id.llS3),
+                view.findViewById(R.id.llS4),
+                view.findViewById(R.id.llS5),
+                view.findViewById(R.id.llS7),
+                view.findViewById(R.id.llS6),
+                view.findViewById(R.id.llS8)
+        };
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        rollNO = sharedPref.getString("roll_no", null);
-
+        rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
-        // Notify activity that profile is loading
         if (getActivity() instanceof CalculatorActivity) {
             ((CalculatorActivity) getActivity()).setProfileLoading(true);
         }
 
 
-        btnLogOut =view.findViewById(R.id.btn_logOut);
+        btnLogOut = view.findViewById(R.id.btn_logOut);
         db = FirebaseFirestore.getInstance();
-        String rollNo = rollNO;
-        DocumentReference docRef = db.collection("GPA").document(rollNo);
-        mvTOAdmin = view.findViewById(R.id.mvToAdmin);
-        if(rollNO.equalsIgnoreCase("22AD045")){
-            mvTOAdmin.setVisibility(View.VISIBLE);
-        }
-        if(rollNO.equalsIgnoreCase("22AD049")){
-            mvTOAdmin.setVisibility(View.VISIBLE);
-        }
-        mvTOAdmin.setOnClickListener(view1 -> startActivity(new Intent(getActivity(),MainActivity.class)));
 
+
+        String rollNo = rollNO.toUpperCase();
+        DocumentReference docRef = db.collection("GPA").document(rollNo);
+
+        database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        myRef = database.getReference("Students").child(rollNO.toUpperCase());
+
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        email = firebaseUser.getEmail();
+
+        fetchDataFromFirebase();
+        mvTOAdmin = view.findViewById(R.id.mvToAdmin);
+        if (rollNO.equalsIgnoreCase("22AD045")) {
+            mvTOAdmin.setVisibility(View.VISIBLE);
+        }
+        if (rollNO.equalsIgnoreCase("22AD049")) {
+            mvTOAdmin.setVisibility(View.VISIBLE);
+        }
+        mvTOAdmin.setOnClickListener(view1 -> startActivity(new Intent(getActivity(), MainActivity.class)));
 
 
         tvpro1 = view.findViewById((R.id.tv_pro1));
@@ -101,14 +140,33 @@ public class ProfileFragment extends Fragment {
         tvpro8 = view.findViewById((R.id.tv_pro8));
         tvCGPATotal = view.findViewById((R.id.tvCgpaTotal));
 
+        pro_name = view.findViewById((R.id.pro_name));
+        pro_roll = view.findViewById((R.id.pro_roll));
+        pro_reg = view.findViewById((R.id.pro_reg));
+        pro_dob = view.findViewById((R.id.pro_dob));
+        pro_email = view.findViewById((R.id.pro_email));
+        pro_cgpa = view.findViewById((R.id.pro_cgpa));
+        pro_clg = view.findViewById((R.id.pro_clg));
+        pro_phno = view.findViewById((R.id.pro_phno));
+        pro_dept = view.findViewById((R.id.pro_dept));
 
+        setProText(pro_roll, rollNO);
+        setProText(pro_email,email);
         TextView[] textViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
 
         setButtonsEnabled(false);
 
         for (TextView textView : textViews) {
-            textView.setOnClickListener(view1 -> navigateToCalculatorFragment());
+            textView.setOnClickListener(view1 -> {
+                String text = textView.getText().toString();
+                if (!text.equals("N/A")){
+                    navigateToCalculatorFragment();
+                }else
+                    navigateToGraphFragment();
+
+            });
         }
+
         btnLogOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,7 +187,6 @@ public class ProfileFragment extends Fragment {
                 }
             }
         });
-
 
 
         if (getActivity() != null) {
@@ -162,7 +219,6 @@ public class ProfileFragment extends Fragment {
         }
 
 
-
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists() && getContext() != null) {
                 Float gpa1 = getGpaFromDocument(documentSnapshot, "Sem 1");
@@ -193,10 +249,19 @@ public class ProfileFragment extends Fragment {
                     }
                 }
 
-                // Calculate and display the CGPA
-                Double meanGPA = (count > 0) ? (sum / count) : null;
+                meanGPA = (count > 0) ? (sum / count) : null;
+                Map<String, Object> cgpaData = new HashMap<>();
+                cgpaData.put("CGPA", meanGPA.toString().toUpperCase());
+                db.collection("Users").document(rollNo.toUpperCase())
+                        .update(cgpaData)
+                        .addOnSuccessListener(avoid -> {
+                            setProText(pro_cgpa, String.format("%.2f", meanGPA));
+
+
+                        });
+
                 if (meanGPA != null) {
-                    tvCGPATotal.setText("Your CGPA for " + count + " Semester(s): " + String.format("%.2f", meanGPA));
+                    tvCGPATotal.setText(String.format("Your CGPA for %d Semester(s): %.2f", count, meanGPA));
                 } else {
                     tvCGPATotal.setText("Your CGPA for all Semester      : 0.00");
                 }
@@ -219,9 +284,76 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+
         return view;
     }
 
+    private void fetchDataFromFirebase() {
+
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String name = dataSnapshot.child("Name").getValue(String.class).toUpperCase();
+                    String regNo = dataSnapshot.child("RegNo").getValue(String.class).toUpperCase();
+                    String clg = dataSnapshot.child("Clg").getValue(String.class).toUpperCase();
+                    String dept = dataSnapshot.child("Dept").getValue(String.class);
+                    String sem = dataSnapshot.child("SEM").getValue(String.class);
+                    String dob = dataSnapshot.child("DOB").getValue(String.class).toUpperCase();
+                    String phno = dataSnapshot.child("PhNo").getValue(String.class);
+
+                    String fullDept = departmentNames.getOrDefault(dept, dept);
+                    currentSemester = Integer.parseInt(sem);
+                    removeExtraSemester(currentSemester);
+                    setProText(pro_name, name.toUpperCase());
+                    setProText(pro_reg, regNo.toUpperCase());
+                    setProText(pro_clg, clg.toUpperCase());
+                    setProText(pro_dob, dob.toUpperCase());
+                    setProText(pro_phno, phno);
+                    pro_dept.setText(fullDept + ", SEM-" + sem);
+
+                } else {
+                    Toast.makeText(getActivity(), "No Data Found.", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getActivity(), "Error in Retriving Data.", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void removeExtraSemester(int currentSemester) {
+        for (int i = 0; i < semesterLayouts.length; i++) {
+            if (i < currentSemester) {
+                semesterLayouts[i].setVisibility(View.VISIBLE);
+            } else {
+                semesterLayouts[i].setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void setProText(TextView tvname, String tvVal) {
+        tvname.setText(tvVal);
+        if (tvname == pro_clg) {
+            String tvValLower = tvVal.toLowerCase();
+            if (tvValLower.contains("excel") ||
+                    tvValLower.contains("excel engineering") ||
+                    tvValLower.contains("excel enginerring college autonomous") ||
+                    tvValLower.contains("excel enginerring college (autonomous)") ||
+                    tvValLower.contains("excel enginerring college(autonomous)") ||
+                    tvValLower.contains("excel enginerring college") ||
+                    tvValLower.contains("excel engg college") ||
+                    tvValLower.contains("eec") ||
+                    tvValLower.contains("excel engg")) {
+
+                pro_clg.setText("Excel Engineering College (Autonomous)");
+            }
+        }
+    }
 
 
     private Float getGpaFromDocument(DocumentSnapshot documentSnapshot, String key) {
@@ -254,15 +386,19 @@ public class ProfileFragment extends Fragment {
     }
 
 
-
     private void navigateToCalculatorFragment() {
-        // Create an instance of the CalculatorFragment
         CalculatorFragment calculatorFragment = new CalculatorFragment();
-
-        // Use the FragmentManager to replace the current fragment with the CalculatorFragment
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, calculatorFragment); // Change fragment_container to your actual container ID
-        transaction.addToBackStack(null); // Optional: Add to back stack if you want to navigate back
+        transaction.replace(R.id.fragment_container, calculatorFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void navigateToGraphFragment() {
+        GraphFragment profileFragment = new GraphFragment();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, profileFragment);
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 
@@ -288,17 +424,25 @@ public class ProfileFragment extends Fragment {
         tvpro8.setEnabled(enabled);
         btnLogOut.setEnabled(enabled);
 
-        // Ensure activity is attached before calling setProfileLoading
         if (getActivity() instanceof CalculatorActivity) {
             ((CalculatorActivity) getActivity()).setProfileLoading(false);
         }
     }
+    private void initializeDepartmentNames() {
+        departmentNames = new HashMap<>();
+        departmentNames.put("AIDS", "Artificial Intelligence & Data Science");
+        departmentNames.put("AERO", "Aerospace Engineering");
+        departmentNames.put("AGRI", "Agricultural Engineering");
+        departmentNames.put("BME", "Bio Medical Engineering");
+        departmentNames.put("CSE", "Computer Science and Engineering");
+        departmentNames.put("CIVIL", "Civil Engineering");
+        departmentNames.put("ECE", "Electronics and Communication Engineering");
+        departmentNames.put("EEE", "Electrical and Electronics Engineering");
+        departmentNames.put("IT", "Information Technology");
+        departmentNames.put("FT", "Food Technology");
+        departmentNames.put("MECH", "Mechanical Engineering");
+        departmentNames.put("PCT", "Petroleum Chemical Technology");
+        departmentNames.put("SF", "Safety & Fire");
+         }
 
-    private void showExitDialogFromFragment() {
-        // Ensure the fragment is attached to an activity that extends BaseActivity
-        if (getActivity() instanceof BaseActivity) {
-            BaseActivity baseActivity = (BaseActivity) getActivity();
-            baseActivity.showExitConfirmationDialog();  // Call the method from BaseActivity
-        }
-    }
 }

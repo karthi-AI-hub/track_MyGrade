@@ -8,20 +8,251 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/pro_photo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/profile"
+            android:text="KARTHIKEYAN S"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            />
+        <TextView
+            android:id="@+id/pro_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textSize="25sp"
+            android:textColor="@color/light_blue_900"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            />
+
+        <TextView
+            android:id="@+id/pro_clg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Excel Engineering College (Autonomous)"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:layout_marginTop="6dp"/>
+        <TextView
+            android:id="@+id/pro_dept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artificial Intelligence and Data Science, SEM-5"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Roll No :"
+                    android:padding="8dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/blue_600"
+                    android:textSize="16sp"/>
+                <TextView
+                    android:id="@+id/pro_roll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="N/A"
+                    android:textAlignment="center"
+                    android:textColor="@color/green"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reg No :"
+                    android:padding="8dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/blue_600"
+                    android:textSize="16sp"/>
+                <TextView
+                    android:id="@+id/pro_reg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="N/A"
+                    android:textAlignment="center"
+                    android:textColor="@color/green"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
 
 
         <TextView
-            android:id="@+id/tvProfileTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Profile"
+            android:text="Personal Details"
             android:textColor="@color/purple_500"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_gravity="center"
-            android:paddingBottom="6dp"/>
+            android:layout_marginTop="25dp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue_600"
+                    android:text="Date of Birth      :"
+                    android:drawableStart="@drawable/icon_birthdate"
+                    android:drawablePadding="10dp"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+
+                <TextView
+                    android:id="@+id/pro_dob"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/green"
+                    android:text="N/A"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue_600"
+                    android:text="Phone No           :"
+                    android:drawableStart="@drawable/icon_phone"
+                    android:drawablePadding="10dp"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+
+                <TextView
+                    android:id="@+id/pro_phno"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/green"
+                    android:text="N/A"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue_600"
+                    android:text="Email Id              :"
+                    android:drawableStart="@drawable/baseline_mail_24"
+                    android:drawablePadding="10dp"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_weight="1.2"
+                    android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/pro_email"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/green"
+                    android:text="N/A"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/blue_600"
+                    android:text="CGPA                   :"
+                    android:drawableStart="@drawable/icon_sem"
+                    android:drawablePadding="10dp"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+
+                <TextView
+                    android:id="@+id/pro_cgpa"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/green"
+                    android:text="N/A"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:background="?android:attr/selectableItemBackground"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
 
 
         <!--        <LinearLayout-->
@@ -53,21 +284,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CGPA Result"
-            android:textColor="@color/black"
+            android:textColor="@color/purple_500"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:paddingBottom="10dp"/>
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="10dp"/>
 
-        <!-- CGPA List -->
         <LinearLayout
             android:id="@+id/llCgpaList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="10dp"
             android:orientation="vertical">
 
-            <!-- Each semester with CGPA -->
             <LinearLayout
+                android:id="@+id/llS1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -96,6 +327,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -124,6 +356,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -152,6 +385,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -180,6 +414,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -208,6 +443,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -236,6 +472,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS7"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -264,6 +501,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llS8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -301,7 +539,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Enter GPA for semester to calculate CGPA"
-            android:textColor="@color/purple_500"
+            android:textColor="@color/light_blue_900"
             android:textSize="20sp"
             android:layout_marginTop="10dp"
             android:textStyle="bold"

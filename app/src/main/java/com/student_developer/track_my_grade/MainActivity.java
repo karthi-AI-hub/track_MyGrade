@@ -110,9 +110,10 @@ public class MainActivity extends BaseActivity {
                     String Email = document.getString("Email");
                     String RollNo = document.getString("Roll No");
                     String Password = document.getString("Password");
+                    String Cgpa = document.getString("CGPA");
 
                     if (Email != null && RollNo != null && Password != null) {
-                        String Users = "Email: " + Email + "\nRoll No: " + RollNo + "\nPassword: " + Password;
+                        String Users = "Email: " + Email + "\nRoll No: " + RollNo + "\nPassword: " + Password + "\nCGPA: " + Cgpa;
                         gpaDataList.add(Users);
                     }
                 }

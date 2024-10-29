@@ -7,7 +7,7 @@
     android:textSize="17sp"
     android:gravity="start"
     android:textColor="@color/black"
-    android:drawableStart="@drawable/baseline_person_24"
-    android:drawableEnd="@drawable/baseline_person_24"
+    android:drawableStart="@drawable/icon_course"
+    android:drawableEnd="@drawable/icon_drop"
     android:background="@color/white"
     />

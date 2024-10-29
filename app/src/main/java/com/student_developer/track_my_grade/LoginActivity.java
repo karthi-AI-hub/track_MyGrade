@@ -177,8 +177,6 @@ public class  LoginActivity extends BaseActivity {
                 setError(et_PwdReset, ERROR_INVALID_EMAIL);
                 return;
             }
-
-            // Check if the email exists in Firestore under the "GPA" collection
             db.collection("Users").whereEqualTo("Email", ReEmail).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && !task.getResult().isEmpty()) {
                     showResetEmailConfirmationDialog(ReEmail);
@@ -266,7 +264,7 @@ public class  LoginActivity extends BaseActivity {
                                     editor.putString("roll_no", rollNo);
                                     editor.apply();
 
-                                    // Now navigate to CalculatorActivity
+
                                     navigateTo(UserInputActivity.class);
                                 } else {
                                     showToast("Roll No not found.");
