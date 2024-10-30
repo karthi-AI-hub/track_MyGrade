@@ -5,11 +5,16 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_bf"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
     android:padding="16dp">
 
+    <LinearLayout
+        android:id="@+id/ll_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
     <!-- Login and Sign Up buttons at the top of the screen -->
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -22,6 +27,7 @@
             android:backgroundTint="@color/purple_500"
             android:contentDescription="Login Button"
             android:text="Login"
+            android:gravity="center"
             android:textColor="@android:color/white"
             android:layout_weight="1"
             android:layout_marginEnd="8dp" />
@@ -43,10 +49,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="LOGIN"
+        android:layout_gravity="center"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginTop="140dp" />
+        android:layout_marginTop="120dp" />
 
     <!-- Email EditText with improved UI -->
     <EditText
@@ -65,16 +72,17 @@
         android:paddingBottom="12dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/edittext_backgrouond"
-    android:inputType="textEmailAddress"
-    android:focusable="true"
-    android:focusableInTouchMode="true" />
+        android:focusable="true"
+    android:focusableInTouchMode="true"
+        android:autofillHints="emailAddress"
+        android:inputType="textEmailAddress"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp">
 
-        <!-- Password EditText -->
+
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
@@ -84,9 +92,10 @@
             android:textColor="@color/black"
             android:textColorHint="@color/gray"
             android:padding="12dp"
-            android:maxLength="10"
+            android:maxLength="15"
             android:inputType="textPassword"
             android:drawablePadding="20dp"
+            android:autofillHints="password"
             android:background="@drawable/edittext_backgrouond"/>
 
         <ImageView
@@ -104,29 +113,32 @@
 
 
     <TextView
-        android:id="@+id/forgetPassword"
+        android:id="@+id/forgetpassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Forgot Password?"
-        android:textColor="@color/black"
-        android:textSize="14sp"
+        android:text="Forgot Password"
+        android:textColor="@color/red"
+        android:textSize="16sp"
         android:layout_gravity="end"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="10dp"/>
 
-    <Button
-        android:id="@+id/btnLoginSubmit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login"
-        android:backgroundTint="@color/blue_600"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp" />
+        <!-- "Don't have an account? Sign Up" text at the bottom -->
+        <Button
+            android:id="@+id/btnLoginSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:backgroundTint="@color/blue_600"
+            android:text="Login"
+            android:textColor="@android:color/white" />
 
-    <!-- "Don't have an account? Sign Up" text at the bottom -->
-    <TextView
+        <TextView
         android:id="@+id/signUpPrompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Don't have an account? Sign Up"
         android:textColor="@color/blue_600"
         android:textSize="14sp"
@@ -137,7 +149,63 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginTop="10dp"
         android:visibility="gone"
+        android:indeterminate="false"
+        android:progressTint="@android:color/white"
+        android:theme="@style/CustomProgressBar"
         android:layout_gravity="center" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_pwreset"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+        <EditText
+            android:id="@+id/et_pwreset_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="45dp"
+            android:hint="Enter Email to reset password"
+            android:drawingCacheQuality="high"
+            android:drawablePadding="20dp"
+            android:drawableStart="@drawable/baseline_mail_24"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:inputType="textEmailAddress"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <Button
+            android:id="@+id/btn_PwReset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/blue_600"
+            android:text="RESET PASSWORD"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/backToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Don't want to reset password? Back to login"
+            android:textColor="@color/blue_600"
+            android:textSize="14sp"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
 </LinearLayout>

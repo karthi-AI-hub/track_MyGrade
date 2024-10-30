@@ -21,6 +21,26 @@
     <string name="error_network">Network error, please try again later</string>
     <string name="error_authentication_failed">Authentication failed</string>
     <string name="error_registration">Registration error: %1$s</string>
+    <string name="title_activity_user_input">UserInputActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string-array name="departments">
+        <item>Department</item>
+        <item>AIDS</item>
+        <item>AERO</item>
+        <item>AGRI</item>
+        <item>BME</item>
+        <item>CSE</item>
+        <item>CIVIL</item>
+        <item>ECE</item>
+        <item>EEE</item>
+        <item>FT</item>
+        <item>IT</item>
+        <item>MECH</item>
+        <item>PCT</item>
+        <item>SF</item>
+    </string-array>
 
 
 </resources>

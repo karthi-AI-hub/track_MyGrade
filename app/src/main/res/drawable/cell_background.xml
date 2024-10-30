@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+        <solid android:color="@android:color/white"/>
+        <corners android:radius="8dp"/> <!-- Rounded corners -->
+        <stroke android:width="2dp" android:color="@color/blue_600"/> <!-- Border color on focus -->
+        </shape>
+    </item>
+
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="@android:color/white" />
+            <corners android:radius="8dp" />
+            <stroke android:width="2dp" android:color="@color/lightGray" />
+        </shape>
+    </item>
+</selector>

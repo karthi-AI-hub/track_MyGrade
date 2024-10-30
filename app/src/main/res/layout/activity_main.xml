@@ -1,23 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:background="@drawable/gradient_bf"
-    tools:context=".MainActivity">
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/Hello"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="Admin Dashboard"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:textSize="20sp"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/purple_500"
+        android:paddingTop="16dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="10dp" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
+        android:text="Student Login"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/blue_600"
+        android:layout_marginBottom="5dp"
+        />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gradient_bf"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemTextColor="@color/blue_600"
+        app:activeIndicatorLabelPadding="20dp"
+        app:itemTextAppearanceActiveBoldEnabled="true"
+        app:itemTextAppearanceActive="@color/purple_500"
+        app:itemHorizontalTranslationEnabled="true"
+        app:compatShadowEnabled="true"
+        app:itemActiveIndicatorStyle="@color/purple_500"
+        app:itemIconTint="@color/black"/>
+</LinearLayout>

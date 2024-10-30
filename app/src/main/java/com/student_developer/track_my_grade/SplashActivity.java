@@ -3,6 +3,7 @@ package com.student_developer.track_my_grade;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,19 +13,27 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 @SuppressLint("CustomSplashScreen")
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
 
-    private static final int SPLASH_DISPLAY_LENGTH = 3000; // Initial delay for the splash screen
-    private static final int NETWORK_CHECK_INTERVAL = 2000; // Interval to check for network connectivity (2 seconds)
-
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private static final int SPLASH_DISPLAY_LENGTH = 2000;
+    private static final int NETWORK_CHECK_INTERVAL = 1000;
+    private String rollNO;
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
+    private FirebaseAuth authLogin;
+    private FirebaseFirestore db;
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable networkCheckRunnable;
 
     @Override
@@ -33,37 +42,86 @@ public class SplashActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
 
-        // Initialize views
+        // Initialize Firebase references
+        database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        myRef = database.getReference("Students");
+
+        // Retrieve roll number from SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+        rollNO = sharedPref.getString("roll_no", null);
+
+        authLogin = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        // UI Elements
         ImageView logo = findViewById(R.id.logo);
         TextView title = findViewById(R.id.titleTextView);
         ProgressBar progressBar = findViewById(R.id.progressBar);
 
-        // Start animations
+        // Animation and initial delay
         animateSplashScreen(logo, title, progressBar);
-
-        // Start network check after splash display length
-        handler.postDelayed(() -> checkNetworkAndProceed(), SPLASH_DISPLAY_LENGTH);
+        handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
     }
 
     private void checkNetworkAndProceed() {
-        // Runnable to check network connectivity periodically
         networkCheckRunnable = new Runnable() {
             @Override
             public void run() {
                 if (isNetworkConnected()) {
-                    // If connected, proceed to LoginActivity and finish SplashActivity
-                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                    finish();
+                    if (isUserLoggedIn()) {
+                        String userId = authLogin.getCurrentUser().getUid();
+                        checkIfAdmin(userId, isAdmin -> {
+                            if (isAdmin) {
+                                navigateTo(MainActivity.class);
+                            } else {
+                                Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
+                                myRef.child(rollNO).get().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult().exists()) {
+                                            navigateTo(CalculatorActivity.class);
+                                        } else {
+                                            navigateTo(UserInputActivity.class);
+                                        }
+                                    } else {
+                                        Toast.makeText(SplashActivity.this, "Error fetching data. Please try again later.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        Toast.makeText(SplashActivity.this,"User not Logged In",Toast.LENGTH_SHORT).show();
+                        navigateTo(RegisterActivity.class);
+                    }
                 } else {
-                    // Show a message about no internet and check again after a delay
                     Snackbar.make(findViewById(android.R.id.content), "No Internet. Waiting for connection...", Snackbar.LENGTH_LONG).show();
-                    handler.postDelayed(this, NETWORK_CHECK_INTERVAL); // Recheck after a delay
+                    handler.postDelayed(this, NETWORK_CHECK_INTERVAL);
                 }
             }
         };
-
-        // Start the first check immediately
         handler.post(networkCheckRunnable);
+    }
+
+
+    private boolean isUserLoggedIn() {
+        return authLogin.getCurrentUser() != null;
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
+
+    private void checkIfAdmin(String userId, OnAdminCheckListener listener) {
+        db.collection("Admins").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> listener.onAdminCheck(documentSnapshot.exists()))
+                .addOnFailureListener(e -> Toast.makeText(SplashActivity.this, "Failed to check admin status", Toast.LENGTH_SHORT).show());
+    }
+
+    private void navigateTo(Class<?> activityClass) {
+        startActivity(new Intent(SplashActivity.this, activityClass));
+        overridePendingTransition(0, 0);
+        finish();
     }
 
     private void animateSplashScreen(ImageView logo, TextView title, ProgressBar progressBar) {
@@ -71,7 +129,6 @@ public class SplashActivity extends AppCompatActivity {
         title.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
 
-        // Logo animation
         logo.setScaleX(0f);
         logo.setScaleY(0f);
         logo.animate()
@@ -83,7 +140,6 @@ public class SplashActivity extends AppCompatActivity {
                 .withStartAction(() -> logo.setVisibility(View.VISIBLE))
                 .start();
 
-        // Title animation
         title.setTranslationY(100f);
         title.animate()
                 .translationY(0f)
@@ -93,9 +149,8 @@ public class SplashActivity extends AppCompatActivity {
                 .withStartAction(() -> title.setVisibility(View.VISIBLE))
                 .start();
 
-        // Progress bar animation
-        progressBar.setAlpha(0f); // Start with alpha 0
-        progressBar.setVisibility(View.VISIBLE); // Make it visible before animating
+        progressBar.setAlpha(0f);
+        progressBar.setVisibility(View.VISIBLE);
         progressBar.animate()
                 .alpha(1f)
                 .setDuration(800)
@@ -103,18 +158,20 @@ public class SplashActivity extends AppCompatActivity {
                 .start();
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Remove the network check runnable when activity is destroyed to avoid memory leaks
         if (handler != null && networkCheckRunnable != null) {
             handler.removeCallbacks(networkCheckRunnable);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        showExitConfirmationDialog();
+    }
+
+    private interface OnAdminCheckListener {
+        void onAdminCheck(boolean isAdmin);
     }
 }

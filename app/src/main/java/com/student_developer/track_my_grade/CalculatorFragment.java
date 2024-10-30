@@ -1,5 +1,6 @@
 package com.student_developer.track_my_grade;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.content.Context;
@@ -20,23 +21,30 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CalculatorFragment extends Fragment {
@@ -53,17 +61,22 @@ public class CalculatorFragment extends Fragment {
     LinearLayout ll_results;
     LinearLayout ll_SvSem;
     LinearLayout llconfirmRoll;
-    String rollno;// New container for subject marks
-
+    String rollno;
+    String rollNO;
+    int sem;
     float gpa;
+
+    String noOfSubjects;
+    int numberOfSubjects, saveToSem;
+    List<List<Subject>> allSemesters;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calculator, container, false);
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        String rollNO = sharedPref.getString("roll_no", null);
-
+        rollNO = sharedPref.getString("roll_no", null);
+        sem = sharedPref.getInt("current_sem", 1);
 
         FirebaseFirestore.setLoggingEnabled(true);
 
@@ -100,7 +113,6 @@ public class CalculatorFragment extends Fragment {
         }
 
 
-        // Initialize UI components
         tv_gpa_result = view.findViewById(R.id.tv_gpa_res);
         etNoOfSubs = view.findViewById(R.id.et_no_of_subjects);
         etNoOfSubs.requestFocus();
@@ -124,18 +136,17 @@ public class CalculatorFragment extends Fragment {
             hideKeyboard(v);
             rollno = etConfirmRoll.getText().toString().trim().toUpperCase();
 
-            if (TextUtils.isEmpty(rollno )) {
+            if (TextUtils.isEmpty(rollno)) {
                 etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etConfirmRoll.requestFocus();
-            }else if(!rollno.equals(rollNO)){
+            } else if (!rollno.equals(rollNO)) {
                 etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etConfirmRoll.setError("Roll No does not match");
                 etConfirmRoll.requestFocus();
-            }
-            else if(rollno.length()<7 ||rollno.length()>9 ){
+            } else if (rollno.length() < 7 || rollno.length() > 9) {
                 etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etConfirmRoll.requestFocus();
-            }else {
+            } else {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 // Check if a document with the roll number exists in the 'Users' collection
                 db.collection("Users")
@@ -156,6 +167,7 @@ public class CalculatorFragment extends Fragment {
                                         // If the 'Roll No' doesn't match
                                         etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                         Toast.makeText(requireContext(), "Roll No does not match", Toast.LENGTH_SHORT).show();
+
                                     }
                                 } else {
                                     // If no document with that Roll No exists
@@ -177,27 +189,23 @@ public class CalculatorFragment extends Fragment {
 
         btnsvToSem.setOnClickListener((View v) -> {
             hideKeyboard(v);
-
-            // Check if the EditText is empty
             String semesterInput = etsvToSem.getText().toString().trim();
             if (TextUtils.isEmpty(semesterInput)) {
                 etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etsvToSem.requestFocus();
             } else {
-                // Safely parse the input to an integer
-                int saveToSem = Integer.parseInt(semesterInput);
 
-                // Check if the semester number is within a valid range
-                if (saveToSem > 0 && saveToSem <= 8) {
+                saveToSem = Integer.parseInt(semesterInput);
+
+                if (saveToSem > 0 && saveToSem <= sem) {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
-
-                    // Save GPA and show success message
                     saveGpa(saveToSem, gpa, rollno);
+                    saveAllSubjects(saveToSem);
                     tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
                 } else {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                     etsvToSem.requestFocus();
-                    Toast.makeText(requireContext(), "Please enter a semester number between 1 and 8", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Not eligible to set GPA in SEM-" + saveToSem, Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -213,7 +221,8 @@ public class CalculatorFragment extends Fragment {
         });
         btnGenerateSubs.setOnClickListener(v -> {
             hideKeyboard(v);
-            String noOfSubjects = etNoOfSubs.getText().toString().trim();
+            noOfSubjects = etNoOfSubs.getText().toString().trim();
+
 
             if (TextUtils.isEmpty(noOfSubjects)) {
                 etNoOfSubs.setError("Please enter the number of subjects");
@@ -222,29 +231,25 @@ public class CalculatorFragment extends Fragment {
             }
 
             try {
-                int numberOfSubjects = Integer.parseInt(noOfSubjects);
+                numberOfSubjects = Integer.parseInt(noOfSubjects);
                 if (numberOfSubjects <= 0 || numberOfSubjects > 11) {
                     etNoOfSubs.setError("Your input is not valid");
                     etNoOfSubs.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                     return;
                 }
 
-                // Remove any previously generated views
                 ll_subjects_container.removeAllViews();
                 ll_no_of_sub.setVisibility(View.GONE);
                 ll_results.setVisibility(View.GONE);
                 ll_subjects_container.setVisibility(View.VISIBLE);
                 sv_containers.setVisibility(View.VISIBLE);
 
-                // Add a row with the labels Subject Name, CR, GP
                 addSubjectLabels();
 
-                // Dynamically create 'n' subject details
-                for (int i = 0; i < numberOfSubjects; i++) {
-                    createSubjectDetailView(i + 1);
+                for (int i = 1; i <= numberOfSubjects; i++) {
+                    createSubjectDetailView(i);
                 }
 
-                // Add a button at the bottom to process the inputs
                 addCalculateButton();
 
             } catch (NumberFormatException e) {
@@ -253,17 +258,22 @@ public class CalculatorFragment extends Fragment {
             }
         });
 
+
         return view;
+
     }
 
+
     private void createSubjectDetailView(int subjectNumber) {
-        // Create a new LinearLayout for subject details
         LinearLayout llSubjectDetail = new LinearLayout(requireContext());
-        llSubjectDetail.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, WRAP_CONTENT));
+        LinearLayout.LayoutParams llparam = new LinearLayout.LayoutParams(
+                MATCH_PARENT, WRAP_CONTENT);
+        llparam.setMargins(0,0,0,0);
+        llSubjectDetail.setLayoutParams(llparam);
+        llSubjectDetail.setPadding(40, 20, 40, 20);
         llSubjectDetail.setOrientation(LinearLayout.HORIZONTAL);
 
-        // Subject Name EditText
+
         EditText etSubjectName = new EditText(requireContext());
 
 
@@ -271,15 +281,17 @@ public class CalculatorFragment extends Fragment {
         etSubjectName.setTag("sub" + subjectNumber);
 
         LinearLayout.LayoutParams subjectNameParams = new LinearLayout.LayoutParams(
-                WRAP_CONTENT, WRAP_CONTENT);
-        subjectNameParams.setMargins(0, convertDpToPx(10), convertDpToPx(30), 0); // marginTop 10dp and marginEnd 30dp
+                0, WRAP_CONTENT,1f);
+        subjectNameParams.setMargins(0,0,0,0);
         etSubjectName.setLayoutParams(subjectNameParams);
         etSubjectName.setHint("Subject " + subjectNumber);
+        etSubjectName.setTextSize(16);
+        etSubjectName.setPadding(20, 20, 0, 20);
+        etSubjectName.setHintTextColor(ContextCompat.getColor(getContext(), R.color.gray));
         etSubjectName.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
-        etSubjectName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
+        etSubjectName.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.cell_background));
         etSubjectName.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        etSubjectName.setPadding(convertDpToPx(10), convertDpToPx(10), convertDpToPx(10), convertDpToPx(10)); // Padding 10dp
-        etSubjectName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); // Text alignment center
+         etSubjectName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         // CR EditText
         EditText etCr = new EditText(requireContext());
@@ -289,15 +301,18 @@ public class CalculatorFragment extends Fragment {
         etCr.setTag("cr" + subjectNumber);
 
         LinearLayout.LayoutParams crParams = new LinearLayout.LayoutParams(
-                WRAP_CONTENT, WRAP_CONTENT);
-        crParams.setMargins(0, convertDpToPx(10), 0, 0); // marginTop 10dp
+                0, WRAP_CONTENT,1f);
+        crParams.setMargins(0,0,0,0);
         etCr.setLayoutParams(crParams);
         etCr.setHint("Enter CR");
+        etCr.setTextSize(16);
+        etCr.setHintTextColor(ContextCompat.getColor(getContext(), R.color.gray));
         etCr.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
-        etCr.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
+        etCr.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.cell_background));
         etCr.setInputType(InputType.TYPE_CLASS_NUMBER);
-        etCr.setPadding(convertDpToPx(10), convertDpToPx(10), convertDpToPx(10), convertDpToPx(10)); // Padding 10dp
-        etCr.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); // Text alignment center
+        etCr.setPadding(20, 20, 0, 20);
+        etSubjectName.setHintTextColor(ContextCompat.getColor(getContext(), R.color.gray));
+        etCr.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         // GP EditText
         EditText etGp = new EditText(requireContext());
@@ -307,104 +322,89 @@ public class CalculatorFragment extends Fragment {
         etGp.setTag("gp" + subjectNumber);
 
         LinearLayout.LayoutParams gpParams = new LinearLayout.LayoutParams(
-                WRAP_CONTENT, WRAP_CONTENT);
-        gpParams.setMargins(convertDpToPx(30), convertDpToPx(10), 0, 0); // marginTop 10dp and marginStart 30dp
+                0, WRAP_CONTENT,1f);
+        gpParams.setMargins(0,0,0,0);
         etGp.setLayoutParams(gpParams);
         etGp.setHint("Enter GP");
+        etGp.setTextSize(16);
+        etGp.setHintTextColor(ContextCompat.getColor(getContext(), R.color.gray));
         etGp.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
-        etGp.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
+        etGp.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.cell_background));
         etGp.setInputType(InputType.TYPE_CLASS_NUMBER);
-        etGp.setPadding(convertDpToPx(10), convertDpToPx(10), convertDpToPx(10), convertDpToPx(10)); // Padding 10dp
-        etGp.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); // Text alignment center
+        etGp.setPadding(20, 20, 0, 20);
+        etGp.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         // Add EditTexts to the LinearLayout
         llSubjectDetail.addView(etSubjectName);
         llSubjectDetail.addView(etCr);
         llSubjectDetail.addView(etGp);
 
-        // Add the subject detail layout to the container
         ll_subjects_container.addView(llSubjectDetail);
     }
 
     private void addSubjectLabels() {
-        LinearLayout llLabels = new LinearLayout(requireContext());
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        layoutParams.setMargins(0, 0, 0, 20); // Set margin bottom to 20dp
-        llLabels.setLayoutParams(layoutParams);
-        llLabels.setOrientation(LinearLayout.HORIZONTAL);
-        llLabels.setGravity(Gravity.CENTER); // Center the content horizontally
+        TableRow headerRow = new TableRow(getContext());
+        headerRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.light_violet, null));
+        headerRow.setPadding(12, 12, 12, 12);
 
+        String[] headers = {"Sub Name", "CR" , "GP"};
+        for (String headerText : headers) {
+            TextView headerTitle = new TextView(getContext());
+            headerTitle.setText(headerText);
+            headerTitle.setTextSize(16);
+            headerTitle.setTextColor(ResourcesCompat.getColor(getResources(), R.color.white, null));
+            headerTitle.setTypeface(Typeface.DEFAULT_BOLD);
+            headerTitle.setPadding(0, 20, 0, 8);
+            headerTitle.setGravity(Gravity.CENTER);
+            TableRow.LayoutParams params = new TableRow.LayoutParams(
+                    0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+            params.setMargins(0,0,0,10);
+            headerTitle.setLayoutParams(params);
+            headerRow.addView(headerTitle);
+        }
+        ll_subjects_container.addView(headerRow);
 
-        // Subject Name Label
-        TextView tvSubjectLabel = new TextView(requireContext());
-        LinearLayout.LayoutParams subjectLabelParams = new LinearLayout.LayoutParams(
-                0, WRAP_CONTENT, 1f);
-        subjectLabelParams.setMargins(convertDpToPx(15), convertDpToPx(16), convertDpToPx(20), convertDpToPx(16));
-        tvSubjectLabel.setLayoutParams(subjectLabelParams);
-        tvSubjectLabel.setText("Subject Name");
-        tvSubjectLabel.setTextSize(18);
-        tvSubjectLabel.setTypeface(null, Typeface.BOLD);  // Set text style to bold
-        tvSubjectLabel.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));  // Set text color to black
-
-        // CR Label
-        TextView tvCrLabel = new TextView(requireContext());
-        LinearLayout.LayoutParams crLabelParams = new LinearLayout.LayoutParams(
-                0, WRAP_CONTENT, 1f);
-        crLabelParams.setMargins(convertDpToPx(40), convertDpToPx(16), convertDpToPx(0), convertDpToPx(16));
-        tvCrLabel.setLayoutParams(crLabelParams);
-        tvCrLabel.setText("CR");
-        tvCrLabel.setTextSize(18);
-        tvCrLabel.setTypeface(null, Typeface.BOLD);
-        tvCrLabel.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-
-        // GP Label
-        TextView tvGpLabel = new TextView(requireContext());
-        LinearLayout.LayoutParams gpLabelParams = new LinearLayout.LayoutParams(
-                0, WRAP_CONTENT, 1f);
-        gpLabelParams.setMargins(convertDpToPx(30), convertDpToPx(16), convertDpToPx(0), convertDpToPx(16));
-        tvGpLabel.setLayoutParams(gpLabelParams);
-        tvGpLabel.setText("GP");
-        tvGpLabel.setTextSize(18);
-        tvGpLabel.setTypeface(null, Typeface.BOLD);
-        tvGpLabel.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-
-        // Add Labels to the LinearLayout
-        llLabels.addView(tvSubjectLabel);
-        llLabels.addView(tvCrLabel);
-        llLabels.addView(tvGpLabel);
-
-        // Add the labels layout to the container
-        ll_subjects_container.addView(llLabels);
     }
 
     private void addCalculateButton() {
         Button btnCalculate = new Button(requireContext());
         LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, WRAP_CONTENT);
-        buttonLayoutParams.setMargins(0, convertDpToPx(20), 0, 0); // Set margin top as 20dp
+        buttonLayoutParams.setMargins(0, 0, 0, 0);
         btnCalculate.setLayoutParams(buttonLayoutParams);
         btnCalculate.setText("Calculate GPA");
+        btnCalculate.setTextSize(16);
         btnCalculate.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.blue_600));
         btnCalculate.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
         btnCalculate.setPadding(20, 20, 20, 20);
-        btnCalculate.setGravity(Gravity.CENTER); // Center the text in the button
+        btnCalculate.setGravity(Gravity.CENTER);
 
 
-        // Add a click listener for the button to process the inputs
         btnCalculate.setOnClickListener(v -> {
-            if (isInputValid()) {// Check if all inputs are valid
+            if (isInputValid()) {
                 hideKeyboard(v);
                 calculate();
-                // If valid, perform the calculation
             }
         });
 
-
-        // Add the button to the container
         ll_subjects_container.addView(btnCalculate);
+    }
+
+    private List<Subject> collectSubject() {
+        List<Subject> subjects = new ArrayList<>();
+        for (int i = 1; i <= numberOfSubjects; i++) {
+            View subjectDetailView = ll_subjects_container.getChildAt(i);
+            EditText etSubjectName = subjectDetailView.findViewWithTag("sub" + (i));
+            EditText etCr = subjectDetailView.findViewWithTag("cr" + (i));
+            EditText etGp = subjectDetailView.findViewWithTag("gp" + (i));
+
+            String subjectName = etSubjectName.getText().toString();
+            String credit = etCr.getText().toString();
+            String gradePoint = etGp.getText().toString();
+
+            subjects.add(new Subject(subjectName, credit, gradePoint));
+        }
+        return subjects;
     }
 
     private void hideKeyboard(View view) {
@@ -434,7 +434,7 @@ public class CalculatorFragment extends Fragment {
                             editText.requestFocus();
                             return false; // Return false if any EditText is empty
                         } else {
-                            editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
+                            editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.cell_background));
                         }
 
                         // Validate GP (should be 10 or less)
@@ -482,6 +482,8 @@ public class CalculatorFragment extends Fragment {
 
     private void calculate() {
         // Variables to hold the subject names, credit hours, and grade points
+
+        collectSubject();
         String[] subjectNames = new String[ll_subjects_container.getChildCount()];
         int[] creditHours = new int[ll_subjects_container.getChildCount()];
         float[] gradePoints = new float[ll_subjects_container.getChildCount()];
@@ -506,8 +508,10 @@ public class CalculatorFragment extends Fragment {
             }
         }
 
-        // Now you can use subjectNames, creditHours, and gradePoints for your CGPA calculation logic
-        // For example:
+        System.out.println(subjectNames);
+        System.out.println(creditHours);
+        System.out.println(gradePoints);
+
         ll_subjects_container.setVisibility(View.GONE);
         ll_results.setVisibility(View.VISIBLE);
         gpa = calculateCGPA(creditHours, gradePoints);
@@ -524,8 +528,9 @@ public class CalculatorFragment extends Fragment {
             totalCreditHours += creditHours[i];
             totalGradePoints += creditHours[i] * gradePoints[i];
         }
-        return totalCreditHours > 0 ? totalGradePoints / totalCreditHours : 0; // Avoid division by zero
+        return totalCreditHours > 0 ? totalGradePoints / totalCreditHours : 0;
     }
+
     private void saveGpa(int intsem, float gpa, String rollnoInput) {
         ll_SvSem.setVisibility(View.GONE);  // Hide the layout
         rollnoInput = rollnoInput.toUpperCase();
@@ -586,7 +591,6 @@ public class CalculatorFragment extends Fragment {
                                         });
                             }
                         } else {
-                            // Document doesn't exist, create a new document with the semester and GPA
                             docRef.set(userData)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(requireContext(), "GPA saved successfully for new document", Toast.LENGTH_SHORT).show();
@@ -622,8 +626,42 @@ public class CalculatorFragment extends Fragment {
     }
 
 
+    private void showExitDialogFromFragment() {
+        if (getActivity() instanceof BaseActivity) {
+            BaseActivity baseActivity = (BaseActivity) getActivity();
+            baseActivity.showExitConfirmationDialog();  // Call the method from BaseActivity
+        }
+    }
+
+    public void saveAllSubjects(int saveToSem) {
+        List<Subject> subjectList = collectSubject();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Define the target semester document path based on saveToSem
+        String semesterDocumentPath = "GPA/" + rollNO + "/Semester/SEM - " + saveToSem;
+
+        db.document(semesterDocumentPath).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        db.document(semesterDocumentPath)
+                                .update("subjects", subjectList)
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Updated Semester " + saveToSem + " data successfully!"))
+                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to update semester data", e));
+                    } else {
+                        // Create new document for the semester if it doesn't exist
+                        db.document(semesterDocumentPath)
+                                .set(Collections.singletonMap("subjects", subjectList))
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Created Semester " + saveToSem + " data successfully!"))
+                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to create semester data", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
+    }
 
 }
+
+
+
 
 
 

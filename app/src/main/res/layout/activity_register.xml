@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/gradient_bf"
     android:orientation="vertical"
     android:gravity="center_horizontal"
@@ -56,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Roll No"
-        android:maxLength="8"
+        android:maxLength="20"
         android:drawableStart="@drawable/baseline_person_24"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
@@ -64,18 +62,20 @@
         android:layout_marginTop="16dp"
         android:drawablePadding="20dp"
         android:background="@drawable/edittext_backgrouond"
-    android:inputType="text" />
+    android:inputType="none"
+        android:maxLines="1"/>
 
-    <!-- Email EditText -->
     <EditText
         android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="emailAddress"
         android:hint="Email"
         android:drawableStart="@drawable/baseline_mail_24"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
         android:padding="12dp"
+        android:maxLines="1"
         android:layout_marginTop="16dp"
         android:drawablePadding="20dp"
         android:background="@drawable/edittext_backgrouond"
@@ -98,11 +98,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:autofillHints="password"
             android:drawableStart="@drawable/baseline_lock_24"
             android:textColor="@color/black"
             android:textColorHint="@color/gray"
             android:padding="12dp"
-            android:maxLength="10"
+            android:maxLength="15"
+            android:maxLines="1"
             android:inputType="textPassword"
             android:drawablePadding="20dp"
             android:background="@drawable/edittext_backgrouond"/>
@@ -148,12 +150,14 @@
         android:drawableStart="@drawable/baseline_lock_24"
         android:textColor="@color/black"
         android:textColorHint="@color/gray"
-        android:maxLength="10"
+        android:maxLength="15"
         android:padding="12dp"
         android:layout_marginTop="16dp"
         android:drawablePadding="20dp"
+        android:maxLines="1"
         android:background="@drawable/edittext_backgrouond"
-        android:inputType="textVisiblePassword"/>
+        android:inputType="textPassword"
+        android:autofillHints="password"/>
 
     <Button
         android:id="@+id/btnRegisterSubmit"
@@ -176,13 +180,17 @@
         android:textSize="14sp"
         android:layout_marginTop="24dp" />
 
-
-    <!-- Optional ProgressBar for loading state -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginTop="10dp"
         android:visibility="gone"
+        android:indeterminate="false"
+        android:progressTint="@android:color/white"
+        android:theme="@style/CustomProgressBar"
         android:layout_gravity="center" />
 
 </LinearLayout>

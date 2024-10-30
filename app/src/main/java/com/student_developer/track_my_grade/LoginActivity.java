@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.MeshSpecification;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -16,13 +17,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
+import com.student_developer.track_my_grade.*;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,10 +32,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class LoginActivity extends AppCompatActivity {
+public class  LoginActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
 
@@ -49,9 +52,17 @@ public class LoginActivity extends AppCompatActivity {
     private static String rollNO;
     private EditText etEmail, etPassword;
     private ProgressBar progressBar;
-    private Button btnSubmitLogin, btnMvToLogin;
+    private Button btnSubmitLogin;
+    private Button btnMvToLogin;
+    private EditText et_PwdReset;
     private FirebaseAuth authLogin;
+    private FirebaseFirestore db;
     private ImageView ivTogglePassword;
+    private TextView forgetPassword;
+    LinearLayout ll_Container,ll_Pwreset;
+    String ReEmail;
+    TextView BackToLogin;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-
+        showToast("You Can Login Now");
         initializeUIElements();
         setOnClickListeners();
         etEmail.requestFocus();
@@ -72,8 +83,15 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnSubmitLogin = findViewById(R.id.btnLoginSubmit);
         btnMvToLogin = findViewById(R.id.btnSignUp);
+        forgetPassword = findViewById(R.id.forgetpassword);
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
+        forgetPassword = findViewById(R.id.forgetpassword);
+        et_PwdReset = findViewById(R.id.et_pwreset_email);
+        BackToLogin = findViewById(R.id.backToLogin);
+        ll_Container = findViewById(R.id.ll_container);
+        ll_Pwreset = findViewById(R.id.ll_pwreset);
         authLogin = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         if (!isNetworkConnected()) {
             showErrorMessage(ERROR_NO_INTERNET);
@@ -81,30 +99,129 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        setContentDescriptions();
+
     }
 
-    private void setContentDescriptions() {
-
-        etEmail.setContentDescription("Email input field");
-        etPassword.setContentDescription("Password input field");
-        btnSubmitLogin.setContentDescription("Login button");
-        btnMvToLogin.setContentDescription("Navigate to register");
-    }
 
     private void setOnClickListeners() {
+
+        BackToLogin.setOnClickListener(v->{hideKeyboard(BackToLogin);
+            ll_Container.setVisibility(View.VISIBLE);
+            ll_Pwreset.setVisibility(View.GONE);});
+
+        forgetPassword.setOnClickListener(v ->{
+            hideKeyboard(forgetPassword);
+            ll_Container.setVisibility(View.GONE);
+            ll_Pwreset.setVisibility(View.VISIBLE);
+            validateEmailAndSendReset();});
+
         btnMvToLogin.setOnClickListener(v -> {hideKeyboard(btnSubmitLogin);navigateTo(RegisterActivity.class);});
         btnSubmitLogin.setOnClickListener(v -> {
             hideKeyboard(btnSubmitLogin);
             btnSubmitLogin.setEnabled(false);
+            handleLogin();
             loginUser();
         });
         ivTogglePassword.setOnClickListener(v -> {hideKeyboard(btnSubmitLogin);togglePasswordVisibility();});
         findViewById(R.id.signUpPrompt).setOnClickListener(v ->{hideKeyboard(btnSubmitLogin); navigateTo(RegisterActivity.class);});
     }
 
+    private void handleLogin() {
+        String adminemail = etEmail.getText().toString().trim();
+        String adminpassword = etPassword.getText().toString().trim();
+
+        if (!validateInputs(adminemail, adminpassword)) {
+            btnSubmitLogin.setEnabled(true);
+            return;
+        }
+
+        showProgressBar(true);
+
+        authLogin.signInWithEmailAndPassword(adminemail, adminpassword)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        checkIfAdmin(authLogin.getCurrentUser().getUid());
+                    }
+                });
+    }
+
+    private void checkIfAdmin(String userId) {
+        DocumentReference docRef = db.collection("Admins").document(userId);
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String role = documentSnapshot.getString("Role");
+                if ("admin".equals(role)) {
+                    navigateTo(MainActivity.class);
+                } else {
+                    showToast("You have no acces");
+                     }
+            }
+        }).addOnFailureListener(e -> {showErrorMessage("Login failed as Admin");
+              });
+    }
+
+
+
+    // Method to validate the email and check Firestore
+    private void validateEmailAndSendReset() {
+        findViewById(R.id.btn_PwReset).setOnClickListener(view -> {
+            ReEmail = et_PwdReset.getText().toString().trim();
+
+            // Validate email format
+            if (TextUtils.isEmpty(ReEmail)) {
+                setError(et_PwdReset,ERROR_EMAIL_REQUIRED);
+                return;
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(ReEmail).matches()) {
+                setError(et_PwdReset, ERROR_INVALID_EMAIL);
+                return;
+            }
+            db.collection("Users").whereEqualTo("Email", ReEmail).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                    showResetEmailConfirmationDialog(ReEmail);
+                } else {
+                   setError(et_PwdReset, "Email not found in records.");
+                     }
+            });
+        });
+    }
+
+    private void showResetEmailConfirmationDialog(String ReEmail) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Password");
+        builder.setMessage("Do you want to send a password reset link to " + ReEmail + "?");
+
+        builder.setPositiveButton("Yes", (dialog, which) -> sendResetPasswordEmail(ReEmail));
+
+        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void sendResetPasswordEmail(String email) {
+        authLogin.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                       showToast("Reset link sent to " + email);
+                        Intent emailIntent = new Intent(Intent.ACTION_MAIN);
+                        emailIntent.addCategory(Intent.CATEGORY_APP_EMAIL);
+                        emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(Intent.createChooser(emailIntent, "Open email app"));
+                    } else {
+                        String errorMessage = task.getException().getMessage();
+                        showErrorMessage("Error : "+errorMessage);
+                          }
+                });
+
+        ll_Container.setVisibility(View.VISIBLE);
+        ll_Pwreset.setVisibility(View.GONE);
+    }
+
     private void navigateTo(Class<?> targetActivity) {
         startActivity(new Intent(LoginActivity.this, targetActivity));
+        overridePendingTransition(0, 0);
         finish();
     }
 
@@ -129,7 +246,6 @@ public class LoginActivity extends AppCompatActivity {
             FirebaseUser firebaseUser = authLogin.getCurrentUser();
 
             if (firebaseUser.isEmailVerified()) {
-                // Fetch the Roll No from Firestore
                 String email = firebaseUser.getEmail();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -148,8 +264,8 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.putString("roll_no", rollNo);
                                     editor.apply();
 
-                                    // Now navigate to CalculatorActivity
-                                    navigateTo(CalculatorActivity.class);
+
+                                    navigateTo(UserInputActivity.class);
                                 } else {
                                     showToast("Roll No not found.");
                                 }
@@ -180,7 +296,7 @@ public class LoginActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_APP_EMAIL);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -307,26 +423,27 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        if (authLogin.getCurrentUser() != null) {
+//            SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+//            String rollNo = sharedPref.getString("roll_no", null);
+//
+//            if (rollNo != null) {
+//                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Already Logged In! Roll No: " + rollNo, Snackbar.LENGTH_SHORT).show();
+//                LoginActivity.rollNO = rollNo; // Save it to the static variable for future use
+//
+//            } else {
+//                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Roll No not found!", Snackbar.LENGTH_SHORT).show();
+//            }
+//        } else {
+//            Snackbar.make(LoginActivity.this.getCurrentFocus(),"You Can Login Now!", Snackbar.LENGTH_SHORT).show();
+//        }
+//    }
+
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (authLogin.getCurrentUser() != null) {
-            SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-            String rollNo = sharedPref.getString("roll_no", null);
-
-            if (rollNo != null) {
-                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Already Logged In! Roll No: " + rollNo, Snackbar.LENGTH_SHORT).show();
-                LoginActivity.rollNO = rollNo; // Save it to the static variable for future use
-
-                // Now navigate to CalculatorActivity
-                navigateTo(CalculatorActivity.class);
-                finish();
-            } else {
-                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Roll No not found!", Snackbar.LENGTH_SHORT).show();
-            }
-        } else {
-            Snackbar.make(LoginActivity.this.getCurrentFocus(),"You Can Login Now!", Snackbar.LENGTH_SHORT).show();
-        }
+    public void onBackPressed() {
+        showExitConfirmationDialog(); // Call the method to show the dialog
     }
-
 }

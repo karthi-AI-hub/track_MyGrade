@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_bf"
+    android:fillViewport="true"
+    tools:context=".UserInputActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/UserInformatinTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STUDENT DETAILS"
+            android:layout_gravity="center"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginTop="60dp" />
+
+        <EditText
+            android:id="@+id/ur_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:drawableStart="@drawable/baseline_person_24"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="40"
+            android:maxLines="1"
+            android:inputType="textPersonName"/>
+
+        <EditText
+            android:id="@+id/ur_reg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Reg No"
+            android:drawableStart="@drawable/icon_reg"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="30"
+            android:imeOptions="actionNext"
+            android:maxLines="1"/>
+
+        <EditText
+            android:id="@+id/ur_dob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date of Birth (Eg:01-JAN-2000)"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/icon_birthdate"
+            android:drawableEnd="@drawable/icon_calender"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="11"
+            android:inputType="number"
+            android:paddingEnd="20dp"
+            />
+
+        <EditText
+            android:id="@+id/ur_ph"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Phone no"
+            android:drawableStart="@drawable/icon_phone"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="13"
+            android:maxLines="1"
+            android:inputType="phone"/>
+
+        <EditText
+            android:id="@+id/ur_clg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="College Name"
+            android:drawableStart="@drawable/icon_clg"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="70"
+            android:maxLines="1"
+            android:inputType="textNoSuggestions"/>
+
+
+        <Spinner
+            android:id="@+id/ur_dept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:textColor="@color/black"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_backgrouond"/>
+
+        <EditText
+            android:id="@+id/ur_sem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Current Semester"
+            android:drawableStart="@drawable/icon_sem"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="20dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:inputType="number"/>
+
+
+
+
+        <Button
+            android:id="@+id/btn_ur_Submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/blue_600"
+            android:text="SUBMIT"
+            android:textColor="@android:color/white"
+            />
+
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:layout_marginTop="10dp"
+            android:visibility="invisible"
+            android:indeterminate="false"
+            android:progressTint="@color/white"
+            android:theme="@style/CustomProgressBar"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=" * Note: Once you Submit your details, You not able to edit."
+            android:textColor="#F40404"
+            android:textStyle="normal"
+            android:textSize="14sp"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center" />
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_user_data"
+        android:icon="@drawable/baseline_person_24"
+        android:checked="false"
+        android:title="User Data" />
+
+    <item
+        android:id="@+id/nav_second_button"
+        android:icon="@drawable/baseline_home_24"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_collection_gpa"
+        android:icon="@drawable/graph"
+    android:title="Collection GPA" />
+</menu>

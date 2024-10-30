@@ -2,7 +2,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:gravity="center"
     android:background="@drawable/gradient_bf">
 
@@ -47,6 +46,7 @@
             android:layout_gravity="center"
             android:padding="12dp"
             android:textColor="@color/white"
+            android:backgroundTint="@color/blue_600"
             android:layout_marginTop="20dp"
             android:text="Save to Profile" />
 
@@ -59,6 +59,7 @@
     android:id="@+id/ll_confirm_roll"
     android:layout_gravity="center"
     android:gravity="center"
+        android:padding="16dp"
     android:layout_marginTop="35dp"
         android:visibility="gone">
         <TextView
@@ -101,10 +102,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NOTE : Enter yours own Roll No."
-        android:textColor="@color/red"
+        android:text=" * NOTE : Enter yours own Roll No."
+        android:textColor="#F40404"
         android:textSize="14sp"
-        android:textStyle="italic"
+        android:textStyle="normal"
         android:layout_marginTop="10dp"
         android:layout_gravity="start"/>
 </LinearLayout>
@@ -118,6 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:padding="16dp"
         android:orientation="vertical"
         android:layout_marginTop="35dp"
         android:visibility="gone">
@@ -137,7 +139,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- EditText for user to input number of subjects -->
             <EditText
                 android:id="@+id/et_svToSem"
                 android:layout_width="0dp"
@@ -171,9 +172,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Note: You can change your Semester GPA whenever you want."
-            android:textColor="@color/red"
-            android:textStyle="italic"
+            android:text=" * Note: You can change your Semester GPA whenever you want."
+            android:textColor="#F40404"
+            android:textStyle="normal"
             android:textSize="14sp"
             android:layout_marginTop="12dp" />
     </LinearLayout>
@@ -182,6 +183,7 @@
         android:id="@+id/ll_no_of_subs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="16dp"
         android:orientation="vertical">
 
         <!-- Header text -->
@@ -236,9 +238,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Note: Enter only the number of subjects you CLEARED."
-            android:textColor="@color/red"
-            android:textStyle="italic"
+            android:text=" * Note: Enter only the number of subjects you CLEARED."
+            android:textColor="#F40404"
+            android:textStyle="normal"
             android:textSize="14sp"
             android:layout_marginTop="12dp"
             android:layout_gravity="center" />
@@ -250,7 +252,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="10dp"
+        android:elevation="22dp"
+        android:screenReaderFocusable="true"
         android:visibility="gone">
 
         <LinearLayout
@@ -258,6 +261,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginHorizontal="6dp"
+            android:background="@color/lightGray"
             android:layout_gravity="center">
         </LinearLayout>
     </ScrollView>
