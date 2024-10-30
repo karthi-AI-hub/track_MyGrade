@@ -40,8 +40,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-
 
 
 
@@ -60,6 +58,7 @@ public class ProfileFragment extends Fragment {
     Double meanGPA;
     int currentSemester;
     LinearLayout[] semesterLayouts;
+    SharedPreferences sharedPref;
     private Map<String, String> departmentNames;
 
 
@@ -95,7 +94,7 @@ public class ProfileFragment extends Fragment {
                 view.findViewById(R.id.llS8)
         };
 
-        SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+        sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
         progressBar = view.findViewById(R.id.progressBar);
@@ -160,10 +159,9 @@ public class ProfileFragment extends Fragment {
             textView.setOnClickListener(view1 -> {
                 String text = textView.getText().toString();
                 if (!text.equals("N/A")){
-                    navigateToCalculatorFragment();
-                }else
                     navigateToGraphFragment();
-
+                }else
+                    navigateToCalculatorFragment();
             });
         }
 
@@ -312,6 +310,11 @@ public class ProfileFragment extends Fragment {
                     setProText(pro_phno, phno);
                     pro_dept.setText(fullDept + ", SEM-" + sem);
 
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putInt("current_sem", currentSemester);
+                    editor.apply();
+
+
                 } else {
                     Toast.makeText(getActivity(), "No Data Found.", Toast.LENGTH_SHORT).show();
 
@@ -350,7 +353,7 @@ public class ProfileFragment extends Fragment {
                     tvValLower.contains("eec") ||
                     tvValLower.contains("excel engg")) {
 
-                pro_clg.setText("Excel Engineering College (Autonomous)");
+                pro_clg.setText("EXCEL ENGINEERING COLLEGE");
             }
         }
     }

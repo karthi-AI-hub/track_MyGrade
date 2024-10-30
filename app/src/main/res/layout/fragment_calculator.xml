@@ -2,7 +2,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:gravity="center"
     android:background="@drawable/gradient_bf">
 
@@ -60,6 +59,7 @@
     android:id="@+id/ll_confirm_roll"
     android:layout_gravity="center"
     android:gravity="center"
+        android:padding="16dp"
     android:layout_marginTop="35dp"
         android:visibility="gone">
         <TextView
@@ -119,6 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:padding="16dp"
         android:orientation="vertical"
         android:layout_marginTop="35dp"
         android:visibility="gone">
@@ -138,7 +139,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- EditText for user to input number of subjects -->
             <EditText
                 android:id="@+id/et_svToSem"
                 android:layout_width="0dp"
@@ -183,6 +183,7 @@
         android:id="@+id/ll_no_of_subs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="16dp"
         android:orientation="vertical">
 
         <!-- Header text -->
@@ -251,7 +252,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="10dp"
+        android:elevation="22dp"
+        android:screenReaderFocusable="true"
         android:visibility="gone">
 
         <LinearLayout
@@ -259,6 +261,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginHorizontal="6dp"
+            android:background="@color/lightGray"
             android:layout_gravity="center">
         </LinearLayout>
     </ScrollView>

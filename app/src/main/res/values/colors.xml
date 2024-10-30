@@ -20,4 +20,7 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
     <color name="brown">#D50000</color>
+    <color name="lightGray">#F0F0F0</color>
+    <color name="light_violet">#75629D</color>
+
 </resources>
