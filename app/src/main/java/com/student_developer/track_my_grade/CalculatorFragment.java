@@ -441,7 +441,7 @@ public class CalculatorFragment extends Fragment {
                         if (editText.getTag().toString().startsWith("gp")) {
                             try {
                                 float gpValue = Float.parseFloat(editText.getText().toString().trim());
-                                if (gpValue > 10) {
+                                if (gpValue > 10 || gpValue < 1) {
                                     Toast.makeText(requireContext(), "GP should be 10 or less", Toast.LENGTH_SHORT).show();
                                     editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                     editText.requestFocus();
@@ -459,11 +459,11 @@ public class CalculatorFragment extends Fragment {
                         if (editText.getTag().toString().startsWith("cr")) {
                             try {
                                 int crValue = Integer.parseInt(editText.getText().toString().trim());
-                                if (crValue > 10) {
+                                if (crValue > 10 || crValue < 1) {
                                     Toast.makeText(requireContext(), "CR should be 10 or less", Toast.LENGTH_SHORT).show();
                                     editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                     editText.requestFocus();
-                                    return false; // Return false if CR is more than 10
+                                    return false;
                                 }
                             } catch (NumberFormatException e) {
                                 Toast.makeText(requireContext(), "Please enter a valid number for CR", Toast.LENGTH_SHORT).show();

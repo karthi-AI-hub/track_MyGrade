@@ -82,7 +82,7 @@
                     android:text="Roll No :"
                     android:padding="8dp"
                     android:textAlignment="center"
-                    android:textColor="@color/light_violet"
+                    android:textColor="@color/purple_500"
                     android:textSize="16sp"/>
                 <TextView
                     android:id="@+id/pro_roll"
@@ -104,7 +104,7 @@
                     android:text="Reg No :"
                     android:padding="8dp"
                     android:textAlignment="center"
-                    android:textColor="@color/light_violet"
+                    android:textColor="@color/purple_500"
                     android:textSize="16sp"/>
                 <TextView
                     android:id="@+id/pro_reg"
