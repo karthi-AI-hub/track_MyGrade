@@ -43,10 +43,10 @@ public class GraphFragment extends Fragment {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPref;
+    TextView tvGraph, tvSemSubject, tvNoData;
     String rollNO ;
     LinearLayout mainContainer;
     private LineChart lineChart;
-    private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,17 +57,22 @@ public class GraphFragment extends Fragment {
 
         mainContainer = view.findViewById(R.id.main_container);
         lineChart = view.findViewById(R.id.chart);
-        progressBar = view.findViewById(R.id.progress_bar);
+        tvGraph = view.findViewById(R.id.tv_Graph);
+        tvSemSubject = view.findViewById(R.id.tv_SemDetails);
+        tvNoData = view.findViewById(R.id.tv_noData);
 
-        progressBar.setVisibility(View.VISIBLE);
-        lineChart.setVisibility(View.GONE);
 
         setupActivityViews();
 
         if (rollNO != null) {
             fetchGPAData(rollNO);
         } else {
-            progressBar.setVisibility(View.GONE);
+
+            tvNoData.setVisibility(View.GONE);
+            tvGraph.setVisibility(View.VISIBLE);
+            lineChart.setVisibility(View.VISIBLE);
+            tvGraph.setVisibility(View.VISIBLE);
+
         }
         
         loadSemesterData();
@@ -237,11 +242,19 @@ public class GraphFragment extends Fragment {
                     setupCharts(gpas);
                 }
 
-                progressBar.setVisibility(View.GONE);
+
+                tvNoData.setVisibility(View.GONE);
+                tvGraph.setVisibility(View.VISIBLE);
                 lineChart.setVisibility(View.VISIBLE);
+                tvGraph.setVisibility(View.VISIBLE);
 
             } else {
-                progressBar.setVisibility(View.GONE);
+
+                tvNoData.setVisibility(View.GONE);
+                tvGraph.setVisibility(View.VISIBLE);
+                lineChart.setVisibility(View.VISIBLE);
+                tvGraph.setVisibility(View.VISIBLE);
+
             }
         });
     }

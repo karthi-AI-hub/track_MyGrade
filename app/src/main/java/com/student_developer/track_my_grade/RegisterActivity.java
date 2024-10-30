@@ -4,8 +4,6 @@ package com.student_developer.track_my_grade;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -20,14 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -35,10 +30,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -150,7 +142,7 @@ public class RegisterActivity extends BaseActivity {
         String confirmPassword = getTrimmedText(etConfirmPassword);
 
         if (isInputValid(rollNo, email, password, confirmPassword)) {
-            if (!isNetworkConnected()) {
+            if (!Utils.isNetworkConnected(this)) {
                 Snackbar.make(findViewById(android.R.id.content), "No Internet, Please try again later to Register.", Snackbar.LENGTH_LONG).show();
                 btnRegisterSubmit.setEnabled(true);
                 return;
@@ -345,11 +337,6 @@ public class RegisterActivity extends BaseActivity {
         }
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
 
     private void showSnackbar(String string) {
         Snackbar.make(findViewById(android.R.id.content), string, Snackbar.LENGTH_SHORT).show();

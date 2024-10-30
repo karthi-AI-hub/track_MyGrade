@@ -151,17 +151,23 @@ public class ProfileFragment extends Fragment {
 
         setProText(pro_roll, rollNO);
         setProText(pro_email,email);
-        TextView[] textViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
 
         setButtonsEnabled(false);
-
-        for (TextView textView : textViews) {
+        TextView[] textViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
+        SharedPreferences sharedPref = getContext().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        for (int i = 0; i < textViews.length; i++) {
+            final int index = i;
+            TextView textView = textViews[i];
             textView.setOnClickListener(view1 -> {
                 String text = textView.getText().toString();
-                if (!text.equals("N/A")){
+                if (!text.equals("N/A")) {
+                    editor.putInt("TextViewIndex", index);
+                    editor.apply();
                     navigateToGraphFragment();
-                }else
+                } else {
                     navigateToCalculatorFragment();
+                }
             });
         }
 

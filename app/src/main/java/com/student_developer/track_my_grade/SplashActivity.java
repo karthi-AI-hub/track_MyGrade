@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,7 +65,7 @@ public class SplashActivity extends BaseActivity {
         networkCheckRunnable = new Runnable() {
             @Override
             public void run() {
-                if (isNetworkConnected()) {
+                if (Utils.isNetworkConnected(SplashActivity.this)) {
                     if (isUserLoggedIn()) {
                         String userId = authLogin.getCurrentUser().getUid();
                         checkIfAdmin(userId, isAdmin -> {
@@ -104,12 +102,6 @@ public class SplashActivity extends BaseActivity {
 
     private boolean isUserLoggedIn() {
         return authLogin.getCurrentUser() != null;
-    }
-
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
     }
 
     private void checkIfAdmin(String userId, OnAdminCheckListener listener) {

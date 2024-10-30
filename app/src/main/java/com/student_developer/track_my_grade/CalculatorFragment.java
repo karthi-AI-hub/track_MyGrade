@@ -4,13 +4,13 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,9 +31,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -41,7 +38,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +59,7 @@ public class CalculatorFragment extends Fragment {
     LinearLayout llconfirmRoll;
     String rollno;
     String rollNO;
-    int sem;
+    int sem, TextViewIndex;
     float gpa;
 
     String noOfSubjects;
@@ -77,6 +73,8 @@ public class CalculatorFragment extends Fragment {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
         sem = sharedPref.getInt("current_sem", 1);
+        TextViewIndex = sharedPref.getInt("TextViewIndex", 0);
+
 
         FirebaseFirestore.setLoggingEnabled(true);
 
@@ -102,13 +100,13 @@ public class CalculatorFragment extends Fragment {
 
             // Set visibility for specific views
             if (vProfile != null) {
-                vProfile.setVisibility(View.GONE); // Show profile view
+                vProfile.setVisibility(View.GONE);
             }
             if (vCgpa != null) {
-                vCgpa.setVisibility(View.VISIBLE); // Hide CGPA view
+                vCgpa.setVisibility(View.VISIBLE);
             }
             if (vGraph != null) {
-                vGraph.setVisibility(View.GONE); // Hide graph view
+                vGraph.setVisibility(View.GONE);
             }
         }
 
@@ -187,27 +185,59 @@ public class CalculatorFragment extends Fragment {
         });
 
 
+
         btnsvToSem.setOnClickListener((View v) -> {
-            hideKeyboard(v);
-            String semesterInput = etsvToSem.getText().toString().trim();
-            if (TextUtils.isEmpty(semesterInput)) {
-                etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
-                etsvToSem.requestFocus();
-            } else {
+            if (Utils.isNetworkAvailable(requireContext())) {
+                hideKeyboard(v);
+                String semesterInput = etsvToSem.getText().toString().trim();
 
-                saveToSem = Integer.parseInt(semesterInput);
-
-                if (saveToSem > 0 && saveToSem <= sem) {
-                    etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
-                    saveGpa(saveToSem, gpa, rollno);
-                    saveAllSubjects(saveToSem);
-                    tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
-                } else {
+                if (TextUtils.isEmpty(semesterInput)) {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                     etsvToSem.requestFocus();
-                    Toast.makeText(requireContext(), "Not eligible to set GPA in SEM-" + saveToSem, Toast.LENGTH_SHORT).show();
-                }
+                } else {
+                    saveToSem = Integer.parseInt(semesterInput);
 
+                    if (saveToSem > 0 && saveToSem <= sem) {
+                        etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
+                        saveGpa(saveToSem, gpa, rollno);
+                        saveAllSubjects(saveToSem);
+                        tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
+                    } else {
+                        etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
+                        etsvToSem.requestFocus();
+                        Toast.makeText(requireContext(), "Not eligible to set GPA in SEM-" + saveToSem, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else {
+                Utils.Snackbar(requireView(), "Network not available. Reconnecting...","long");
+                etsvToSem.setEnabled(false);
+                btnsvToSem.setEnabled(false);
+
+                // Register a network callback to detect when network reconnects
+                ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (connectivityManager != null) {
+                    connectivityManager.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback() {
+                        @Override
+                        public void onAvailable(Network network) {
+                            requireActivity().runOnUiThread(() -> {
+                                // Re-enable input once network is available
+                                etsvToSem.setEnabled(true);
+                                btnsvToSem.setEnabled(true);
+                                Utils.Snackbar(requireView(), "Network connected. Now submit your GPA","long");
+                            });
+                            // Unregister callback after reconnection
+                            connectivityManager.unregisterNetworkCallback(this);
+                        }
+
+                        @Override
+                        public void onLost(Network network) {
+                            requireActivity().runOnUiThread(() -> {
+                                etsvToSem.setEnabled(false);
+                                btnsvToSem.setEnabled(false);
+                            });
+                        }
+                    });
+                }
             }
         });
 
@@ -414,10 +444,6 @@ public class CalculatorFragment extends Fragment {
         }
     }
 
-    private int convertDpToPx(int dp) {
-        return Math.round(dp * (requireContext().getResources().getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
     private boolean isInputValid() {
         for (int i = 0; i < ll_subjects_container.getChildCount(); i++) {
             View child = ll_subjects_container.getChildAt(i);
@@ -442,10 +468,10 @@ public class CalculatorFragment extends Fragment {
                             try {
                                 float gpValue = Float.parseFloat(editText.getText().toString().trim());
                                 if (gpValue > 10 || gpValue < 1) {
-                                    Toast.makeText(requireContext(), "GP should be 10 or less", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "GP should be 0 to 10", Toast.LENGTH_SHORT).show();
                                     editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                     editText.requestFocus();
-                                    return false; // Return false if GP is more than 10
+                                    return false;
                                 }
                             } catch (NumberFormatException e) {
                                 Toast.makeText(requireContext(), "Please enter a valid number for GP", Toast.LENGTH_SHORT).show();
@@ -455,12 +481,11 @@ public class CalculatorFragment extends Fragment {
                             }
                         }
 
-                        // Validate CR (should be 10 or less)
                         if (editText.getTag().toString().startsWith("cr")) {
                             try {
                                 int crValue = Integer.parseInt(editText.getText().toString().trim());
                                 if (crValue > 10 || crValue < 1) {
-                                    Toast.makeText(requireContext(), "CR should be 10 or less", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), "CR should be 0 to 10", Toast.LENGTH_SHORT).show();
                                     editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                     editText.requestFocus();
                                     return false;
@@ -469,7 +494,7 @@ public class CalculatorFragment extends Fragment {
                                 Toast.makeText(requireContext(), "Please enter a valid number for CR", Toast.LENGTH_SHORT).show();
                                 editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                 editText.requestFocus();
-                                return false; // Return false if CR input is not a number
+                                return false;
                             }
                         }
                     }
@@ -593,7 +618,7 @@ public class CalculatorFragment extends Fragment {
                         } else {
                             docRef.set(userData)
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(requireContext(), "GPA saved successfully for new document", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(requireContext(), "GPA saved successfully", Toast.LENGTH_SHORT).show();
                                         // Navigate to ProfileFragment after successful creation
                                         navigateToProfileFragment();
                                     })

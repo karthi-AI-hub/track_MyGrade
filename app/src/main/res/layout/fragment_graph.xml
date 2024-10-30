@@ -15,6 +15,19 @@
         android:padding="8dp">
 
         <TextView
+            android:id="@+id/tv_noData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Data currently available for display."
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="280dp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:padding="10dp"/>
+
+        <TextView
+            android:id="@+id/tv_Graph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="GPA Graph over Semester :"
@@ -22,22 +35,15 @@
             android:textColor="@color/purple_500"
             android:padding="10dp"
             android:textStyle="bold"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:visibility="gone"/>
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
             android:layout_height="250dp"
             android:layout_width="match_parent"
-            android:layout_marginTop="10dp" />
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:visibility="gone"
-            android:theme="@style/CustomProgressBar" />
+            android:layout_marginTop="10dp"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/main_container"
@@ -46,6 +52,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_SemDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Subject Details :"
@@ -53,7 +60,8 @@
                 android:textColor="@color/purple_500"
                 android:padding="10dp"
                 android:textStyle="bold"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:visibility="gone"/>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/con_1"
@@ -75,5 +83,8 @@
         </androidx.cardview.widget.CardView>
 
         </LinearLayout>
+
+
+
     </LinearLayout>
 </ScrollView>

@@ -4,10 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.MeshSpecification;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -22,9 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import com.student_developer.track_my_grade.*;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -93,10 +88,10 @@ public class  LoginActivity extends BaseActivity {
         authLogin = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        if (!isNetworkConnected()) {
+        if (!Utils.isNetworkConnected(LoginActivity.this)) {
             showErrorMessage(ERROR_NO_INTERNET);
             btnSubmitLogin.setEnabled(true);
-            return;
+
         }
 
 
@@ -258,7 +253,6 @@ public class  LoginActivity extends BaseActivity {
                                 String rollNo = document.getString("Roll No");
 
                                 if (rollNo != null) {
-                                    // Save Roll No to SharedPreferences
                                     SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("roll_no", rollNo);
@@ -407,11 +401,6 @@ public class  LoginActivity extends BaseActivity {
         }
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
 
     public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
