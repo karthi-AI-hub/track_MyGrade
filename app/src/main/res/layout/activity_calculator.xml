@@ -6,8 +6,35 @@
     android:background="@drawable/gradient_bf"
     android:orientation="vertical">
 
-    <!-- Fragment Container to Load Fragments -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingEnd="8dp"
+        android:paddingTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:gravity="end">
 
+        <ImageView
+            android:id="@+id/iv_need_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_help"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Need Help"/>
+
+        <TextView
+            android:id="@+id/tv_need_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Help"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="18sp"/>
+
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -20,7 +47,6 @@
         android:layout_height="2dp"
         android:background="@color/gray"/>
 
-    <!-- Bottom Navigation Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,7 +70,7 @@
                 android:layout_width="40dp"
                 android:layout_height="35dp"
                 android:src="@drawable/profile"
-                android:contentDescription="Home" />
+                android:contentDescription="Profile" />
 
             <TextView
                 android:id="@+id/tv_profile"
@@ -116,7 +142,7 @@
                 android:layout_width="40dp"
                 android:layout_height="30dp"
                 android:src="@drawable/graph"
-                android:contentDescription="Profile" />
+                android:contentDescription="Graph" />
 
             <TextView
                 android:id="@+id/tv_graph"

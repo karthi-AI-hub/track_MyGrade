@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Track_My_Grade"
         tools:targetApi="34">
+
+        <activity
+            android:name=".NeedHelpActivity"
+            android:exported="false" />
         <activity
             android:name=".UserInputActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

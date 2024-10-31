@@ -64,7 +64,6 @@ public class CalculatorFragment extends Fragment {
 
     String noOfSubjects;
     int numberOfSubjects, saveToSem;
-    List<List<Subject>> allSemesters;
 
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
@@ -83,7 +82,6 @@ public class CalculatorFragment extends Fragment {
         FirebaseFirestore.setLoggingEnabled(true);
 
         if (getActivity() != null) {
-            // Accessing TextViews and Views in the activity layout
             TextView tvActivityProfile = getActivity().findViewById(R.id.tv_profile);
             TextView tvCgpa = getActivity().findViewById(R.id.tv_cgpa);
             TextView tvGraph = getActivity().findViewById(R.id.tv_graph);
@@ -91,7 +89,6 @@ public class CalculatorFragment extends Fragment {
             View vCgpa = getActivity().findViewById(R.id.v_cgpa);
             View vGraph = getActivity().findViewById(R.id.v_graph);
 
-            // Change the text color of the TextViews in the activity
             if (tvActivityProfile != null) {
                 tvActivityProfile.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue_600));
             }
@@ -102,7 +99,6 @@ public class CalculatorFragment extends Fragment {
                 tvGraph.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue_600));
             }
 
-            // Set visibility for specific views
             if (vProfile != null) {
                 vProfile.setVisibility(View.GONE);
             }

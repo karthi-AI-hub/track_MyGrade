@@ -3,6 +3,7 @@ package com.student_developer.track_my_grade;
 import static android.widget.Toast.LENGTH_SHORT;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -47,4 +48,8 @@ public class Utils {
         }
     }
 
+    public static void intend(Context context, Class<?> cls){
+        Intent intent = new Intent(context, cls);
+        context.startActivity(intent);
+    }
 }

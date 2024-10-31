@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -16,7 +18,10 @@ import androidx.fragment.app.FragmentTransaction;
 public class CalculatorActivity extends BaseActivity {
 
     private boolean isProfileLoading = false;
-    ImageView btnProfile,btnCalculator,btnGraph;
+    private ImageView btnProfile,btnCalculator,btnGraph;
+    private ImageView ivNeedHelp;
+    private TextView tvNeedHelp;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +33,20 @@ public class CalculatorActivity extends BaseActivity {
         btnProfile = findViewById(R.id.btn_profile);
         btnCalculator = findViewById(R.id.btn_calculator);
         btnGraph = findViewById(R.id.btn_graph);
+        ivNeedHelp = findViewById(R.id.iv_need_help);
+        tvNeedHelp = findViewById(R.id.tv_need_help);
 
         btnProfile.setEnabled(!isProfileLoading);
         btnCalculator.setEnabled(!isProfileLoading);
         btnGraph.setEnabled(!isProfileLoading);
 
+        ivNeedHelp.setOnClickListener(v -> {
+          Utils.intend(this, NeedHelpActivity.class);
+        });
+
+        tvNeedHelp.setOnClickListener(v -> {
+            Utils.intend(this, NeedHelpActivity.class);
+        });
 
         btnProfile.setOnClickListener(v -> {
             if (!isProfileLoading) {
