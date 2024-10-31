@@ -157,15 +157,15 @@ public class ProfileFragment extends Fragment {
         SharedPreferences sharedPref = getContext().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         for (int i = 0; i < textViews.length; i++) {
-            final int index = i;
+            int index = i+1;
             TextView textView = textViews[i];
             textView.setOnClickListener(view1 -> {
                 String text = textView.getText().toString();
                 if (!text.equals("N/A")) {
-                    editor.putInt("TextViewIndex", index);
-                    editor.apply();
                     navigateToGraphFragment();
                 } else {
+                    editor.putInt("TextViewIndex", index);
+                    editor.apply();
                     navigateToCalculatorFragment();
                 }
             });

@@ -38,9 +38,9 @@ public class Utils {
 
     public static void Snackbar(View view, String message, String duration) {
         if (view != null) {
-            if(duration == "short"){
+            if(duration.equalsIgnoreCase("short")){
                 Snackbar.make(view, message, LENGTH_SHORT).show();
-            } else if (duration == "long") {
+            } else if (duration.equalsIgnoreCase("long")) {
                 Snackbar.make(view, message, LENGTH_SHORT).show();
             }
 

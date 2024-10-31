@@ -73,7 +73,8 @@ public class CalculatorFragment extends Fragment {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
         sem = sharedPref.getInt("current_sem", 1);
-        TextViewIndex = sharedPref.getInt("TextViewIndex", 0);
+        TextViewIndex = sharedPref.getInt("TextViewIndex", 1);
+        System.out.println("TextViewIndex  : "+ TextViewIndex);
 
 
         FirebaseFirestore.setLoggingEnabled(true);
@@ -124,6 +125,7 @@ public class CalculatorFragment extends Fragment {
         btnsvToPro = view.findViewById(R.id.btn_svToPro);
         btnsvToSem = view.findViewById(R.id.btn_svToSem);
         etsvToSem = view.findViewById(R.id.et_svToSem);
+        etsvToSem.setText(String.valueOf(TextViewIndex));
         llconfirmRoll = view.findViewById(R.id.ll_confirm_roll);
         llconfirmRoll.setVisibility(View.GONE);
         etConfirmRoll = view.findViewById(R.id.et_confirmRoll);
@@ -220,7 +222,6 @@ public class CalculatorFragment extends Fragment {
                         @Override
                         public void onAvailable(Network network) {
                             requireActivity().runOnUiThread(() -> {
-                                // Re-enable input once network is available
                                 etsvToSem.setEnabled(true);
                                 btnsvToSem.setEnabled(true);
                                 Utils.Snackbar(requireView(), "Network connected. Now submit your GPA","long");

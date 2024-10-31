@@ -97,7 +97,7 @@ public class GraphFragment extends Fragment {
 
 
     private void createSemesterTable(String semesterName, List<Map<String, Object>> subjects) {
-        // CardView for each semester
+
         CardView semesterCardView = new CardView(getContext());
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -188,11 +188,9 @@ public class GraphFragment extends Fragment {
             tableRow.addView(credit);
             tableRow.addView(gradePoint);
 
-            // Add row to TableLayout
             tableLayout.addView(tableRow);
         }
 
-        // Add TableLayout to CardView, then add CardView to main container
         semesterCardView.addView(tableLayout);
         mainContainer.addView(semesterCardView);
     }
