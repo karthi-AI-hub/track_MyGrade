@@ -66,6 +66,9 @@ public class CalculatorFragment extends Fragment {
     int numberOfSubjects, saveToSem;
     List<List<Subject>> allSemesters;
 
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private ConnectivityManager connectivityManager;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calculator, container, false);
@@ -148,7 +151,6 @@ public class CalculatorFragment extends Fragment {
                 etConfirmRoll.requestFocus();
             } else {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                // Check if a document with the roll number exists in the 'Users' collection
                 db.collection("Users")
                         .whereEqualTo("Roll No", rollno.toUpperCase())
                         .get()
@@ -211,22 +213,19 @@ public class CalculatorFragment extends Fragment {
                     }
                 }
             } else {
-                Utils.Snackbar(requireView(), "Network not available. Reconnecting...","long");
-                etsvToSem.setEnabled(false);
+                Utils.Snackbar(requireView(), "No Internet. Waiting for connection...","long");
                 btnsvToSem.setEnabled(false);
 
-                // Register a network callback to detect when network reconnects
-                ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                if (connectivityManager != null) {
-                    connectivityManager.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback() {
-                        @Override
+                connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                networkCallback = new ConnectivityManager.NetworkCallback() {
+                    @Override
                         public void onAvailable(Network network) {
                             requireActivity().runOnUiThread(() -> {
                                 etsvToSem.setEnabled(true);
                                 btnsvToSem.setEnabled(true);
                                 Utils.Snackbar(requireView(), "Network connected. Now submit your GPA","long");
                             });
-                            // Unregister callback after reconnection
+
                             connectivityManager.unregisterNetworkCallback(this);
                         }
 
@@ -237,7 +236,10 @@ public class CalculatorFragment extends Fragment {
                                 btnsvToSem.setEnabled(false);
                             });
                         }
-                    });
+
+                };
+                if (connectivityManager != null) {
+                    connectivityManager.registerDefaultNetworkCallback(networkCallback);
                 }
             }
         });
@@ -682,6 +684,15 @@ public class CalculatorFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
+    }
+
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (connectivityManager != null && networkCallback != null) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
+
     }
 
 }

@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
+    android:scrollbars="none"
     android:background="@drawable/gradient_bf">
 
     <LinearLayout
@@ -226,7 +227,8 @@
 
                 <HorizontalScrollView
                     android:layout_width="0dp"
-                    android:layout_weight="1.2"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
                     android:layout_height="match_parent">
                 <TextView
                     android:id="@+id/pro_email"

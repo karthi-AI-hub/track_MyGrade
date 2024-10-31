@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,6 +19,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -47,6 +50,8 @@ public class GraphFragment extends Fragment {
     String rollNO ;
     LinearLayout mainContainer;
     private LineChart lineChart;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private ConnectivityManager connectivityManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,40 +69,94 @@ public class GraphFragment extends Fragment {
 
         setupActivityViews();
 
+        if(Utils.isNetworkAvailable(requireContext())) {
+           loadData();
+        } else {
+
+            tvNoData.setVisibility(View.VISIBLE);
+            tvSemSubject.setVisibility(View.GONE);
+            tvGraph.setVisibility(View.GONE);
+            lineChart.setVisibility(View.GONE);
+            tvGraph.setVisibility(View.GONE);
+
+            Utils.Snackbar(requireActivity().findViewById(android.R.id.content), "No Internet . Waiting for connection...", "long");
+            connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    requireActivity().runOnUiThread(() -> {
+                        try {
+                            Utils.Snackbar(view, "Network connected. Retrieving your data...", "long");
+                            loadData();
+                        } finally {
+                            tvNoData.setVisibility(View.GONE);
+                            tvSemSubject.setVisibility(View.VISIBLE);
+                            tvGraph.setVisibility(View.VISIBLE);
+                            lineChart.setVisibility(View.VISIBLE);
+                            tvGraph.setVisibility(View.VISIBLE);
+
+                        }
+                    });
+                    connectivityManager.unregisterNetworkCallback(this);
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    requireActivity().runOnUiThread(() -> {
+                        Utils.Snackbar(view, "Network lost...", "long");
+                        tvNoData.setVisibility(View.VISIBLE);
+                        tvGraph.setVisibility(View.GONE);
+                        tvSemSubject.setVisibility(View.GONE);
+                        lineChart.setVisibility(View.GONE);
+                        tvGraph.setVisibility(View.GONE);
+                    });
+                }
+            };
+
+            if (connectivityManager != null) {
+                connectivityManager.registerDefaultNetworkCallback(networkCallback);
+            }
+        }
+        return view;
+    }
+
+    private  void loadData(){
         if (rollNO != null) {
             fetchGPAData(rollNO);
         } else {
 
             tvNoData.setVisibility(View.GONE);
+            tvSemSubject.setVisibility(View.VISIBLE);
             tvGraph.setVisibility(View.VISIBLE);
             lineChart.setVisibility(View.VISIBLE);
             tvGraph.setVisibility(View.VISIBLE);
 
         }
-        
-        loadSemesterData();
-        return view;
-    }
 
+        loadSemesterData();
+    }
     private void loadSemesterData() {
         DocumentReference rollDocRef = db.collection("GPA").document(rollNO);
         CollectionReference semesterCollection = rollDocRef.collection("Semester");
 
         semesterCollection.get().addOnCompleteListener(task -> {
-        if (task.isSuccessful()) {
-            QuerySnapshot semesterDocs = task.getResult();
-            for (QueryDocumentSnapshot semesterDoc : semesterDocs) {
-                String semesterName = semesterDoc.getId();
-                List<Map<String, Object>> subjects = (List<Map<String, Object>>) semesterDoc.get("subjects");
-                createSemesterTable(semesterName, subjects);
+            if (task.isSuccessful()) {
+                QuerySnapshot semesterDocs = task.getResult();
+                for (QueryDocumentSnapshot semesterDoc : semesterDocs) {
+                    String semesterName = semesterDoc.getId();
+                    List<Map<String, Object>> subjects = (List<Map<String, Object>>) semesterDoc.get("subjects");
+                    createSemesterTable(semesterName, subjects);
+                }
             }
-        }
-    });
-}
+        }).addOnFailureListener(e -> {
+            Utils.Snackbar(requireActivity().findViewById(android.R.id.content),
+                    "Failed to load semester data.", "long");
+        });
+    }
 
 
     private void createSemesterTable(String semesterName, List<Map<String, Object>> subjects) {
-
         CardView semesterCardView = new CardView(getContext());
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -108,13 +167,13 @@ public class GraphFragment extends Fragment {
         semesterCardView.setPadding(8, 8, 8, 8);
         semesterCardView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
 
-        // TableLayout for each semester
+
         TableLayout tableLayout = new TableLayout(getContext());
         tableLayout.setStretchAllColumns(true);
         tableLayout.setPadding(0, 0, 0, 0);
         tableLayout.setBackgroundColor(Color.TRANSPARENT);
 
-        // Semester title row
+
         TableRow semesterRow = new TableRow(getContext());
         semesterRow.setPadding(10, 8, 10, 8);
         TextView semesterTitle = new TextView(getContext());
@@ -127,7 +186,6 @@ public class GraphFragment extends Fragment {
         semesterRow.addView(semesterTitle);
         tableLayout.addView(semesterRow);
 
-        // Header row
         TableRow headerRow = new TableRow(getContext());
         headerRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.light_violet, null));
         headerRow.setPadding(12, 12, 12, 12);
@@ -147,13 +205,11 @@ public class GraphFragment extends Fragment {
         }
         tableLayout.addView(headerRow);
 
-        // Subject rows
         for (Map<String, Object> subject : subjects) {
             TableRow tableRow = new TableRow(getContext());
             tableRow.setPadding(40, 20, 40, 20);
             tableRow.setBackground(ResourcesCompat.getDrawable(getResources(), R.color.lightGray, null));
 
-            // Subject name
             TextView subjectName = new TextView(getContext());
             subjectName.setText((String) subject.get("subjectName"));
             subjectName.setLayoutParams(new TableRow.LayoutParams(
@@ -163,7 +219,7 @@ public class GraphFragment extends Fragment {
             subjectName.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.cell_background, null));
             subjectName.setTextColor(Color.BLACK);
 
-            // Credit
+
             TextView credit = new TextView(getContext());
             credit.setText((String) subject.get("cr"));
             credit.setLayoutParams(new TableRow.LayoutParams(
@@ -173,7 +229,7 @@ public class GraphFragment extends Fragment {
             credit.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.cell_background, null));
             credit.setTextColor(Color.BLACK);
 
-            // Grade Point
+
             TextView gradePoint = new TextView(getContext());
             gradePoint.setText((String) subject.get("gp"));
             gradePoint.setLayoutParams(new TableRow.LayoutParams(
@@ -183,7 +239,7 @@ public class GraphFragment extends Fragment {
             gradePoint.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.cell_background, null));
             gradePoint.setTextColor(Color.BLACK);
 
-            // Add views to row
+
             tableRow.addView(subjectName);
             tableRow.addView(credit);
             tableRow.addView(gradePoint);
@@ -333,5 +389,15 @@ public class GraphFragment extends Fragment {
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setForm(Legend.LegendForm.NONE);
     }
+
+
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (connectivityManager != null && networkCallback != null) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
+    }
+
 
 }
