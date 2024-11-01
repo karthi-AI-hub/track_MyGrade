@@ -26,15 +26,6 @@
             android:label="@string/title_activity_user_input"
             android:theme="@style/Theme.Track_My_Grade.Fullscreen" />
         <activity
-            android:name=".CalculatorFragment"
-            android:exported="false" />
-        <activity
-            android:name=".GraphFragment"
-            android:exported="false" />
-        <activity
-            android:name=".ProfileFragment"
-            android:exported="false" />
-        <activity
             android:name=".CalculatorActivity"
             android:exported="false" />
         <activity

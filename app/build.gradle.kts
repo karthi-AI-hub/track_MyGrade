@@ -8,14 +8,13 @@ android {
 
     defaultConfig {
         applicationId = "com.student_developer.track_my_grade"
-        minSdk = 28
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Enable multidex if necessary
         multiDexEnabled = true
     }
 
@@ -26,6 +25,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

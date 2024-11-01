@@ -127,10 +127,9 @@ public class GraphFragment extends Fragment {
         } else {
 
             tvNoData.setVisibility(View.GONE);
-            tvSemSubject.setVisibility(View.VISIBLE);
             tvGraph.setVisibility(View.VISIBLE);
             lineChart.setVisibility(View.VISIBLE);
-            tvGraph.setVisibility(View.VISIBLE);
+            tvSemSubject.setVisibility(View.VISIBLE);
 
         }
 
