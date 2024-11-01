@@ -74,6 +74,13 @@ public class NeedHelpActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        Utils.intend(this,CalculatorActivity.class);
+        boolean isFromStaff = getIntent().getBooleanExtra("from_staff", false);
+
+        if (isFromStaff) {
+            Utils.intend(this, StaffActivity.class);
+        } else {
+            Utils.intend(this, CalculatorActivity.class);
+        }
     }
+
 }

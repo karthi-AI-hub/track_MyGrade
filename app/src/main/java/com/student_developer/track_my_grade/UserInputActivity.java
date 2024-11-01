@@ -309,7 +309,6 @@ public class UserInputActivity extends BaseActivity {
         studentData.put("Dept", department);
         studentData.put("DOB", dob);
         studentData.put("SEM", sem);
-        studentData.put("Clg", clg);
 
         SharedPreferences.Editor editor =sharedPref.edit();
         editor.putInt("sem", Integer.parseInt(sem));
@@ -321,6 +320,19 @@ public class UserInputActivity extends BaseActivity {
             studentData.put("PhNo", phoneNo);
         }
 
+        if (clg.contains("excel") ||
+                clg.contains("excel engineering") ||
+                clg.contains("excel enginerring college autonomous") ||
+                clg.contains("excel enginerring college (autonomous)") ||
+                clg.contains("excel enginerring college(autonomous)") ||
+                clg.contains("excel enginerring college") ||
+                clg.contains("excel engg college") ||
+                clg.contains("eec") ||
+                clg.contains("excel engg")) {
+            studentData.put("EXCEL ENGINEERING COLLEGE", clg);
+        }else{
+            studentData.put("Clg", clg);
+        }
         myRef.setValue(studentData)
                 .addOnCompleteListener(task -> {
                     progressBar.setVisibility(View.GONE);

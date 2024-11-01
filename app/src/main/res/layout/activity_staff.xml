@@ -8,17 +8,45 @@
     tools:context=".StaffActivity"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingEnd="8dp"
+        android:paddingTop="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="5dp"
+        android:gravity="end">
+
+        <ImageView
+            android:id="@+id/iv_need_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_help"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Need Help"/>
+
+        <TextView
+            android:id="@+id/tv_need_help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Help"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="18sp"/>
+    </LinearLayout>
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Admin Dashboard"
+        android:text="Staff Dashboard"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/purple_500"
         android:paddingTop="16dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="0dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,32 +59,34 @@
         android:layout_height="wrap_content"
         android:hint="Enter Roll Number to search."
         android:textColorHint="@color/gray"
-        android:textColor="@color/black"
+        android:textColor="@color/green"
         android:background="@drawable/edittext_backgrouond"
         android:drawableStart="@drawable/icon_search"
         android:drawablePadding="20dp"
         android:padding="12dp"
         android:layout_marginTop="16dp"/>
 
-<!--        <Button-->
-<!--            android:id="@+id/btnSearch"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:textSize="16sp"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:backgroundTint="@color/blue_600"-->
-<!--            android:text="SEARCH"-->
-<!--            android:textColor="@android:color/white" />-->
-
     <ListView
         android:id="@+id/searchResultsListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:dividerHeight="10dp"
+        android:dividerHeight="3dp"
         android:orientation="vertical"
         android:layout_marginTop="20dp"/>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btnlogOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/blue_600"
+        android:text="LOG OUT"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
 
 </LinearLayout>

@@ -32,8 +32,6 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="18sp"/>
-
-
     </LinearLayout>
 
     <FrameLayout

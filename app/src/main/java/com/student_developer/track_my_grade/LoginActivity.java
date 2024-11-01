@@ -122,36 +122,36 @@ public class  LoginActivity extends BaseActivity {
     }
 
     private void handleLogin() {
-        String adminemail = etEmail.getText().toString().trim();
-        String adminpassword = etPassword.getText().toString().trim();
+        String staffEmail = etEmail.getText().toString().trim();
+        String staffPassword = etPassword.getText().toString().trim();
 
-        if (!validateInputs(adminemail, adminpassword)) {
+        if (!validateInputs(staffEmail, staffPassword)) {
             btnSubmitLogin.setEnabled(true);
             return;
         }
 
         showProgressBar(true);
 
-        authLogin.signInWithEmailAndPassword(adminemail, adminpassword)
+        authLogin.signInWithEmailAndPassword(staffEmail, staffPassword)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        checkIfAdmin(authLogin.getCurrentUser().getUid());
+                        checkIfStaff(authLogin.getCurrentUser().getUid());
                     }
                 });
     }
 
-    private void checkIfAdmin(String userId) {
-        DocumentReference docRef = db.collection("Admins").document(userId);
+    private void checkIfStaff(String userId) {
+        DocumentReference docRef = db.collection("Staff").document(userId);
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String role = documentSnapshot.getString("Role");
-                if ("admin".equals(role)) {
+                if ("staff".equals(role)) {
                     navigateTo(StaffActivity.class);
                 } else {
                     showToast("You have no acces");
                      }
             }
-        }).addOnFailureListener(e -> {showErrorMessage("Login failed as Admin");
+        }).addOnFailureListener(e -> {showErrorMessage("Login failed as Staff");
               });
     }
 

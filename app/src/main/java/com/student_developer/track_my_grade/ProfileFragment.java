@@ -55,6 +55,7 @@ public class ProfileFragment extends Fragment {
     TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
     Button btnLogOut, mvTOAdmin;
     private FirebaseFirestore db;
+    DocumentReference docRef;
     FirebaseDatabase database;
     DatabaseReference myRef;
     FirebaseUser firebaseUser;
@@ -68,7 +69,6 @@ public class ProfileFragment extends Fragment {
     private Map<String, String> departmentNames;
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
-    DocumentReference docRef;
     String rollNo;
 
 
@@ -132,6 +132,7 @@ public class ProfileFragment extends Fragment {
 
         fetchDataFromFirebase();
         mvTOAdmin = view.findViewById(R.id.mvToAdmin);
+
         if (rollNO.equalsIgnoreCase("22AD045")) {
             mvTOAdmin.setVisibility(View.VISIBLE);
         }
@@ -303,6 +304,12 @@ public class ProfileFragment extends Fragment {
                 }
 
                 meanGPA = (count > 0) ? (sum / count) : null;
+                meanGPA = (count > 0) ? (sum / count) : null;
+                if (meanGPA != null) {
+                    meanGPA = Double.valueOf(String.format("%.2f", meanGPA));
+                }
+
+
                 Map<String, Object> cgpaData = new HashMap<>();
                 cgpaData.put("CGPA", meanGPA.toString().toUpperCase());
                 db.collection("Users").document(rollNo.toUpperCase())
@@ -393,21 +400,6 @@ public class ProfileFragment extends Fragment {
 
     private void setProText(TextView tvname, String tvVal) {
         tvname.setText(tvVal);
-        if (tvname == pro_clg) {
-            String tvValLower = tvVal.toLowerCase();
-            if (tvValLower.contains("excel") ||
-                    tvValLower.contains("excel engineering") ||
-                    tvValLower.contains("excel enginerring college autonomous") ||
-                    tvValLower.contains("excel enginerring college (autonomous)") ||
-                    tvValLower.contains("excel enginerring college(autonomous)") ||
-                    tvValLower.contains("excel enginerring college") ||
-                    tvValLower.contains("excel engg college") ||
-                    tvValLower.contains("eec") ||
-                    tvValLower.contains("excel engg")) {
-
-                pro_clg.setText("EXCEL ENGINEERING COLLEGE");
-            }
-        }
     }
 
 
@@ -485,6 +477,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+
     private void initializeDepartmentNames() {
         departmentNames = new HashMap<>();
         departmentNames.put("AIDS", "Artificial Intelligence & Data Science");
@@ -501,7 +494,6 @@ public class ProfileFragment extends Fragment {
         departmentNames.put("PCT", "Petroleum Chemical Technology");
         departmentNames.put("SF", "Safety & Fire");
     }
-
 
     public void onDestroyView() {
         super.onDestroyView();

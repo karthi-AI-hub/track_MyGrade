@@ -68,8 +68,8 @@ public class SplashActivity extends BaseActivity {
                 if (Utils.isNetworkConnected(SplashActivity.this)) {
                     if (isUserLoggedIn()) {
                         String userId = authLogin.getCurrentUser().getUid();
-                        checkIfAdmin(userId, isAdmin -> {
-                            if (isAdmin) {
+                        checkIfStaff(userId, isStaff -> {
+                            if (isStaff) {
                                 navigateTo(StaffActivity.class);
                             } else {
                                 Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
@@ -104,10 +104,10 @@ public class SplashActivity extends BaseActivity {
         return authLogin.getCurrentUser() != null;
     }
 
-    private void checkIfAdmin(String userId, OnAdminCheckListener listener) {
-        db.collection("Admins").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> listener.onAdminCheck(documentSnapshot.exists()))
-                .addOnFailureListener(e -> Toast.makeText(SplashActivity.this, "Failed to check admin status", Toast.LENGTH_SHORT).show());
+    private void checkIfStaff(String userId, OnAStaffCheckListener listener) {
+        db.collection("Staff").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> listener.onStaffCheck(documentSnapshot.exists()))
+                .addOnFailureListener(e -> Toast.makeText(SplashActivity.this, "Failed to check Staff status", Toast.LENGTH_SHORT).show());
     }
 
     private void navigateTo(Class<?> activityClass) {
@@ -163,7 +163,7 @@ public class SplashActivity extends BaseActivity {
         showExitConfirmationDialog();
     }
 
-    private interface OnAdminCheckListener {
-        void onAdminCheck(boolean isAdmin);
+    private interface OnAStaffCheckListener {
+        void onStaffCheck(boolean isAdmin);
     }
 }
