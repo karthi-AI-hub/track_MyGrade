@@ -15,7 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Track_My_Grade"
         tools:targetApi="34">
-
+        <activity
+            android:name=".StudentDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StaffActivity"
+            android:exported="false" />
         <activity
             android:name=".NeedHelpActivity"
             android:exported="false" />

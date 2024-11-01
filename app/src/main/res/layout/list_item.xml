@@ -9,6 +9,6 @@
         android:id="@+id/text_view_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_green_light"
+        android:textColor="@color/black"
         android:textSize="18sp"/>
 </LinearLayout>

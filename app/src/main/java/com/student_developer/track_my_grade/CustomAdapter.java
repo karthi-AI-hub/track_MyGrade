@@ -27,8 +27,7 @@ public class CustomAdapter extends ArrayAdapter<String> {
         TextView textView = rowView.findViewById(R.id.text_view_item);
         textView.setText(values.get(position));
 
-        // Optionally change the text color programmatically
-        // textView.setTextColor(Color.RED); // Change to desired color if needed
+        //textView.setTextColor(Color.RED);
 
         return rowView;
     }

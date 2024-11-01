@@ -70,7 +70,7 @@ public class SplashActivity extends BaseActivity {
                         String userId = authLogin.getCurrentUser().getUid();
                         checkIfAdmin(userId, isAdmin -> {
                             if (isAdmin) {
-                                navigateTo(MainActivity.class);
+                                navigateTo(StaffActivity.class);
                             } else {
                                 Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
                                 myRef.child(rollNO).get().addOnCompleteListener(task -> {

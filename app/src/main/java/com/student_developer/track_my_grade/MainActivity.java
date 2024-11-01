@@ -38,7 +38,7 @@ public class MainActivity extends BaseActivity {
         btn_logOut = findViewById(R.id.btn_logout);
         listView = findViewById(R.id.list_view);
         gpaDataList = new ArrayList<>();
-        adapter = new CustomAdapter(this, gpaDataList); // Use CustomAdapter here
+        adapter = new CustomAdapter(this, gpaDataList);
         listView.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
 

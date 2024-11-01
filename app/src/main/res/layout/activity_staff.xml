@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_bf"
+    tools:context=".StaffActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Admin Dashboard"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_500"
+        android:paddingTop="16dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="30dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Roll Number to search."
+        android:textColorHint="@color/gray"
+        android:textColor="@color/black"
+        android:background="@drawable/edittext_backgrouond"
+        android:drawableStart="@drawable/icon_search"
+        android:drawablePadding="20dp"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
+<!--        <Button-->
+<!--            android:id="@+id/btnSearch"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:textSize="16sp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:backgroundTint="@color/blue_600"-->
+<!--            android:text="SEARCH"-->
+<!--            android:textColor="@android:color/white" />-->
+
+    <ListView
+        android:id="@+id/searchResultsListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="10dp"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp"/>
+    </LinearLayout>
+
+</LinearLayout>

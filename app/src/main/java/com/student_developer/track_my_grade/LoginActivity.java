@@ -146,7 +146,7 @@ public class  LoginActivity extends BaseActivity {
             if (documentSnapshot.exists()) {
                 String role = documentSnapshot.getString("Role");
                 if ("admin".equals(role)) {
-                    navigateTo(MainActivity.class);
+                    navigateTo(StaffActivity.class);
                 } else {
                     showToast("You have no acces");
                      }
