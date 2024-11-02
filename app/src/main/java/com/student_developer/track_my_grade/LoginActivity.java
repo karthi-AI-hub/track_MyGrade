@@ -145,6 +145,12 @@ public class  LoginActivity extends BaseActivity {
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String role = documentSnapshot.getString("Role");
+                String userName = documentSnapshot.getString("User");
+                SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("user_name", userName);
+                editor.apply();
+
                 if ("staff".equals(role)) {
                     navigateTo(StaffActivity.class);
                 } else {

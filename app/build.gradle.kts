@@ -48,27 +48,21 @@ dependencies {
     implementation(libs.annotation)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
-
-    // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
 
-    // Firebase services
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
-    // Lottie animations
+
     implementation("com.airbnb.android:lottie-compose:5.0.3")
 
-    // Multidex support if enabled
     implementation("androidx.multidex:multidex:2.0.1")
     implementation(libs.material)
     implementation(libs.firebase.analytics)
 
-    // Material Design Components (if needed)
     implementation("com.google.android.material:material:1.9.0")
     implementation(libs.firebase.database)
 
-    // Testing Libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

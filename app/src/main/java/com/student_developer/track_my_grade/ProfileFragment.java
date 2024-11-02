@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
 
     TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
     TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
-    Button btnLogOut, mvTOAdmin;
+    Button mvTOAdmin;
     private FirebaseFirestore db;
     DocumentReference docRef;
     FirebaseDatabase database;
@@ -117,8 +117,7 @@ public class ProfileFragment extends Fragment {
         }
 
 
-        btnLogOut = view.findViewById(R.id.btn_logOut);
-        db = FirebaseFirestore.getInstance();
+         db = FirebaseFirestore.getInstance();
 
 
         rollNo = rollNO.toUpperCase();
@@ -183,27 +182,6 @@ public class ProfileFragment extends Fragment {
                 }
             });
         }
-
-        btnLogOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-
-
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                startActivity(intent);
-
-                getActivity().overridePendingTransition(0, 0);
-
-
-                if (getActivity() != null) {
-                    getActivity().finish();
-                }
-            }
-        });
 
 
         if (getActivity() != null) {
@@ -328,15 +306,13 @@ public class ProfileFragment extends Fragment {
 
                 progressBar.setVisibility(View.GONE);
                 tvCGPATotal.setVisibility(View.VISIBLE);
-                btnLogOut.setVisibility(View.VISIBLE);
-                setButtonsEnabled(true);
+                 setButtonsEnabled(true);
                 if (getActivity() instanceof CalculatorActivity) {
                     ((CalculatorActivity) getActivity()).setProfileLoading(false);
                 }
             } else {
                 progressBar.setVisibility(View.GONE);
                 tvCGPATotal.setVisibility(View.VISIBLE);
-                btnLogOut.setVisibility(View.VISIBLE);
                 setButtonsEnabled(true);
                 if (getActivity() != null && getActivity() instanceof CalculatorActivity) {
                     ((CalculatorActivity) getActivity()).setProfileLoading(false);
@@ -371,6 +347,7 @@ public class ProfileFragment extends Fragment {
 
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putInt("current_sem", currentSemester);
+                    editor.putString("stuRegNo", regNo);
                     editor.apply();
 
 
@@ -470,7 +447,6 @@ public class ProfileFragment extends Fragment {
         tvpro6.setEnabled(enabled);
         tvpro7.setEnabled(enabled);
         tvpro8.setEnabled(enabled);
-        btnLogOut.setEnabled(enabled);
 
         if (getActivity() instanceof CalculatorActivity) {
             ((CalculatorActivity) getActivity()).setProfileLoading(false);

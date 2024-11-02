@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_bf"
-    tools:context=".StaffActivity"
-    android:orientation="vertical">
+    tools:context=".StaffActivity">
 
     <LinearLayout
+        android:id="@+id/llHelp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -36,11 +37,13 @@
             android:textColor="@color/black"
             android:textSize="18sp"/>
     </LinearLayout>
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Staff Dashboard"
+        android:layout_below="@+id/llHelp"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/purple_500"
@@ -52,41 +55,81 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_below="@+id/title"
         android:padding="16dp">
-    <EditText
-        android:id="@+id/searchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Roll Number to search."
-        android:textColorHint="@color/gray"
-        android:textColor="@color/green"
-        android:background="@drawable/edittext_backgrouond"
-        android:drawableStart="@drawable/icon_search"
-        android:drawablePadding="20dp"
-        android:padding="12dp"
-        android:layout_marginTop="16dp"/>
 
-    <ListView
-        android:id="@+id/searchResultsListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:dividerHeight="3dp"
-        android:orientation="vertical"
-        android:layout_marginTop="20dp"/>
+        <EditText
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Roll Number to search."
+            android:inputType="text"
+            android:textColorHint="@color/gray"
+            android:textColor="@color/green"
+            android:background="@drawable/edittext_backgrouond"
+            android:drawableStart="@drawable/icon_search"
+            android:drawablePadding="20dp"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"/>
+
+        <ListView
+            android:id="@+id/searchResultsListView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:dividerHeight="3dp"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnlogOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/blue_600"
-        android:text="LOG OUT"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:layout_alignParentBottom="true"
+        android:padding="16dp"
+        android:gravity="end">
 
+        <TextView
+            android:id="@+id/tv_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Log Out"
+            android:visibility="gone"
+            android:textColor="@color/light_blue_900"
+            android:textSize="16sp"
+            android:layout_toStartOf="@id/fab_menu"
+            android:layout_marginBottom="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp" />
 
-</LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            app:fabCustomSize="40dp"
+            app:rippleColor="@color/sky_blue"
+            android:src="@drawable/icon_logout"
+            app:backgroundTint="@color/green"
+            android:layout_alignParentBottom="true"
+            app:tint="@color/white"
+            android:layout_marginBottom="40dp"
+            android:visibility="gone"
+            android:contentDescription="LogOut"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            app:fabCustomSize="55dp"
+            app:rippleColor="@color/sky_blue"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/icon_add"
+            app:backgroundTint="@color/blue_600"
+            app:tint="@color/white"
+            android:contentDescription="FAB"/>
+    </RelativeLayout>
+
+</RelativeLayout>

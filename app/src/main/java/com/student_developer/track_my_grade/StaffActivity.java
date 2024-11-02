@@ -2,6 +2,7 @@ package com.student_developer.track_my_grade;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Bundle;
@@ -18,6 +19,9 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,13 +34,16 @@ public class StaffActivity extends BaseActivity {
 
     private EditText searchBar;
     private ListView searchResultsListView;
-    private Button btnLogOut;
-    private TextView tvNeedHelp;
+    private TextView tvNeedHelp, tv_logOut, tvTitle;
     private ImageView ivNeedHelp;
+    private String staffName, userName;
     private DatabaseReference databaseReference;
+    private SharedPreferences sharedPref;
     private StudentAdapter adapter;
     private List<String> studentList;
     private List<String> rollNoList;
+    private FloatingActionButton fab_menu, fab_logOut;
+    private boolean isMenuOpen = false;
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
 
@@ -46,13 +53,25 @@ public class StaffActivity extends BaseActivity {
         setContentView(R.layout.activity_staff);
         EdgeToEdge.enable(this);
 
-
+        sharedPref = StaffActivity.this.getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+        userName = sharedPref.getString("user_name", "Staff");
+        staffName = getIntent().getStringExtra("staff_Name");
         searchBar = findViewById(R.id.searchBar);
         searchBar.setEnabled(true);
         searchBar.requestFocus();
-        btnLogOut = findViewById(R.id.btnlogOut);
+        tvTitle = findViewById(R.id.title);
         tvNeedHelp = findViewById(R.id.tv_need_help);
         ivNeedHelp = findViewById(R.id.iv_need_help);
+        tv_logOut = findViewById(R.id.tv_logout);
+        fab_menu = findViewById(R.id.fab_menu);
+        fab_logOut = findViewById(R.id.fab_logout);
+
+        if(staffName != null){
+            tvTitle.setText(staffName + "'s Dashboard");
+        }else{
+            tvTitle.setText(userName + "'s Dashboard");
+        }
+
         searchResultsListView = findViewById(R.id.searchResultsListView);
         databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Students");
@@ -62,13 +81,18 @@ public class StaffActivity extends BaseActivity {
         adapter = new StudentAdapter(this, studentList);
         searchResultsListView.setAdapter(adapter);
 
+        fab_menu.setOnClickListener(v -> {
+            if (isMenuOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
+        fab_logOut.setOnClickListener(v -> { Utils.intend(StaffActivity.this, LoginActivity.class);
+            FirebaseAuth.getInstance().signOut(); finish();});
         ivNeedHelp.setOnClickListener(v -> openHelpActivity());
         tvNeedHelp.setOnClickListener(v -> openHelpActivity());
 
-        btnLogOut.setOnClickListener(v -> {
-            Utils.intend(StaffActivity.this, LoginActivity.class);
-            finish();
-        });
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -84,6 +108,25 @@ public class StaffActivity extends BaseActivity {
         });
 
         searchResultsListView.setOnItemClickListener((parent, view, position, id) -> openStudentDetail(position));
+    }
+
+    private void openMenu() {
+        fab_logOut.setVisibility(View.VISIBLE);
+        tv_logOut.setVisibility(View.VISIBLE);
+
+        fab_logOut.animate().translationY(-100f).alpha(1f).start();
+        tv_logOut.animate().translationY(-130f).alpha(1f).start();
+
+
+        isMenuOpen = true;
+    }
+
+    private void closeMenu() {
+        fab_logOut.animate().translationY(0).alpha(0f).withEndAction(() -> fab_logOut.setVisibility(View.GONE)).start();
+        tv_logOut.animate().translationY(0).alpha(0f).withEndAction(() -> tv_logOut.setVisibility(View.GONE)).start();
+
+
+        isMenuOpen = false;
     }
 
     private void openHelpActivity() {
@@ -174,3 +217,16 @@ public class StaffActivity extends BaseActivity {
         showExitConfirmationDialog();
     }
 }
+//
+//    <Button
+//android:id="@+id/btnlogOut"
+//android:layout_width="wrap_content"
+//android:layout_height="wrap_content"
+//android:layout_gravity="center"
+//android:layout_marginTop="20dp"
+//android:layout_marginBottom="20dp"
+//android:backgroundTint="@color/blue_600"
+//android:text="LOG OUT"
+//android:textColor="@android:color/white"
+//android:textSize="16sp" />
+//

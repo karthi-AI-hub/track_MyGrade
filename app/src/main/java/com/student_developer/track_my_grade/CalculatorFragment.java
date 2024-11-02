@@ -279,6 +279,7 @@ public class CalculatorFragment extends Fragment {
                     createSubjectDetailView(i);
                 }
 
+                ((CalculatorActivity) requireActivity()).setFabVisibility(View.GONE);
                 addCalculateButton();
 
             } catch (NumberFormatException e) {

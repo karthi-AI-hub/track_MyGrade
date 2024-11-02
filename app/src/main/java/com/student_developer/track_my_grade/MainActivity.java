@@ -105,15 +105,14 @@ public class MainActivity extends BaseActivity {
 
         db.collection("Users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                gpaDataList.clear(); // Clear the previous data
+                gpaDataList.clear();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String Email = document.getString("Email");
                     String RollNo = document.getString("Roll No");
-                    String Password = document.getString("Password");
                     String Cgpa = document.getString("CGPA");
 
-                    if (Email != null && RollNo != null && Password != null) {
-                        String Users = "Email: " + Email + "\nRoll No: " + RollNo + "\nPassword: " + Password + "\nCGPA: " + Cgpa;
+                    if (Email != null && RollNo != null) {
+                        String Users = "Email: " + Email + "\nRoll No: " + RollNo + "\nCGPA: " + Cgpa;
                         gpaDataList.add(Users);
                     }
                 }

@@ -26,13 +26,14 @@ public class SplashActivity extends BaseActivity {
 
     private static final int SPLASH_DISPLAY_LENGTH = 2000;
     private static final int NETWORK_CHECK_INTERVAL = 1000;
-    private String rollNO;
+    private String rollNO ,staffName;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private FirebaseAuth authLogin;
     private FirebaseFirestore db;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable networkCheckRunnable;
+    private SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,23 +41,20 @@ public class SplashActivity extends BaseActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
 
-        // Initialize Firebase references
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
         myRef = database.getReference("Students");
 
-        // Retrieve roll number from SharedPreferences
-        SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+
+        sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
 
         authLogin = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // UI Elements
         ImageView logo = findViewById(R.id.logo);
         TextView title = findViewById(R.id.titleTextView);
         ProgressBar progressBar = findViewById(R.id.progressBar);
 
-        // Animation and initial delay
         animateSplashScreen(logo, title, progressBar);
         handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
     }
@@ -70,7 +68,9 @@ public class SplashActivity extends BaseActivity {
                         String userId = authLogin.getCurrentUser().getUid();
                         checkIfStaff(userId, isStaff -> {
                             if (isStaff) {
-                                navigateTo(StaffActivity.class);
+                                Intent intent = new Intent(SplashActivity.this, StaffActivity.class);
+                                intent.putExtra("staff_Name", staffName);
+                                startActivity(intent);
                             } else {
                                 Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
                                 myRef.child(rollNO).get().addOnCompleteListener(task -> {
@@ -106,10 +106,19 @@ public class SplashActivity extends BaseActivity {
 
     private void checkIfStaff(String userId, OnAStaffCheckListener listener) {
         db.collection("Staff").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> listener.onStaffCheck(documentSnapshot.exists()))
-                .addOnFailureListener(e -> Toast.makeText(SplashActivity.this, "Failed to check Staff status", Toast.LENGTH_SHORT).show());
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        staffName = documentSnapshot.getString("User");
+                        listener.onStaffCheck(true);
+                    } else {
+                        listener.onStaffCheck(false);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(SplashActivity.this, "Failed to check Staff status", Toast.LENGTH_SHORT).show();
+                    listener.onStaffCheck(false);
+                });
     }
-
     private void navigateTo(Class<?> activityClass) {
         startActivity(new Intent(SplashActivity.this, activityClass));
         overridePendingTransition(0, 0);
