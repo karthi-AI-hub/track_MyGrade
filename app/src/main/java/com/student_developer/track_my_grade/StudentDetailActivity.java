@@ -22,6 +22,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +45,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +56,7 @@ public class StudentDetailActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private LinearLayout[] semesterLayouts;
     private LinearLayout mainContainer;
+    private LineChart lineChart;
     private String rollNo, name;
     private int currentSemester;
     private Map<String, String> departmentNames;
@@ -77,6 +87,7 @@ public class StudentDetailActivity extends AppCompatActivity {
 
     private void initUI() {
         mainContainer = findViewById(R.id.main_container);
+        lineChart = findViewById(R.id.chart);
 
         tvpro1 = findViewById(R.id.tv_pro1);
         tvpro2 = findViewById(R.id.tv_pro2);
@@ -240,6 +251,15 @@ public class StudentDetailActivity extends AppCompatActivity {
                     getGpaFromDocument(documentSnapshot, "Sem 7"),
                     getGpaFromDocument(documentSnapshot, "Sem 8")
             };
+            List<Entry> gpaEntries = new ArrayList<>();
+            String[] semesters = {"Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"};
+
+            for (int i = 0; i < semesters.length; i++) {
+                Float gpa = getGpaFromDocument(documentSnapshot, semesters[i]);
+                gpaEntries.add(new Entry(i, gpa != null ? gpa : 0));
+            }
+
+             updateLineChart(gpaEntries);
 
             TextView[] gpaTextViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
             for (int i = 0; i < gpas.length; i++) {
@@ -367,7 +387,7 @@ public class StudentDetailActivity extends AppCompatActivity {
         for (Map<String, Object> subject : subjects) {
             TableRow tableRow = new TableRow(this);
             tableRow.setPadding(40, 20, 40, 20);
-            tableRow.setBackground(ResourcesCompat.getDrawable(getResources(), R.color.lightGray, null));
+            tableRow.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
 
             TextView subjectName = new TextView(this);
             subjectName.setText((String) subject.get("subjectName"));
@@ -409,6 +429,44 @@ public class StudentDetailActivity extends AppCompatActivity {
         semesterCardView.addView(tableLayout);
         mainContainer.addView(semesterCardView);
     }
+
+    private void updateLineChart(List<Entry> gpaEntries) {
+        LineDataSet lineDataSet = new LineDataSet(gpaEntries, "GPA over Semesters"); // Set the label
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setColor(Color.BLUE); // Set line color
+        lineDataSet.setValueTextColor(Color.BLACK); // Set value text color
+        lineDataSet.setDrawCircles(true); // Draw circles on data points
+        lineDataSet.setCircleColor(Color.RED); // Circle color
+        lineDataSet.setCircleRadius(5f); // Circle radius
+        lineDataSet.setLineWidth(2f); // Line width
+        lineDataSet.setDrawValues(true); // Show values on the line
+
+        LineData lineData = new LineData(lineDataSet);
+        lineChart.setData(lineData);
+        lineChart.invalidate(); // Refresh the chart
+        configureChartAppearance();
+    }
+
+    private void configureChartAppearance() {
+        lineChart.getDescription().setEnabled(false); // Disable the description text
+        lineChart.getAxisRight().setEnabled(false); // Disable the right y-axis
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X-axis at the bottom
+        xAxis.setDrawGridLines(false); // Disable grid lines
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"}));
+
+        YAxis yAxis = lineChart.getAxisLeft();
+        yAxis.setDrawGridLines(true); // Draw grid lines
+        yAxis.setGranularity(0.5f); // Set granularity for y-axis
+        yAxis.setAxisMinimum(0f); // Minimum value
+        yAxis.setAxisMaximum(10f); // Maximum value based on your GPA scale
+        Legend legend = lineChart.getLegend();
+        legend.setEnabled(true); // Enable legend
+    }
+
+
+
+
 
     @Override
     public void onBackPressed() {
