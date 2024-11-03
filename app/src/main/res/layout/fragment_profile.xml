@@ -29,7 +29,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/profile"
-            android:text="KARTHIKEYAN S"
+            android:text=""
             android:textStyle="bold"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"

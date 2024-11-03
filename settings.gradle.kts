@@ -10,7 +10,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven(url = "https://maven.google.com")
-        maven(url = "https://jitpack.io")
+        maven { url = uri("https://jitpack.io") }
         jcenter()
     }
 }
@@ -20,11 +20,14 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven(url = "https://maven.google.com")
-        maven(url = "https://jitpack.io")
+        maven { url = uri("https://jitpack.io") }
         jcenter()
     }
 }
 
 rootProject.name = "Track_My_Grade"
 include(":app")
+include(":uCrop")
+project(":uCrop").projectDir = file("uCrop")
+
  

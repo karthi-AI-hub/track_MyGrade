@@ -62,6 +62,7 @@ dependencies {
 
     implementation("com.google.android.material:material:1.9.0")
     implementation(libs.firebase.database)
+    implementation(libs.firebase.storage)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
@@ -69,7 +70,8 @@ dependencies {
 
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.fragment:fragment:1.5.5")
-
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(project(":uCrop"))
 
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

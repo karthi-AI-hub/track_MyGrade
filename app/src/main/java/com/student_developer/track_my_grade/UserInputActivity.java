@@ -5,9 +5,12 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Editable;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -26,6 +30,22 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.yalantis.ucrop.UCrop;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,6 +64,16 @@ public class UserInputActivity extends BaseActivity {
     FirebaseDatabase database;
     DatabaseReference myRef;
     SharedPreferences sharedPref;
+    String rollNO , downloadUrl;
+
+
+    private static final int REQUEST_CODE_SELECT_IMAGE = 101;
+    private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 102;
+
+    private Uri imageUri;
+    private ImageView imgProfilePicture;
+    private Button btnUploadPicture;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +82,19 @@ public class UserInputActivity extends BaseActivity {
         setContentView(R.layout.activity_userinput);
 
         init();
+        imgProfilePicture = findViewById(R.id.imgProfilePicture);
+        btnUploadPicture = findViewById(R.id.btnUploadPicture);
+
+        btnUploadPicture.setOnClickListener(v -> {
+            checkAndRequestPermissions();
+        });
 
         checkIfRollNumberExists();
     }
 
     private void init() {
         sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        String rollNO = sharedPref.getString("roll_no", null);
+        rollNO = sharedPref.getString("roll_no", null);
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
         myRef = database.getReference("Students").child(rollNO);
@@ -72,6 +108,7 @@ public class UserInputActivity extends BaseActivity {
         spinnerDepartment = findViewById(R.id.ur_dept);
         btnSubmit = findViewById(R.id.btn_ur_Submit);
         progressBar = findViewById(R.id.progressBar);
+
 
         ArrayAdapter<CharSequence> adapterDept = ArrayAdapter.createFromResource(this,
                 R.array.departments, R.layout.spinner_item);
@@ -165,13 +202,127 @@ public class UserInputActivity extends BaseActivity {
             }
         });
 
-     btnSubmit.setOnClickListener(v -> {
+        btnSubmit.setOnClickListener(v -> {
             resetErrorStates();
-            btnSubmit.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
-            saveStudentInfo();
+            validateAndSaveStudentInfo();
         });
     }
+
+    private void checkAndRequestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_MEDIA_IMAGES);
+            } else {
+                openImageSelector();
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_READ_MEDIA_IMAGES);
+            } else {
+                openImageSelector();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CODE_READ_MEDIA_IMAGES) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openImageSelector();
+            } else {
+                Toast.makeText(this, "Storage permission is required to select an image.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Open the image selector
+    private void openImageSelector() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                startCrop(selectedImageUri);
+            } else {
+                Toast.makeText(this, "Error selecting image. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
+            imageUri = UCrop.getOutput(data);
+            if (imageUri != null) {
+                imgProfilePicture.setImageURI(imageUri);
+                Uri compressedImageUri = compressImage(imageUri);
+                uploadProfilePicture(compressedImageUri);
+            }
+        }
+    }
+
+
+    private void startCrop(@NonNull Uri uri) {
+        String destinationFileName = "CroppedImage.jpg";
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(80);
+        UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)))
+                .withAspectRatio(1, 1)
+                .withMaxResultSize(1080, 1080)
+                .start(this);
+    }
+
+
+    private void uploadProfilePicture(Uri imageUri) {
+        if (imageUri == null) return;
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference("Profile/" + rollNO + ".jpg");
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    downloadUrl = uri.toString();
+                    btnSubmit.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(UserInputActivity.this, "Profile picture uploaded successfully", Toast.LENGTH_SHORT).show();
+                     }))
+                .addOnFailureListener(e -> Toast.makeText(UserInputActivity.this, "Failed to upload profile picture", Toast.LENGTH_SHORT).show());
+    }
+
+
+    private Uri compressImage(Uri uri) {
+        try {
+
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            int quality = 100;
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            while (outputStream.toByteArray().length / 1024 > 5120) {
+                outputStream.reset();
+                quality -= 10;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
+
+                if (quality <= 10) break;
+            }
+
+            byte[] imageData = outputStream.toByteArray();
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), BitmapFactory.decodeByteArray(imageData, 0, imageData.length), "CompressedImage", null);
+
+            return Uri.parse(path);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error compressing image", Toast.LENGTH_SHORT).show();
+            return uri;
+        }
+    }
+
+
+
 
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
@@ -206,14 +357,13 @@ public class UserInputActivity extends BaseActivity {
                             "SEP", "OCT", "NOV", "DEC"
                     };
 
-                    // Fetch the correct month name from monthNames using selectedMonth as the index.
                     String dob = String.format("%02d-%s-%d", selectedDay, monthNames[selectedMonth], selectedYear);
                     etDob.setText(dob);
                 },
                 year, month, day
         );
 
-        // Set max date to today
+
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
@@ -221,7 +371,7 @@ public class UserInputActivity extends BaseActivity {
 
 
 
-    private void saveStudentInfo() {
+    private void validateAndSaveStudentInfo() {
         String name = etName.getText().toString().trim();
         String regNo = etRegNo.getText().toString().trim();
         String phoneNo = etPhoneNo.getText().toString().trim();
@@ -252,7 +402,7 @@ public class UserInputActivity extends BaseActivity {
         }
 
 
-        if (TextUtils.isEmpty(dob) || dob.length()!=11) {
+        if (TextUtils.isEmpty(dob) || dob.length() != 11) {
             etDob.setBackgroundResource(R.drawable.edit_text_round_corner);
             etDob.setError("Enter Valid DOB");
             valid = false;
@@ -270,18 +420,22 @@ public class UserInputActivity extends BaseActivity {
             valid = false;
         }
 
-        if (department.equals("Select Department")) {
+        if (department.equals("Department")) {
             spinnerDepartment.setBackgroundResource(R.drawable.edit_text_round_corner);
             valid = false;
         }
 
         if (valid) {
-            resetErrorStates();
-            saveToFirebase(name, regNo, phoneNo, dob, sem, clg, department);
-        } else {
-            Toast.makeText(this, "Please fill all the fields correctly", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-            btnSubmit.setVisibility(View.VISIBLE);
+            if (downloadUrl == null) {
+                Utils.Snackbar(findViewById(androidx.appcompat.R.id.content), "Please upload a profile picture first", "SHORT");
+                progressBar.setVisibility(View.VISIBLE);
+                btnSubmit.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+            } else {
+                resetErrorStates();
+                saveToFirebase(name, regNo, phoneNo, dob, sem, clg, department, downloadUrl);
+
+            }
         }
     }
 
@@ -301,7 +455,7 @@ public class UserInputActivity extends BaseActivity {
 
 
     private void saveToFirebase(String name, String regNo, String phoneNo,
-                                String dob, String sem, String clg, String department) {
+                                String dob, String sem, String clg, String department, String profileUrl) {
 
         Map<String, String> studentData = new HashMap<>();
         studentData.put("Name", name);
@@ -309,6 +463,7 @@ public class UserInputActivity extends BaseActivity {
         studentData.put("Dept", department);
         studentData.put("DOB", dob);
         studentData.put("SEM", sem);
+        studentData.put("Profile", profileUrl);
 
         SharedPreferences.Editor editor =sharedPref.edit();
         editor.putInt("sem", Integer.parseInt(sem));
@@ -329,7 +484,7 @@ public class UserInputActivity extends BaseActivity {
                 clg.contains("excel engg college") ||
                 clg.contains("eec") ||
                 clg.contains("excel engg")) {
-            studentData.put("EXCEL ENGINEERING COLLEGE", clg);
+            studentData.put("Clg", "EXCEL ENGINEERING COLLEGE");
         }else{
             studentData.put("Clg", clg);
         }
@@ -339,7 +494,7 @@ public class UserInputActivity extends BaseActivity {
                     btnSubmit.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Student information saved successfully", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(UserInputActivity.this, CalculatorActivity.class));
+                        startActivity(new Intent(UserInputActivity.this, CalculatorActivity.class));finish();
                     } else {
                         Toast.makeText(this, "Failed to save data", Toast.LENGTH_SHORT).show();
                     }

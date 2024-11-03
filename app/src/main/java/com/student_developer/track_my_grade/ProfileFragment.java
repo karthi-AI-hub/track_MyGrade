@@ -1,13 +1,13 @@
 package com.student_developer.track_my_grade;
 
 
-import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.LENGTH_SHORT;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,15 +28,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-
-import com.airbnb.lottie.parser.IntegerParser;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
-
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +50,7 @@ public class ProfileFragment extends Fragment {
 
     TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
     TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
+    ImageView pro_photo;
     Button mvTOAdmin;
     private FirebaseFirestore db;
     DocumentReference docRef;
@@ -151,6 +149,7 @@ public class ProfileFragment extends Fragment {
         tvpro8 = view.findViewById((R.id.tv_pro8));
         tvCGPATotal = view.findViewById((R.id.tvCgpaTotal));
 
+        pro_photo = view.findViewById(R.id.pro_photo);
         pro_name = view.findViewById((R.id.pro_name));
         pro_roll = view.findViewById((R.id.pro_roll));
         pro_reg = view.findViewById((R.id.pro_reg));
@@ -334,6 +333,11 @@ public class ProfileFragment extends Fragment {
                     String sem = dataSnapshot.child("SEM").getValue(String.class);
                     String dob = dataSnapshot.child("DOB").getValue(String.class).toUpperCase();
                     String phno = dataSnapshot.child("PhNo").getValue(String.class);
+                    String profileUrl = dataSnapshot.child("Profile").getValue(String.class);
+
+                    if (profileUrl != null) {
+                        new LoadImageFromURL(pro_photo).execute(profileUrl);
+                    }
 
                     String fullDept = departmentNames.getOrDefault(dept, dept);
                     currentSemester = Integer.parseInt(sem);
@@ -363,6 +367,40 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+    }
+
+    private static class LoadImageFromURL extends AsyncTask<String, Void, Bitmap> {
+        private final ImageView imageView;
+
+        public LoadImageFromURL(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            String urlDisplay = urls[0];
+            Bitmap bitmap = null;
+            try {
+                URL url = new URL(urlDisplay);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result != null) {
+                imageView.setImageBitmap(result);
+            } else {
+                imageView.setImageResource(R.drawable.profile);
+            }
+        }
     }
 
     private void removeExtraSemester(int currentSemester) {
