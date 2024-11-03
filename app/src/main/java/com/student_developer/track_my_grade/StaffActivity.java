@@ -20,6 +20,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -38,6 +39,7 @@ public class StaffActivity extends BaseActivity {
     private ImageView ivNeedHelp;
     private String staffName, userName;
     private DatabaseReference databaseReference;
+    private LineChart lineChart;
     private SharedPreferences sharedPref;
     private StudentAdapter adapter;
     private List<String> studentList;
@@ -88,8 +90,10 @@ public class StaffActivity extends BaseActivity {
                 openMenu();
             }
         });
-        fab_logOut.setOnClickListener(v -> { Utils.intend(StaffActivity.this, LoginActivity.class);
-            FirebaseAuth.getInstance().signOut(); finish();});
+        fab_logOut.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            Utils.intend(StaffActivity.this, LoginActivity.class);
+            finish();});
         ivNeedHelp.setOnClickListener(v -> openHelpActivity());
         tvNeedHelp.setOnClickListener(v -> openHelpActivity());
 
@@ -217,16 +221,3 @@ public class StaffActivity extends BaseActivity {
         showExitConfirmationDialog();
     }
 }
-//
-//    <Button
-//android:id="@+id/btnlogOut"
-//android:layout_width="wrap_content"
-//android:layout_height="wrap_content"
-//android:layout_gravity="center"
-//android:layout_marginTop="20dp"
-//android:layout_marginBottom="20dp"
-//android:backgroundTint="@color/blue_600"
-//android:text="LOG OUT"
-//android:textColor="@android:color/white"
-//android:textSize="16sp" />
-//
