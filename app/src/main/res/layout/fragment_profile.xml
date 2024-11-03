@@ -24,16 +24,31 @@
     android:layout_height="wrap_content"
         android:background="@drawable/gradient_bf"
     android:orientation="vertical">
-        <ImageView
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PROFILE"
+            android:textColor="@color/purple_500"
+            android:layout_marginTop="5dp"
+            android:textSize="20sp"
+            android:layout_marginVertical="10dp"
+            android:textStyle="bold"/>
+
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/pro_photo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/profile"
-            android:text=""
-            android:textStyle="bold"
             android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            />
+            android:contentDescription="Profile photo"
+            app:shapeAppearanceOverlay="@style/OvalImage"
+            app:strokeColor="@color/white"
+            app:strokeWidth="0dp"/>
+
         <TextView
             android:id="@+id/pro_name"
             android:layout_width="wrap_content"
@@ -44,7 +59,7 @@
             android:textSize="25sp"
             android:textColor="@color/light_blue_900"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             />
 
         <TextView

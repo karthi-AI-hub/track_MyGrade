@@ -428,10 +428,9 @@ public class UserInputActivity extends BaseActivity {
 
         if (valid) {
             if (downloadUrl == null) {
-                Utils.Snackbar(findViewById(androidx.appcompat.R.id.content), "Please upload a profile picture first", "SHORT");
+                Toast.makeText(this,"Upload Profile photo before submitting",Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.VISIBLE);
                 btnSubmit.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
             } else {
                 resetErrorStates();
                 saveToFirebase(name, regNo, phoneNo, dob, sem, clg, department, downloadUrl);
@@ -476,15 +475,16 @@ public class UserInputActivity extends BaseActivity {
             studentData.put("PhNo", phoneNo);
         }
 
-        if (clg.contains("excel") ||
-                clg.contains("excel engineering") ||
-                clg.contains("excel enginerring college autonomous") ||
-                clg.contains("excel enginerring college (autonomous)") ||
-                clg.contains("excel enginerring college(autonomous)") ||
-                clg.contains("excel enginerring college") ||
-                clg.contains("excel engg college") ||
-                clg.contains("eec") ||
-                clg.contains("excel engg")) {
+        String ClgName = clg.toLowerCase();
+        if (ClgName.contains("excel") ||
+                ClgName.contains("excel engineering") ||
+                ClgName.contains("excel enginerring college autonomous") ||
+                ClgName.contains("excel enginerring college (autonomous)") ||
+                ClgName.contains("excel enginerring college(autonomous)") ||
+                ClgName.contains("excel enginerring college") ||
+                ClgName.contains("excel engg college") ||
+                ClgName.contains("eec") ||
+                ClgName.contains("excel engg")) {
             studentData.put("Clg", "EXCEL ENGINEERING COLLEGE");
         }else{
             studentData.put("Clg", clg);

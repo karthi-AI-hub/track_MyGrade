@@ -1,131 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/gradient_bf"
-    android:orientation="vertical">
+    android:background="@drawable/gradient_bf">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingEnd="8dp"
-        android:paddingTop="5dp"
-        android:layout_marginEnd="5dp"
-        android:gravity="end">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_need_help"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_help"
-            android:layout_marginEnd="10dp"
-            android:contentDescription="Need Help"/>
+            android:orientation="horizontal"
+            android:paddingEnd="8dp"
+            android:paddingTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:gravity="end">
 
-        <TextView
-            android:id="@+id/tv_need_help"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/iv_need_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_help"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="Need Help"/>
+
+            <TextView
+                android:id="@+id/tv_need_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Help"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/gray"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Help"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textSize="18sp"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp"
+            android:weightSum="3">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_profile"
+                    android:layout_width="40dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/profile"
+                    android:contentDescription="Profile" />
+
+                <TextView
+                    android:id="@+id/tv_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PROFILE"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="@color/blue_600"
+                    android:textAlignment="center"
+                    android:gravity="center"/>
+                <View
+                    android:id="@+id/v_profile"
+                    android:layout_width="70dp"
+                    android:layout_height="3dp"
+                    android:background="@color/primary"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- CGPA Calculator Button -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_calculator"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/baseline_home_24"
+                    android:contentDescription="CGPA Calculator" />
+
+                <TextView
+                    android:id="@+id/tv_cgpa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HOME"
+                    android:textColor="@color/purple_500"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:gravity="center"/>
+                <View
+                    android:id="@+id/v_cgpa"
+                    android:layout_width="70dp"
+                    android:layout_height="3dp"
+                    android:background="@color/primary"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_graph"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/graph"
+                    android:contentDescription="Graph" />
+
+                <TextView
+                    android:id="@+id/tv_graph"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GRAPH"
+                    android:textColor="@color/blue_600"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:gravity="center"/>
+                <View
+                    android:id="@+id/v_graph"
+                    android:layout_width="70dp"
+                    android:layout_height="3dp"
+                    android:background="@color/primary"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
+    <!-- Floating Action Buttons -->
     <RelativeLayout
         android:id="@+id/RlFab"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:visibility="gone">
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_option1"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="20dp"
-        android:clickable="true"
-        android:elevation="10dp"
-        android:scaleType="center"
-        android:src="@drawable/icon_download"
-        app:backgroundTint="@color/green"
-        app:fabCustomSize="30dp"
-        app:rippleColor="@color/sky_blue"
-        app:tint="@color/white" />
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="60dp"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_option1"
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_option1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Get Result"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_alignParentEnd="true"
+            android:src="@drawable/icon_download"
+            app:tint="@color/white"
+            app:backgroundTint="@color/green"
+            app:fabCustomSize="30dp"
+            android:layout_marginEnd="20dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="70dp"
-            android:scaleType="center"
-            android:textColor="@color/light_blue_900"
-             android:visibility="gone"
-            />
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="10dp"
+            android:visibility="visible"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_option2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="center"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="20dp"
-        android:clickable="true"
-        android:overScrollMode="ifContentScrolls"
-        android:elevation="10dp"
-        app:fabCustomSize="30dp"
-        app:backgroundTint="@color/green"
-        app:tint="@color/white"
-        android:src="@drawable/icon_share"
-        app:rippleColor="@color/sky_blue"/>
-
-        <TextView
-            android:id="@+id/tv_option2"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_option2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_alignParentEnd="true"
+            android:src="@drawable/icon_document"
+            app:tint="@color/white"
+            app:fabCustomSize="30dp"
+            android:layout_marginEnd="20dp"
+            app:backgroundTint="@color/green"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="70dp"
-            android:scaleType="center"
-            android:textColor="@color/light_blue_900"
-            android:visibility="gone"
-            />
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="10dp"
+            android:visibility="visible"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_option3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="center"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="20dp"
-            android:clickable="true"
-            android:overScrollMode="ifContentScrolls"
-            android:elevation="10dp"
-            app:fabCustomSize="30dp"
-            app:backgroundTint="@color/green"
-            app:tint="@color/white"
             android:src="@drawable/icon_logout"
-            app:rippleColor="@color/sky_blue"/>
+            app:tint="@color/white"
+            app:fabCustomSize="30dp"
+            android:layout_marginEnd="20dp"
+            app:backgroundTint="@color/green"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="10dp"
+            android:visibility="visible"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="@color/white"
+            android:src="@drawable/icon_add"
+            app:fabCustomSize="40dp"
+            app:rippleColor="@color/primary"
+            app:backgroundTint="@color/blue_600"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"/>
 
         <TextView
             android:id="@+id/tv_option3"
@@ -134,156 +236,35 @@
             android:text="Log Out"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="70dp"
-            android:scaleType="center"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="65dp"
             android:textColor="@color/light_blue_900"
-            android:visibility="gone"
-            />
-
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="center"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:clickable="true"
-        android:overScrollMode="ifContentScrolls"
-        android:layout_marginEnd="20dp"
-        android:elevation="10dp"
-        app:fabCustomSize="40dp"
-        app:backgroundTint="@color/blue_600"
-        app:tint="@color/white"
-        android:src="@drawable/icon_add"
-        app:rippleColor="@color/sky_blue"/>
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_option2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Documents"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="65dp"
+            android:textColor="@color/light_blue_900"
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_option1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Result"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="65dp"
+            android:textColor="@color/light_blue_900"
+            android:visibility="gone"/>
     </RelativeLayout>
 
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/gray"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="8dp"
-        android:weightSum="3">
-
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/btn_profile"
-                android:layout_width="40dp"
-                android:layout_height="35dp"
-                android:src="@drawable/profile"
-                android:contentDescription="Profile" />
-
-            <TextView
-                android:id="@+id/tv_profile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PROFILE"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="@color/blue_600"
-                android:textAlignment="center"
-                android:gravity="center"/>
-
-            <View
-                android:id="@+id/v_profile"
-                android:layout_width="70dp"
-                android:layout_height="3dp"
-                android:background="@color/primary"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-        <!-- CGPA Calculator Button -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/btn_calculator"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:src="@drawable/baseline_home_24"
-                android:contentDescription="CGPA Calculator" />
-
-            <TextView
-                android:id="@+id/tv_cgpa"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HOME"
-                android:textColor="@color/purple_500"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textAlignment="center"
-                android:gravity="center"/>
-
-            <!-- Line below selected button -->
-            <View
-                android:id="@+id/v_cgpa"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:background="@color/primary"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/btn_graph"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:src="@drawable/graph"
-                android:contentDescription="Graph" />
-
-            <TextView
-                android:id="@+id/tv_graph"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="GRAPH"
-                android:textColor="@color/blue_600"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textAlignment="center"
-                android:gravity="center"/>
-
-            <View
-                android:id="@+id/v_graph"
-                android:layout_width="70dp"
-                android:layout_height="3dp"
-                android:background="@color/primary"
-                android:visibility="gone"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

@@ -1,6 +1,6 @@
 package com.student_developer.track_my_grade;
 
-import android.content.SharedPreferences;
+import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -20,9 +21,11 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -83,6 +86,17 @@ public class StudentDetailActivity extends AppCompatActivity {
         loadGPAData();
         loadCredientData();
         loadSemesterData();
+        pro_photo.setOnClickListener(v -> {
+            Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.full_image_view);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageView fullImageView = dialog.findViewById(R.id.full_image_View);
+            TextView tvClose = dialog.findViewById(R.id.tv_close);
+            fullImageView.setImageDrawable(pro_photo.getDrawable());
+            tvClose.setOnClickListener(v2 -> dialog.dismiss());
+
+            dialog.show();
+        });
     }
 
     private void initUI() {
@@ -239,6 +253,7 @@ public class StudentDetailActivity extends AppCompatActivity {
         }
     }
 
+
     private void processGPAData(DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists()) {
             Float[] gpas = new Float[]{
@@ -251,27 +266,26 @@ public class StudentDetailActivity extends AppCompatActivity {
                     getGpaFromDocument(documentSnapshot, "Sem 7"),
                     getGpaFromDocument(documentSnapshot, "Sem 8")
             };
+
             List<Entry> gpaEntries = new ArrayList<>();
-            String[] semesters = {"Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"};
+            String[] semesters = {"SEM 1", "SEM 2", "SEM 3", "SEM 4", "SEM 5", "SEM 6", "SEM 7", "SEM 8"};
 
             for (int i = 0; i < semesters.length; i++) {
-                Float gpa = getGpaFromDocument(documentSnapshot, semesters[i]);
-                gpaEntries.add(new Entry(i, gpa != null ? gpa : 0));
+                Float gpa = gpas[i];
+                if (gpa != null && gpa != 0) {
+                    gpaEntries.add(new Entry(i, gpa));
+                }
             }
 
-             updateLineChart(gpaEntries);
+            updateLineChart(gpaEntries,semesters);
 
             TextView[] gpaTextViews = {tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8};
             for (int i = 0; i < gpas.length; i++) {
-                if (gpas[i] != null) {
-                    setGPAColorAndText(gpaTextViews[i], gpas[i]);
-                }else{
-                    setProText(gpaTextViews[i], "N/A");
-                    gpaTextViews[i].setTextColor(getResources().getColor(R.color.gray));
-                }
+                setGPAColorAndText(gpaTextViews[i], gpas[i]);
             }
         }
     }
+
 
     private void processCredientData(DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists()) {
@@ -430,46 +444,71 @@ public class StudentDetailActivity extends AppCompatActivity {
         mainContainer.addView(semesterCardView);
     }
 
-    private void updateLineChart(List<Entry> gpaEntries) {
-        LineDataSet lineDataSet = new LineDataSet(gpaEntries, "GPA over Semesters"); // Set the label
-        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
+    private void updateLineChart(List<Entry> gpaEntries, String[] semesters) {
+        LineDataSet lineDataSet = new LineDataSet(gpaEntries, "");
         lineDataSet.setColor(Color.BLUE); // Set line color
         lineDataSet.setValueTextColor(Color.BLACK); // Set value text color
-        lineDataSet.setDrawCircles(true); // Draw circles on data points
-        lineDataSet.setCircleColor(Color.RED); // Circle color
-        lineDataSet.setCircleRadius(5f); // Circle radius
-        lineDataSet.setLineWidth(2f); // Line width
-        lineDataSet.setDrawValues(true); // Show values on the line
+        lineDataSet.setValueTextSize(10f);
+        lineDataSet.setLineWidth(3f);
+        lineDataSet.setCircleHoleRadius(2.0f);
+        lineDataSet.setCircleColor(Color.BLUE);
+        lineDataSet.setColor(ContextCompat.getColor(this, R.color.blue_600));
+        lineDataSet.setCircleColor(ContextCompat.getColor(this, R.color.purple_500));
+        lineDataSet.setCircleHoleColor(ContextCompat.getColor(this, R.color.white));
+        // Set circle color
+        lineDataSet.setCircleRadius(7f);
 
         LineData lineData = new LineData(lineDataSet);
         lineChart.setData(lineData);
-        lineChart.invalidate(); // Refresh the chart
-        configureChartAppearance();
+        configureChartAppearance(semesters);
+
+        lineChart.animateXY(1000, 1000);
+        lineDataSet.setDrawFilled(true);
+        lineDataSet.setFillColor(ContextCompat.getColor(this, R.color.blue_600));
+        lineDataSet.setFillAlpha(70);
+        lineChart.invalidate();
     }
 
-    private void configureChartAppearance() {
+
+    private void configureChartAppearance(String[] semesters) {
+        // Configure chart appearance
         lineChart.getDescription().setEnabled(false); // Disable the description text
         lineChart.getAxisRight().setEnabled(false); // Disable the right y-axis
+
+        // Configure X-axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X-axis at the bottom
-        xAxis.setDrawGridLines(false); // Disable grid lines
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(new String[]{"Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"}));
+        xAxis.setDrawGridLines(false);// Enable grid lines
+        xAxis.setTextSize(12f);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(semesters));
+        xAxis.setGranularity(1f);
+        xAxis.setLabelCount(semesters.length);
+        xAxis.setTypeface(Typeface.DEFAULT_BOLD);
 
+        // Configure Y-axis
         YAxis yAxis = lineChart.getAxisLeft();
-        yAxis.setDrawGridLines(true); // Draw grid lines
+        yAxis.setDrawGridLines(false); // Disable grid lines
         yAxis.setGranularity(0.5f); // Set granularity for y-axis
-        yAxis.setAxisMinimum(0f); // Minimum value
+        yAxis.setAxisMinimum(0f); // Minimum value based on your GPA scale
         yAxis.setAxisMaximum(10f); // Maximum value based on your GPA scale
+        yAxis.setDrawLabels(false);
+
+
         Legend legend = lineChart.getLegend();
-        legend.setEnabled(true); // Enable legend
+        legend.setEnabled(true);
+        legend.setTextColor(ContextCompat.getColor(this, R.color.black));
+        legend.setTextSize(18f);
+        legend.setTypeface(Typeface.DEFAULT_BOLD);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setForm(Legend.LegendForm.NONE);
     }
-
-
-
 
 
     @Override
     public void onBackPressed() {
         Utils.intend(this,StaffActivity.class);
+        finish();
     }
 }

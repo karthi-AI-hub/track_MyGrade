@@ -71,6 +71,7 @@ public class SplashActivity extends BaseActivity {
                                 Intent intent = new Intent(SplashActivity.this, StaffActivity.class);
                                 intent.putExtra("staff_Name", staffName);
                                 startActivity(intent);
+                                finish();
                             } else {
                                 Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
                                 myRef.child(rollNO).get().addOnCompleteListener(task -> {

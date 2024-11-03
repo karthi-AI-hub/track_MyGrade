@@ -1,5 +1,6 @@
 package com.student_developer.track_my_grade;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,7 +40,6 @@ public class StaffActivity extends BaseActivity {
     private ImageView ivNeedHelp;
     private String staffName, userName;
     private DatabaseReference databaseReference;
-    private LineChart lineChart;
     private SharedPreferences sharedPref;
     private StudentAdapter adapter;
     private List<String> studentList;
@@ -69,9 +69,9 @@ public class StaffActivity extends BaseActivity {
         fab_logOut = findViewById(R.id.fab_logout);
 
         if(staffName != null){
-            tvTitle.setText(staffName + "'s Dashboard");
+            tvTitle.setText(staffName);
         }else{
-            tvTitle.setText(userName + "'s Dashboard");
+            tvTitle.setText(userName);
         }
 
         searchResultsListView = findViewById(R.id.searchResultsListView);
@@ -84,6 +84,11 @@ public class StaffActivity extends BaseActivity {
         searchResultsListView.setAdapter(adapter);
 
         fab_menu.setOnClickListener(v -> {
+            float startRotation = isMenuOpen ? 225f : 0f;
+            float endRotation = isMenuOpen ? 0f : 225f;
+            ObjectAnimator rotation = ObjectAnimator.ofFloat(fab_menu, "rotation", startRotation, endRotation);
+            rotation.setDuration(300);
+            rotation.start();
             if (isMenuOpen) {
                 closeMenu();
             } else {
@@ -119,7 +124,7 @@ public class StaffActivity extends BaseActivity {
         tv_logOut.setVisibility(View.VISIBLE);
 
         fab_logOut.animate().translationY(-100f).alpha(1f).start();
-        tv_logOut.animate().translationY(-130f).alpha(1f).start();
+        tv_logOut.animate().translationY(-160f).alpha(1f).start();
 
 
         isMenuOpen = true;
@@ -137,6 +142,7 @@ public class StaffActivity extends BaseActivity {
         Intent intent = new Intent(StaffActivity.this, NeedHelpActivity.class);
         intent.putExtra("from_staff", true);
         startActivity(intent);
+        finish();
     }
 
     private void handleSearchTextChanged(String rollNo) {
@@ -214,6 +220,7 @@ public class StaffActivity extends BaseActivity {
         Intent intent = new Intent(this, StudentDetailActivity.class);
         intent.putExtra("rollNo", selectedRollNo.toUpperCase());
         startActivity(intent);
+        finish();
     }
 
     @Override

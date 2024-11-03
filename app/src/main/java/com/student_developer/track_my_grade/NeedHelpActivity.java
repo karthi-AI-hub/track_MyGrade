@@ -1,8 +1,10 @@
 package com.student_developer.track_my_grade;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -14,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class NeedHelpActivity extends BaseActivity {
 
     TextView emailTextView, tvRequestMail, tvUpdateSem;
+    ImageView logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +25,8 @@ public class NeedHelpActivity extends BaseActivity {
         setContentView(R.layout.activity_need_help);
 
         tvUpdateSem = findViewById(R.id.tvUpdateSem);
+        logo = findViewById(R.id.logo);
+        logo.setBackgroundColor(Color.TRANSPARENT);
         tvUpdateSem.setOnClickListener(v -> {
             String email = "trackmygrade@gmail.com";
             String subject = "UPDATE_SEMESTER_REQUEST";
@@ -78,8 +83,10 @@ public class NeedHelpActivity extends BaseActivity {
 
         if (isFromStaff) {
             Utils.intend(this, StaffActivity.class);
+            finish();
         } else {
             Utils.intend(this, CalculatorActivity.class);
+            finish();
         }
     }
 

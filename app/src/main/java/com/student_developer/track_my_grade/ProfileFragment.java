@@ -2,6 +2,7 @@ package com.student_developer.track_my_grade;
 
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +34,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -50,7 +53,7 @@ public class ProfileFragment extends Fragment {
 
     TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
     TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
-    ImageView pro_photo;
+    ShapeableImageView pro_photo;
     Button mvTOAdmin;
     private FirebaseFirestore db;
     DocumentReference docRef;
@@ -247,6 +250,19 @@ public class ProfileFragment extends Fragment {
                 connectivityManager.registerDefaultNetworkCallback(networkCallback);
             }
         }
+
+        pro_photo.setOnClickListener(v -> {
+            Dialog dialog = new Dialog(getContext());
+            dialog.setContentView(R.layout.full_image_view);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageView fullImageView = dialog.findViewById(R.id.full_image_View);
+            TextView tvClose = dialog.findViewById(R.id.tv_close);
+            fullImageView.setImageDrawable(pro_photo.getDrawable());
+            tvClose.setOnClickListener(v2 -> dialog.dismiss());
+
+            dialog.show();
+        });
+
         return view;
     }
     private void loadData(){

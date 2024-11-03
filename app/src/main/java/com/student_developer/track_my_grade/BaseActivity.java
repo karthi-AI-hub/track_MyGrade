@@ -14,31 +14,19 @@ public class BaseActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
     }
-
-    // Method to show the exit confirmation dialog
     protected void showExitConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Exit App");
         builder.setMessage("Do you really want to exit the app?");
-        builder.setPositiveButton("Yes", (dialog, which) -> finish());
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", (dialog, which) -> finishAffinity());
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
+    @Override
     public void onBackPressed() {
-        // Create an AlertDialog builder
-        new AlertDialog.Builder(this)
-                .setMessage("Do you really want to exit the app?")
-                .setCancelable(false)  // Prevent the dialog from being dismissed by clicking outside
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    // Exit the application when user clicks "Yes"
-                    finishAffinity();  // Close the application
-                })
-                .setNegativeButton("No", (dialog, which) -> {
-                    // Dismiss the dialog and do nothing when user clicks "No"
-                    dialog.dismiss();
-                })
-                .show();
+        showExitConfirmationDialog();
     }
 }

@@ -2,6 +2,7 @@ package com.student_developer.track_my_grade;
 
 import static android.app.PendingIntent.getActivity;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class CalculatorActivity extends BaseActivity {
 
     private boolean isProfileLoading = false;
+    private boolean isTransactionInProgress = false;
     private ImageView btnProfile,btnCalculator,btnGraph;
     private ImageView ivNeedHelp;
     private TextView tvNeedHelp;
@@ -43,6 +45,7 @@ public class CalculatorActivity extends BaseActivity {
         btnCalculator = findViewById(R.id.btn_calculator);
         btnGraph = findViewById(R.id.btn_graph);
         rlFAB = findViewById(R.id.RlFab);
+        rlFAB.setVisibility(View.GONE);
         fab_menu = findViewById(R.id.fab_menu);
         fab_opt1 = findViewById(R.id.fab_option1);
         fab_opt2 = findViewById(R.id.fab_option2);
@@ -56,51 +59,64 @@ public class CalculatorActivity extends BaseActivity {
         btnProfile.setEnabled(!isProfileLoading);
         btnCalculator.setEnabled(!isProfileLoading);
         btnGraph.setEnabled(!isProfileLoading);
-
         ivNeedHelp.setOnClickListener(v -> {
           Utils.intend(this, NeedHelpActivity.class);
+          finish();
         });
 
         tvNeedHelp.setOnClickListener(v -> {
             Utils.intend(this, NeedHelpActivity.class);
+            finish();
         });
 
-        fab_menu.setOnClickListener(v -> {
-            if (isMenuOpen) {
-                closeMenu();
-            } else {
-                openMenu();
-            }
-        });
+        fab_menu.setOnClickListener(v -> {tranferFAB();});
 
         fab_opt3.setOnClickListener(v -> {
                     FirebaseAuth.getInstance().signOut();
-
-
                     Intent intent = new Intent(CalculatorActivity.this, LoginActivity.class);
-
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
                     startActivity(intent);
-
                     CalculatorActivity.this.overridePendingTransition(0, 0);
-
-
                     if (CalculatorActivity.this != null) {
                         CalculatorActivity.this.finish();
                     }
                 });
 
+        fab_opt2.setOnClickListener(v -> {
+            Intent intent = new Intent(CalculatorActivity.this, UploadDocumentActivity.class);
+            startActivity(intent);
+
+            CalculatorActivity.this.overridePendingTransition(0, 0);
+
+
+            if (CalculatorActivity.this != null) {
+                CalculatorActivity.this.finish();
+            }
+        });
+
+
         btnProfile.setOnClickListener(v -> {
-            if (!isProfileLoading) {
+
+            btnProfile.setEnabled(false);
+            if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new ProfileFragment());
-                rlFAB.setVisibility(View.GONE);
+                btnProfile.setEnabled(isProfileLoading);
+                setFabVisibility(View.GONE);
+                closeMenu();
+                btnCalculator.setEnabled(!isProfileLoading);
+                btnGraph.setEnabled(!isProfileLoading);
             }
         });
 
         btnCalculator.setOnClickListener(v -> {
-            if (!isProfileLoading) {
+            if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new CalculatorFragment());
+
+                setFabVisibility(View.VISIBLE);
+                btnProfile.setEnabled(!isProfileLoading);
+                btnCalculator.setEnabled(true);
+                btnGraph.setEnabled(!isProfileLoading);
+
                 rlFAB.setVisibility(View.VISIBLE);
                 fab_menu.setVisibility(View.VISIBLE);
                 fab_opt1.setVisibility(View.GONE);
@@ -114,12 +130,30 @@ public class CalculatorActivity extends BaseActivity {
         });
 
         btnGraph.setOnClickListener(v -> {
-            if (!isProfileLoading) {
+            if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new GraphFragment());
-                rlFAB.setVisibility(View.GONE);
+                setFabVisibility(View.GONE);
+                closeMenu();
+                btnProfile.setEnabled(!isProfileLoading);
+                btnCalculator.setEnabled(!isProfileLoading);
+                btnGraph.setEnabled(false);
+
             }
         });
 
+    }
+    private void tranferFAB(){
+        float startRotation = isMenuOpen ? 135f : 0f;
+        float endRotation = isMenuOpen ? 0f : 135f;
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(fab_menu, "rotation", startRotation, endRotation);
+        rotation.setDuration(300);
+        rotation.start();
+
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
     }
 
     public void setFabVisibility(int visibility) {
@@ -133,36 +167,48 @@ public class CalculatorActivity extends BaseActivity {
         fab_opt3.setVisibility(View.VISIBLE);
         tv_opt3.setVisibility(View.VISIBLE);
 
-        fab_opt1.animate().translationY(-440f).alpha(1f).start();
-        fab_opt2.animate().translationY(-320f).alpha(1f).start();
-        fab_opt3.animate().translationY(-200f).alpha(1f).start();
+        fab_opt1.animate().translationY(-500).alpha(1f).start();
+        tv_opt1.animate().translationY(-530).alpha(1f).start();
+        fab_opt2.animate().translationY(-350).alpha(1f).start();
+        tv_opt2.animate().translationY(-380).alpha(1f).start();
+        fab_opt3.animate().translationY(-200).alpha(1f).start();
+        tv_opt3.animate().translationY(-230).alpha(1f).start();
 
-        tv_opt1.animate().translationY(-475f).alpha(1f).start();
-        tv_opt2.animate().translationY(-355f).alpha(1f).start();
-        tv_opt3.animate().translationY(-235f).alpha(1f).start();
         isMenuOpen = true;
     }
 
     private void closeMenu() {
-        fab_opt1.animate().translationY(0).alpha(0f).withEndAction(() -> fab_opt1.setVisibility(View.GONE)).start();
-        fab_opt2.animate().translationY(0).alpha(0f).withEndAction(() -> fab_opt2.setVisibility(View.GONE)).start();
-        fab_opt3.animate().translationY(0).alpha(0f).withEndAction(() -> fab_opt3.setVisibility(View.GONE)).start();
 
-        tv_opt1.animate().translationY(0).alpha(0f).withEndAction(() -> tv_opt1.setVisibility(View.GONE)).start();
-        tv_opt2.animate().translationY(0).alpha(0f).withEndAction(() -> tv_opt2.setVisibility(View.GONE)).start();
-        tv_opt3.animate().translationY(0).alpha(0f).withEndAction(() -> tv_opt3.setVisibility(View.GONE)).start();
+        fab_opt1.animate().translationY(0).alpha(0f).start();
+        tv_opt1.animate().translationY(0).alpha(0f).start();
+
+        fab_opt2.animate().translationY(0).alpha(0f).start();
+        tv_opt2.animate().translationY(0).alpha(0f).start();
+
+        fab_opt3.animate().translationY(0).alpha(0f).start();
+        tv_opt3.animate().translationY(0).alpha(0f).start();
+
+
 
 
         isMenuOpen = false;
     }
     private void loadFragment(Fragment fragment) {
-        if (fragment != null) {
+        if (fragment == null || isTransactionInProgress) return;
+        isTransactionInProgress = true;
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-             fragmentTransaction.replace(R.id.fragment_container, fragment);
-             fragmentTransaction.commit();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+
+        if (currentFragment != null) {
+            fragmentManager.beginTransaction().hide(currentFragment).commitNow();
         }
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+        isTransactionInProgress = false;
     }
 
     public void setProfileLoading(boolean loading) {
@@ -170,15 +216,18 @@ public class CalculatorActivity extends BaseActivity {
         ImageView btnProfile = findViewById(R.id.btn_profile);
         ImageView btnCalculator = findViewById(R.id.btn_calculator);
         ImageView btnGraph = findViewById(R.id.btn_graph);
-
         btnProfile.setEnabled(!loading);
         btnCalculator.setEnabled(!loading);
         btnGraph.setEnabled(!loading);
+    }
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
 
     @Override
     public void onBackPressed() {
         showExitConfirmationDialog();
     }
+
 }
 

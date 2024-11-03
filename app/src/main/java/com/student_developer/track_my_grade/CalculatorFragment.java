@@ -76,7 +76,7 @@ public class CalculatorFragment extends Fragment {
         rollNO = sharedPref.getString("roll_no", null);
         sem = sharedPref.getInt("current_sem", 1);
         TextViewIndex = sharedPref.getInt("TextViewIndex", 1);
-        System.out.println("TextViewIndex  : "+ TextViewIndex);
+        ((CalculatorActivity) requireActivity()).setFabVisibility(View.VISIBLE);
 
 
         FirebaseFirestore.setLoggingEnabled(true);
@@ -183,8 +183,6 @@ public class CalculatorFragment extends Fragment {
                         });
             }
         });
-
-
 
         btnsvToSem.setOnClickListener((View v) -> {
             if (Utils.isNetworkAvailable(requireContext())) {
@@ -573,11 +571,10 @@ public class CalculatorFragment extends Fragment {
             if (documentSnapshot.exists()) {
                 String rollNoFromDb = documentSnapshot.getString("Roll No");
 
-                // Validation: Check if the input roll number matches the current user's roll number
-                if (!finalRollnoInput.equals(rollNoFromDb)) {
+                   if (!finalRollnoInput.equals(rollNoFromDb)) {
                     Toast.makeText(requireContext(), "You can only save GPA for your own roll number.", Toast.LENGTH_SHORT).show();
-                    return;  // Exit if the roll numbers do not match
-                }
+                    return;
+                   }
 
                 // Proceed with saving GPA if validation passes
                 Map<String, Object> userData = new HashMap<>();
@@ -597,8 +594,7 @@ public class CalculatorFragment extends Fragment {
                                 docRef.update(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(requireContext(), "GPA updated successfully", Toast.LENGTH_SHORT).show();
-                                            // Navigate to ProfileFragment after successful update
-                                            navigateToProfileFragment();
+                                                 navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to update GPA", Toast.LENGTH_SHORT).show();
@@ -645,9 +641,10 @@ public class CalculatorFragment extends Fragment {
     // Method to navigate to ProfileFragment
     private void navigateToProfileFragment() {
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+
         transaction.replace(R.id.fragment_container, new ProfileFragment()); // Replace the current fragment with ProfileFragment
         transaction.addToBackStack(null); // Optional: add this transaction to the back stack so users can navigate back
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
 
@@ -683,6 +680,7 @@ public class CalculatorFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
     }
 
+
     public void onDestroyView() {
         super.onDestroyView();
 
@@ -691,6 +689,12 @@ public class CalculatorFragment extends Fragment {
         }
 
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((CalculatorActivity) getActivity()).setFabVisibility(View.VISIBLE);
+    }
+
 
 }
 

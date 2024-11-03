@@ -35,14 +35,19 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/gradient_bf"
                 android:orientation="vertical">
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/pro_photo"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
                     android:src="@drawable/profile"
-                    android:textStyle="bold"
                     android:layout_gravity="center"
-                    />
+                    android:contentDescription="Profile photo"
+                    app:shapeAppearanceOverlay="@style/OvalImage"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="0dp"/>
+
                 <TextView
                     android:id="@+id/pro_name"
                     android:layout_width="wrap_content"
@@ -53,7 +58,7 @@
                     android:textSize="25sp"
                     android:textColor="@color/light_blue_900"
                     android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     />
 
                 <TextView
@@ -567,22 +572,23 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="3dp"
-            android:background="@drawable/gradient_bf"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="20dp">
-
+            android:text="Perfomanace"
+            android:textSize="20sp"
+            android:textColor="@color/purple_500"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"/>
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
-            android:layout_height="250dp"
+            android:layout_height="200dp"
+            android:paddingEnd="20dp"
             android:background="@drawable/gradient_bf"
-            android:layout_width="match_parent"/>
-        </androidx.cardview.widget.CardView>
+            android:layout_width="match_parent"
+            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:id="@+id/main_container"
@@ -595,7 +601,7 @@
                 android:id="@+id/tv_SemDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Subject Details :"
+                android:text="Subject Details"
                 android:textSize="20sp"
                 android:textColor="@color/purple_500"
                 android:padding="10dp"
