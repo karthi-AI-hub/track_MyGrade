@@ -1,12 +1,16 @@
 package com.student_developer.track_my_grade;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -30,6 +34,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +46,11 @@ public class StudentDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseFirestore db;
     private LinearLayout[] semesterLayouts;
-    LinearLayout mainContainer;
+    private LinearLayout mainContainer;
     private String rollNo, name;
     private int currentSemester;
     private Map<String, String> departmentNames;
+    private ImageView pro_photo;
     private TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
     private TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
 
@@ -80,6 +88,7 @@ public class StudentDetailActivity extends AppCompatActivity {
         tvpro8 = findViewById(R.id.tv_pro8);
         tvCGPATotal = findViewById(R.id.tvCgpaTotal);
 
+        pro_photo = findViewById(R.id.pro_photo);
         pro_name = findViewById(R.id.pro_name);
         pro_roll = findViewById(R.id.pro_roll);
         pro_reg = findViewById(R.id.pro_reg);
@@ -142,6 +151,11 @@ public class StudentDetailActivity extends AppCompatActivity {
                     String sem = dataSnapshot.child("SEM").getValue(String.class);
                     String dob = dataSnapshot.child("DOB").getValue(String.class).toUpperCase();
                     String phno = dataSnapshot.child("PhNo").getValue(String.class);
+                    String profileUrl = dataSnapshot.child("Profile").getValue(String.class);
+
+                    if (profileUrl != null) {
+                        new LoadImageFromURL(pro_photo).execute(profileUrl);
+                    }
 
                     String fullDept = departmentNames.getOrDefault(dept, dept);
                     currentSemester = Integer.parseInt(sem);
@@ -177,6 +191,41 @@ public class StudentDetailActivity extends AppCompatActivity {
         DocumentReference documentRef = db.collection("Users").document(rollNo);
         documentRef.get().addOnSuccessListener(this::processCredientData)
                 .addOnFailureListener(e -> Log.e("StudentDetailActivity", "Error fetching GPA data", e));
+    }
+
+
+    private static class LoadImageFromURL extends AsyncTask<String, Void, Bitmap> {
+        private final ImageView imageView;
+
+        public LoadImageFromURL(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            String urlDisplay = urls[0];
+            Bitmap bitmap = null;
+            try {
+                URL url = new URL(urlDisplay);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result != null) {
+                imageView.setImageBitmap(result);
+            } else {
+                imageView.setImageResource(R.drawable.profile);
+            }
+        }
     }
 
     private void processGPAData(DocumentSnapshot documentSnapshot) {

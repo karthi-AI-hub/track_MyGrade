@@ -268,10 +268,11 @@ public class UserInputActivity extends BaseActivity {
         String destinationFileName = "CroppedImage.jpg";
         UCrop.Options options = new UCrop.Options();
         options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
-        options.setCompressionQuality(80);
+        options.setCompressionQuality(100);
         UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)))
                 .withAspectRatio(1, 1)
                 .withMaxResultSize(1080, 1080)
+                .withOptions(options)
                 .start(this);
     }
 
