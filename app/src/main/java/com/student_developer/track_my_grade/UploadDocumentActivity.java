@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
@@ -89,13 +90,21 @@ public class UploadDocumentActivity extends AppCompatActivity {
     }
 
     private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            chooseFile();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                chooseFile();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES}, STORAGE_PERMISSION_CODE);
+            }
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                chooseFile();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+            }
         }
-
     }
 
     @Override
@@ -126,8 +135,6 @@ public class UploadDocumentActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         filePickerLauncher.launch(Intent.createChooser(intent, "Select File"));
     }
-
-
 
     private void promptForFileName(Uri fileUri) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -241,9 +248,6 @@ private String getFileExtension(Uri fileUri) {
         }
     }
 
-
-
-
     private boolean isImageFile(Uri uri) {
         String fileName = getFileName(uri);
         return fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png");
@@ -255,7 +259,7 @@ private String getFileExtension(Uri fileUri) {
     }
 
     private void startCropActivity(Uri uri, String customFileName) {
-        this.currentCustomFileName = customFileName; // Store the custom file name
+        this.currentCustomFileName = customFileName;
         Uri destinationUri = Uri.fromFile(new File(getCacheDir(), customFileName));
 
         UCrop.of(uri, destinationUri)
