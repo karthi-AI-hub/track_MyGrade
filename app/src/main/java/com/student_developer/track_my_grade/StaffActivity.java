@@ -76,7 +76,7 @@ public class StaffActivity extends BaseActivity {
 
         searchResultsListView = findViewById(R.id.searchResultsListView);
         databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("Students");
+                .getReference("AIDS");
 
         studentList = new ArrayList<>();
         rollNoList = new ArrayList<>();
@@ -201,7 +201,7 @@ public class StaffActivity extends BaseActivity {
                             String name = snapshot.child("Name").getValue(String.class);
                             String rollNumber = snapshot.getKey();
                             if (name != null && rollNumber != null) {
-                                studentList.add("NAME    : " + name + "\nROLL NO  : " + rollNumber);
+                                studentList.add("NAME      : " + name + "\nROLL NO : " + rollNumber);
                                 rollNoList.add(rollNumber);
                             }
                         }

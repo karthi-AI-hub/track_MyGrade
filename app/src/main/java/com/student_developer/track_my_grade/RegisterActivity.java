@@ -258,7 +258,7 @@ public class RegisterActivity extends BaseActivity {
 
 
     private boolean isRollNoValid(String rollNo) {
-        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 7 && rollNo.length() <= 8 && rollNo.matches(ROLLNO_REGEX);
+        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 7 && rollNo.length() <= 20 && rollNo.matches(ROLLNO_REGEX);
     }
 
     private boolean isEmailValid(String email) {

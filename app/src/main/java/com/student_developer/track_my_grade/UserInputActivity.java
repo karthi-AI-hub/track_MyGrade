@@ -259,6 +259,8 @@ public class UserInputActivity extends BaseActivity {
                 imgProfilePicture.setImageURI(imageUri);
                 Uri compressedImageUri = compressImage(imageUri);
                 uploadProfilePicture(compressedImageUri);
+                progressBar.setVisibility(View.VISIBLE);
+                btnUploadPicture.setVisibility(View.GONE);
             }
         }
     }
@@ -286,9 +288,13 @@ public class UserInputActivity extends BaseActivity {
                     downloadUrl = uri.toString();
                     btnSubmit.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
+                    btnUploadPicture.setVisibility(View.GONE);
                     Toast.makeText(UserInputActivity.this, "Profile picture uploaded successfully", Toast.LENGTH_SHORT).show();
                      }))
-                .addOnFailureListener(e -> Toast.makeText(UserInputActivity.this, "Failed to upload profile picture", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->{ Toast.makeText(UserInputActivity.this, "Failed to upload profile picture", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                    btnUploadPicture.setVisibility(View.VISIBLE);
+                });
     }
 
 
@@ -305,8 +311,6 @@ public class UserInputActivity extends BaseActivity {
                 outputStream.reset();
                 quality -= 10;
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-
-
                 if (quality <= 10) break;
             }
 
@@ -429,7 +433,6 @@ public class UserInputActivity extends BaseActivity {
         if (valid) {
             if (downloadUrl == null) {
                 Toast.makeText(this,"Upload Profile photo before submitting",Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.VISIBLE);
                 btnSubmit.setVisibility(View.GONE);
             } else {
                 resetErrorStates();

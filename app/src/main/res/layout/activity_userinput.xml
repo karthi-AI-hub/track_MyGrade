@@ -150,6 +150,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Upload Profile Picture"
+            android:backgroundTint="@color/light_violet"
+            android:textColor="@color/white"
             android:layout_gravity="center"/>
 
 

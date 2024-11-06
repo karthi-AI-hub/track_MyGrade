@@ -2,18 +2,19 @@ package com.student_developer.track_my_grade;
 
 import static com.student_developer.track_my_grade.Utils.isNetworkConnected;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
-import android.util.Log;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,7 +22,10 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.firebase.storage.FirebaseStorage;
@@ -30,16 +34,22 @@ import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UploadDocumentActivity extends AppCompatActivity {
 
-    private LinearLayout layoutMarkSheets, layoutCertificates, layoutParticipations;
+
+    private static final int STORAGE_PERMISSION_CODE = 101;
+    private long downloadId;
+    private ProgressDialog progressDialog;
+    private LinearLayout layoutMarkSheets, layoutDocuments ;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private AtomicInteger markSheetsCount, documentsCount;
     private String currentFolder;
     private String currentCustomFileName, rollNO;
-    SharedPreferences sharedPref;
-    private TextView btnAddMarksheet, btnAddCertificate, btnAddParticipation;
+    private SharedPreferences sharedPref;
+    private TextView btnAddMarksheet, btnAdddocuments;
     private File trackMyGradeFolder;
 
     @Override
@@ -48,39 +58,55 @@ public class UploadDocumentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload_document);
 
         layoutMarkSheets = findViewById(R.id.layout_marksheets);
-        layoutCertificates = findViewById(R.id.layout_certificates);
-        layoutParticipations = findViewById(R.id.layout_participations);
-
+        layoutDocuments = findViewById(R.id.layout_documents);
+        markSheetsCount = new AtomicInteger(1);
+        documentsCount = new AtomicInteger(1);
 
         sharedPref = this.getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference().child("Documents").child(rollNO);
 
-        displayFiles("MarkSheets", layoutMarkSheets);
-        displayFiles("Course Certificates", layoutCertificates);
-        displayFiles("Outside Participations", layoutParticipations);
+        displayFiles("MarkSheets", layoutMarkSheets, markSheetsCount);
+        displayFiles("Documents", layoutDocuments, documentsCount);
 
         btnAddMarksheet = findViewById(R.id.btn_add_marksheet);
-        btnAddCertificate = findViewById(R.id.btn_add_certificate);
-        btnAddParticipation = findViewById(R.id.btn_add_outsideParticipation);
+        btnAdddocuments = findViewById(R.id.btn_add_documents);
 
         btnAddMarksheet.setOnClickListener(v -> {
             currentFolder = "MarkSheets";
-            chooseFile();
+            requestStoragePermission();
         });
-        btnAddCertificate.setOnClickListener(v -> {
-            currentFolder = "Course Certificates";
-            chooseFile();
-        });
-        btnAddParticipation.setOnClickListener(v -> {
-            currentFolder = "Outside Participations";
-            chooseFile();
+        btnAdddocuments.setOnClickListener(v -> {
+            currentFolder = "Documents";
+            requestStoragePermission();
         });
 
         trackMyGradeFolder = new File(getExternalFilesDir(null), "Track MyGrade");
         if (!trackMyGradeFolder.exists()) {
             trackMyGradeFolder.mkdir();
+        }
+    }
+
+    private void requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            chooseFile();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                chooseFile();
+            } else {
+                Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -100,6 +126,7 @@ public class UploadDocumentActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         filePickerLauncher.launch(Intent.createChooser(intent, "Select File"));
     }
+
 
 
     private void promptForFileName(Uri fileUri) {
@@ -127,20 +154,93 @@ public class UploadDocumentActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", (dialog, which) -> {
             String customFileName = input.getText().toString().trim();
             if (!customFileName.isEmpty()) {
+                String fileExtension = getFileExtension(fileUri);  // Get the correct file extension
+                String fileNameWithExtension = customFileName + fileExtension;  // Append the extension
+
                 if (isImageFile(fileUri)) {
-                    startCropActivity(fileUri, customFileName); // Start crop with custom resolution for images
-                } else {
-                    uploadFile(fileUri, customFileName); // Upload PDFs directly
+                    startCropActivity(fileUri, fileNameWithExtension); // Start crop with custom resolution for images
+                } else if (isPdfFile(fileUri)){
+                    uploadFile(fileUri, fileNameWithExtension); // Upload PDFs directly with extension
+                }else{
+                    uploadFile(fileUri,fileNameWithExtension);
                 }
             } else {
                 input.setBackgroundResource(R.drawable.edit_text_round_corner);
-                Utils.Snackbar(findViewById(androidx.appcompat.R.id.content), "File name cannot be empty", "short");
+                Toast.makeText(this, "File name cannot be empty.", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
     }
+private String getFileExtension(Uri fileUri) {
+        String mimeType = getContentResolver().getType(fileUri);
+
+        if (mimeType == null) {
+             String fileName = getFileName(fileUri);
+            if (fileName != null && fileName.contains(".")) {
+                return fileName.substring(fileName.lastIndexOf("."));
+            } else {
+                return ".unknown";        }
+        }
+
+        switch (mimeType) {
+            case "application/pdf":
+                return ".pdf";
+            case "image/jpeg":
+                return ".jpg";
+            case "image/png":
+                return ".png";
+            case "application/msword":
+                return ".doc";
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                return ".docx";
+            case "application/vnd.ms-excel":
+                return ".xls";
+            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                return ".xlsx";
+            case "text/csv":
+                return ".csv";
+            case "text/plain":
+                return ".txt";
+            case "application/vnd.ms-powerpoint":
+                return ".ppt";
+            case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                return ".pptx";
+            case "application/zip":
+                return ".zip";
+            case "application/x-rar-compressed":
+                return ".rar";
+            case "application/x-7z-compressed":
+                return ".7z";
+            case "application/json":
+                return ".json";
+            case "application/xml":
+                return ".xml";
+            case "application/vnd.android.package-archive":
+                return ".apk";
+            case "video/mp4":
+                return ".mp4";
+            case "audio/mpeg":
+                return ".mp3";
+            case "image/gif":
+                return ".gif";
+            case "image/bmp":
+                return ".bmp";
+            case "application/x-tar":
+                return ".tar";
+            case "application/x-gtar":
+                return ".gtar";
+            case "application/x-iso9660-image":
+                return ".iso";
+            case "application/x-compressed":
+            case "application/gzip":
+                return ".gz";
+            default:
+                return "";
+        }
+    }
+
 
 
 
@@ -160,7 +260,7 @@ public class UploadDocumentActivity extends AppCompatActivity {
 
         UCrop.of(uri, destinationUri)
                 .withAspectRatio(0, 0)
-                .withMaxResultSize(1000, 1000) 
+                .withMaxResultSize(1000, 1000)
                 .start(this);
     }
 
@@ -177,21 +277,79 @@ public class UploadDocumentActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadFile(Uri fileUri, String customFileName) {
+    private void uploadFile(Uri fileUri, String fileNameWithExtension) {
         if (!isNetworkConnected(this)) {
-            Toast.makeText(this, "No network connection available", Toast.LENGTH_SHORT).show();
+            showToast("No network connection available");
             return;
         }
 
-        StorageReference fileRef = storageRef.child(currentFolder).child(customFileName);
+        if (fileUri == null) {
+            showToast("File URI is null!");
+            return;
+        }
 
-        fileRef.putFile(fileUri).addOnSuccessListener(taskSnapshot -> {
-            Toast.makeText(this, "File uploaded successfully!", Toast.LENGTH_SHORT).show();
-            displayUploadedFile(customFileName, currentFolder);
-        }).addOnFailureListener(e -> {
-            Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        });
+        long fileSize = getFileSize(fileUri);
+        final long MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+        if (fileSize > MAX_FILE_SIZE) {
+            showToast("File size exceeds 20 MB limit!");
+            return;
+        }
+
+        StorageReference fileRef = storageRef.child(currentFolder).child(fileNameWithExtension);
+
+        showProgressDialog("Uploading...", "Please wait while the file is being uploaded...");
+        fileRef.putFile(fileUri)
+                .addOnSuccessListener(taskSnapshot -> handleUploadSuccess(fileNameWithExtension))
+                .addOnFailureListener(this::handleUploadFailure);
     }
+
+    private long getFileSize(Uri fileUri) {
+        long fileSize = 0;
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(fileUri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1) {
+                    fileSize = cursor.getLong(sizeIndex);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return fileSize;
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showProgressDialog(String title, String message) {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
+        }
+        progressDialog.setTitle(title);
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    private void handleUploadSuccess(String fileNameWithExtension) {
+        showToast("File uploaded successfully!");
+        displayUploadedFile(fileNameWithExtension, currentFolder);
+        dismissProgressDialog();
+    }
+
+    private void handleUploadFailure(Exception e) {
+        showToast("Upload failed: " + e.getMessage());
+        dismissProgressDialog();
+    }
+
 
     private void displayUploadedFile(String fileName, String folder) {
         LinearLayout targetLayout;
@@ -199,11 +357,8 @@ public class UploadDocumentActivity extends AppCompatActivity {
             case "MarkSheets":
                 targetLayout = layoutMarkSheets;
                 break;
-            case "Course Certificates":
-                targetLayout = layoutCertificates;
-                break;
-            case "Outside Participations":
-                targetLayout = layoutParticipations;
+            case "Documents":
+                targetLayout = layoutDocuments;
                 break;
             default:
                 return;
@@ -229,22 +384,23 @@ public class UploadDocumentActivity extends AppCompatActivity {
         return fileName;
     }
 
-    private void displayFiles(String folderName, LinearLayout layout) {
+    private void displayFiles(String folderName, LinearLayout layout, AtomicInteger couNt) {
         StorageReference folderRef = storageRef.child(folderName);
-
         folderRef.listAll().addOnSuccessListener(listResult -> {
             for (StorageReference fileRef : listResult.getItems()) {
-                addFileTextView(fileRef, layout);
+                addFileTextView(fileRef, layout, couNt);
+                couNt.getAndIncrement();
             }
         }).addOnFailureListener(e -> {
             Toast.makeText(this, "Failed to load files: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void addFileTextView(StorageReference fileRef, LinearLayout layout) {
+    private void addFileTextView(StorageReference fileRef, LinearLayout layout, AtomicInteger counT) {
         TextView fileTextView = new TextView(this);
-        fileTextView.setText(fileRef.getName());
-        fileTextView.setTextSize(16);
+        String fName = counT.get() + ") " + (fileRef.getName());
+        fileTextView.setText(fName);
+        fileTextView.setTextSize(18);
         fileTextView.setTextColor(getResources().getColor(R.color.black));
         fileTextView.setPadding(8, 8, 8, 8);
 
@@ -256,65 +412,216 @@ public class UploadDocumentActivity extends AppCompatActivity {
     private void showFileOptions(StorageReference fileRef) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(fileRef.getName())
-                .setItems(new String[]{"View", "Download"}, (dialog, which) -> {
+                .setItems(new String[]{"View", "Download","Share"}, (dialog, which) -> {
                     if (which == 0) {
                         viewFile(fileRef);
-                    } else {
+                    } else if (which==1) {
                         downloadFile(fileRef);
+                    }else{
+                        shareFile(fileRef);
                     }
                 })
                 .show();
     }
+    private void shareFile(StorageReference fileRef) {
+        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            File localFile = new File(getExternalFilesDir(null), fileRef.getName());
+            fileRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+                shareDownloadedFile(localFile);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Download for sharing failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to get download URL for sharing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void shareDownloadedFile(File file) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType(getMimeType(Uri.fromFile(file)));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share file via"));
+    }
 
     private void viewFile(StorageReference fileRef) {
         fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, getMimeType(uri)); // Set MIME type based on the file
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "No app available to view the file", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(e -> Toast.makeText(this, "View failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            File localFile = new File(getExternalFilesDir(null), fileRef.getName());
+            fileRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+                openDownloadedFile(localFile);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to get download URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
-    // Helper method to determine MIME type based on the file extension
+    private void openDownloadedFile(File file) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, getMimeType(uri));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No app available to view the file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     private String getMimeType(Uri uri) {
-        String mimeType = "*/*"; // Default MIME type
+        String mimeType = "*/*";
         String fileName = getFileName(uri);
+
         if (fileName.endsWith(".pdf")) {
             mimeType = "application/pdf";
         } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
             mimeType = "image/jpeg";
         } else if (fileName.endsWith(".png")) {
             mimeType = "image/png";
+        } else if (fileName.endsWith(".txt")) {
+            mimeType = "text/plain";
+        } else if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+            mimeType = "application/msword";
+        } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+            mimeType = "application/vnd.ms-excel";
+        } else if (fileName.endsWith(".csv")) {
+            mimeType = "text/csv";
+        } else if (fileName.endsWith(".zip")) {
+            mimeType = "application/zip";
+        } else if (fileName.endsWith(".rar")) {
+            mimeType = "application/x-rar-compressed";
+        } else if (fileName.endsWith(".7z")) {
+            mimeType = "application/x-7z-compressed";
+        } else if (fileName.endsWith(".mp4")) {
+            mimeType = "video/mp4";
+        } else if (fileName.endsWith(".mp3")) {
+            mimeType = "audio/mpeg";
+        } else if (fileName.endsWith(".ppt") || fileName.endsWith(".pptx")) {
+            mimeType = "application/vnd.ms-powerpoint";
+        } else if (fileName.endsWith(".apk")) {
+            mimeType = "application/vnd.android.package-archive";
+        } else if (fileName.endsWith(".gif")) {
+            mimeType = "image/gif";
+        } else if (fileName.endsWith(".html")) {
+            mimeType = "text/html";
+        } else if (fileName.endsWith(".xml")) {
+            mimeType = "application/xml";
+        } else if (fileName.endsWith(".tar")) {
+            mimeType = "application/x-tar";
+        } else if (fileName.endsWith(".avi")) {
+            mimeType = "video/x-msvideo";
+        } else if (fileName.endsWith(".flv")) {
+            mimeType = "video/x-flv";
+        } else if (fileName.endsWith(".mkv")) {
+            mimeType = "video/x-matroska";
+        } else if (fileName.endsWith(".mov")) {
+            mimeType = "video/quicktime";
+        } else if (fileName.endsWith(".wav")) {
+            mimeType = "audio/x-wav";
+        } else if (fileName.endsWith(".ogg")) {
+            mimeType = "audio/ogg";
+        } else if (fileName.endsWith(".json")) {
+            mimeType = "application/json";
         }
+
         return mimeType;
     }
 
-
     private void downloadFile(StorageReference fileRef) {
         fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File trackMyGradeFolder = new File(downloadsDir, "Track MyGrade");
-            if (!trackMyGradeFolder.exists()) {
-                trackMyGradeFolder.mkdir(); // Create the folder if it doesn't exist
+            File downloadsDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Track MyGrade");
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
             }
 
-            File destinationFile = new File(trackMyGradeFolder, fileRef.getName());
+            File destinationFile = new File(downloadsDir, fileRef.getName());
+
+            DownloadManager.Request request = new DownloadManager.Request(uri)
+                    .setTitle(fileRef.getName() + " - Downloading")
+                    .setDescription("Downloading file...")
+                    .setDestinationUri(Uri.fromFile(destinationFile))
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
 
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            DownloadManager.Request request = new DownloadManager.Request(uri);
+            downloadId = downloadManager.enqueue(request);
 
-            request.setDestinationUri(Uri.fromFile(destinationFile));
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Downloading " + fileRef.getName());
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-            downloadManager.enqueue(request);
+            new Thread(() -> {
+                boolean downloading = true;
+                while (downloading) {
+                    try (Cursor cursor = downloadManager.query(new DownloadManager.Query().setFilterById(downloadId))) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                            switch (status) {
+                                case DownloadManager.STATUS_SUCCESSFUL:
+                                    downloading = false;
+                                    break;
+                                case DownloadManager.STATUS_FAILED:
+                                    onDownloadFailed();
+                                    downloading = false;
+                                    break;
+                                case DownloadManager.STATUS_RUNNING:
+                                    updateDownloadProgress(cursor);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
 
-            Toast.makeText(this, "Download started...", Toast.LENGTH_SHORT).show(); // Optional: Show a toast message
-        }).addOnFailureListener(e -> Toast.makeText(this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                onDownloadComplete();
+            }).start();
+
+            Toast.makeText(this, "Download started...", Toast.LENGTH_SHORT).show();
+
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            dismissProgressDialog();
+        });
+    }
+
+    private void updateDownloadProgress(Cursor cursor) {
+        int bytesDownloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+        int totalBytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+        if (totalBytes > 0) {
+            int progress = (int) ((bytesDownloaded * 100L) / totalBytes);
+            runOnUiThread(() -> progressDialog.setProgress(progress));
+        }
+    }
+
+    private void onDownloadFailed() {
+        runOnUiThread(() -> {
+            dismissProgressDialog();
+            Toast.makeText(this, "Download failed!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void onDownloadComplete() {
+        runOnUiThread(() -> {
+            dismissProgressDialog();
+            Toast.makeText(this, "Download completed!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
 

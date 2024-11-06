@@ -1,12 +1,25 @@
 package com.student_developer.track_my_grade;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -17,11 +30,14 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -33,6 +49,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,7 +61,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -58,7 +78,12 @@ public class StudentDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseFirestore db;
     private LinearLayout[] semesterLayouts;
-    private LinearLayout mainContainer;
+    private LinearLayout mainContainer, layoutMarkSheets;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private static final int STORAGE_PERMISSION_CODE = 101;
+    private long downloadId;
+    private ProgressDialog progressDialog;
     private LineChart lineChart;
     private String rollNo, name;
     private int currentSemester;
@@ -82,10 +107,8 @@ public class StudentDetailActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Students").child(rollNo);
 
-        fetchStudentDetails();
-        loadGPAData();
-        loadCredientData();
-        loadSemesterData();
+        checkInternetAndProcess();
+
         pro_photo.setOnClickListener(v -> {
             Dialog dialog = new Dialog(this);
             dialog.setContentView(R.layout.full_image_view);
@@ -99,8 +122,18 @@ public class StudentDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void checkInternetAndProcess() {
+
+            fetchStudentDetails();
+            loadGPAData();
+            loadCredientData();
+            loadSemesterData();
+            displayFiles();
+        }
     private void initUI() {
         mainContainer = findViewById(R.id.main_container);
+        layoutMarkSheets = findViewById(R.id.layout_marksheets);
+
         lineChart = findViewById(R.id.chart);
 
         tvpro1 = findViewById(R.id.tv_pro1);
@@ -125,6 +158,8 @@ public class StudentDetailActivity extends AppCompatActivity {
         pro_dept = findViewById(R.id.pro_dept);
 
         initializeDepartmentNames();
+
+
 
         semesterLayouts = new LinearLayout[]{
                 findViewById(R.id.llS1),
@@ -361,11 +396,11 @@ public class StudentDetailActivity extends AppCompatActivity {
         semesterCardView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
 
 
+
         TableLayout tableLayout = new TableLayout(this);
         tableLayout.setStretchAllColumns(true);
         tableLayout.setPadding(0, 0, 0, 0);
-        tableLayout.setBackgroundColor(Color.TRANSPARENT);
-
+        semesterCardView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
 
         TableRow semesterRow = new TableRow(this);
         semesterRow.setPadding(10, 8, 10, 8);
@@ -382,7 +417,7 @@ public class StudentDetailActivity extends AppCompatActivity {
         TableRow headerRow = new TableRow(this);
         headerRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.light_violet, null));
         headerRow.setPadding(12, 12, 12, 12);
-        String[] headers = {"Sub Name", "CR", "GP"};
+        String[] headers = {"S.No","Sub Name", "CR", "GP"};
         for (String headerText : headers) {
             TextView headerTitle = new TextView(this);
             headerTitle.setText(headerText);
@@ -398,10 +433,21 @@ public class StudentDetailActivity extends AppCompatActivity {
         }
         tableLayout.addView(headerRow);
 
+        int sNo = 1;
         for (Map<String, Object> subject : subjects) {
             TableRow tableRow = new TableRow(this);
             tableRow.setPadding(40, 20, 40, 20);
-            tableRow.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
+            semesterCardView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
+
+            TextView sno = new TextView(this);
+            String sNO = sNo + ")";
+            sno.setText(sNO);
+            sno.setLayoutParams(new TableRow.LayoutParams(
+                    0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
+            sno.setPadding(20, 20, 0, 20);
+            sno.setGravity(Gravity.CENTER);
+            sno.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.cell_background, null));
+            sno.setTextColor(Color.BLACK);
 
             TextView subjectName = new TextView(this);
             subjectName.setText((String) subject.get("subjectName"));
@@ -432,12 +478,13 @@ public class StudentDetailActivity extends AppCompatActivity {
             gradePoint.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.cell_background, null));
             gradePoint.setTextColor(Color.BLACK);
 
-
+            tableRow.addView(sno);
             tableRow.addView(subjectName);
             tableRow.addView(credit);
             tableRow.addView(gradePoint);
 
             tableLayout.addView(tableRow);
+            sNo++;
         }
 
         semesterCardView.addView(tableLayout);
@@ -446,41 +493,34 @@ public class StudentDetailActivity extends AppCompatActivity {
 
 
     private void updateLineChart(List<Entry> gpaEntries, String[] semesters) {
-        LineDataSet lineDataSet = new LineDataSet(gpaEntries, "");
-        lineDataSet.setColor(Color.BLUE); // Set line color
+        LineDataSet lineDataSet = new LineDataSet(gpaEntries, "GPA over Semester");
         lineDataSet.setValueTextColor(Color.BLACK); // Set value text color
         lineDataSet.setValueTextSize(10f);
-        lineDataSet.setLineWidth(3f);
+        lineDataSet.setLineWidth(2f);
         lineDataSet.setCircleHoleRadius(2.0f);
-        lineDataSet.setCircleColor(Color.BLUE);
-        lineDataSet.setColor(ContextCompat.getColor(this, R.color.blue_600));
-        lineDataSet.setCircleColor(ContextCompat.getColor(this, R.color.purple_500));
+        lineDataSet.setColor(Color.BLUE);
+        lineDataSet.setCircleColor(ContextCompat.getColor(this, R.color.red));
         lineDataSet.setCircleHoleColor(ContextCompat.getColor(this, R.color.white));
-        // Set circle color
-        lineDataSet.setCircleRadius(7f);
+        lineDataSet.setCircleRadius(5f);
 
         LineData lineData = new LineData(lineDataSet);
         lineChart.setData(lineData);
         configureChartAppearance(semesters);
 
         lineChart.animateXY(1000, 1000);
-        lineDataSet.setDrawFilled(true);
-        lineDataSet.setFillColor(ContextCompat.getColor(this, R.color.blue_600));
-        lineDataSet.setFillAlpha(70);
         lineChart.invalidate();
     }
 
 
     private void configureChartAppearance(String[] semesters) {
-        // Configure chart appearance
-        lineChart.getDescription().setEnabled(false); // Disable the description text
-        lineChart.getAxisRight().setEnabled(false); // Disable the right y-axis
 
-        // Configure X-axis
+        lineChart.getDescription().setEnabled(false);
+        lineChart.getAxisRight().setEnabled(false);
+
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X-axis at the bottom
-        xAxis.setDrawGridLines(false);// Enable grid lines
-        xAxis.setTextSize(12f);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextSize(9f);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(semesters));
         xAxis.setGranularity(1f);
         xAxis.setLabelCount(semesters.length);
@@ -488,25 +528,286 @@ public class StudentDetailActivity extends AppCompatActivity {
 
         // Configure Y-axis
         YAxis yAxis = lineChart.getAxisLeft();
-        yAxis.setDrawGridLines(false); // Disable grid lines
-        yAxis.setGranularity(0.5f); // Set granularity for y-axis
-        yAxis.setAxisMinimum(0f); // Minimum value based on your GPA scale
-        yAxis.setAxisMaximum(10f); // Maximum value based on your GPA scale
-        yAxis.setDrawLabels(false);
+        yAxis.setDrawGridLines(true);
+        yAxis.setGranularity(0.5f);
+        yAxis.setAxisMinimum(1f);
+        yAxis.setAxisMaximum(10f);
+        yAxis.setDrawLabels(true);
 
 
         Legend legend = lineChart.getLegend();
         legend.setEnabled(true);
         legend.setTextColor(ContextCompat.getColor(this, R.color.black));
-        legend.setTextSize(18f);
+        legend.setTextSize(14f);
         legend.setTypeface(Typeface.DEFAULT_BOLD);
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setForm(Legend.LegendForm.NONE);
+        legend.setForm(Legend.LegendForm.LINE);
+    }
+
+    private void displayFiles() {
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference().child("Documents").child(rollNo).child("MarkSheets");
+        storageRef.listAll().addOnSuccessListener(listResult -> {
+            int count=1;
+            for (StorageReference fileRef : listResult.getItems()) {
+                addFileTextView(fileRef, layoutMarkSheets, count);
+                count ++;
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to load files: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void addFileTextView(StorageReference fileRef, LinearLayout layout, int count) {
+        String fName = count +") "+fileRef.getName();
+        TextView fileTextView = new TextView(this);
+        fileTextView.setText(fName);
+        fileTextView.setTextSize(18);
+        fileTextView.setTextColor(getResources().getColor(R.color.black));
+        fileTextView.setPadding(8, 8, 8, 8);
+
+        fileTextView.setOnClickListener(v -> showFileOptions(fileRef));
+
+        layout.addView(fileTextView);
+    }
+    private void showFileOptions(StorageReference fileRef) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(fileRef.getName())
+                .setItems(new String[]{"View", "Download","Share"}, (dialog, which) -> {
+                    if (which == 0) {
+                        viewFile(fileRef);
+                    } else if (which==1) {
+                        downloadFile(fileRef);
+                    }else{
+                        shareFile(fileRef);
+                    }
+                })
+                .show();
+    }
+
+    private void shareFile(StorageReference fileRef) {
+        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            File localFile = new File(getExternalFilesDir(null), fileRef.getName());
+            fileRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+                shareDownloadedFile(localFile);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Download for sharing failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to get download URL for sharing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void shareDownloadedFile(File file) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType(getMimeType(Uri.fromFile(file)));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share file via"));
+    }
+
+    private void viewFile(StorageReference fileRef) {
+        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            File localFile = new File(getExternalFilesDir(null), fileRef.getName());
+            fileRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+                openDownloadedFile(localFile);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to get download URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void openDownloadedFile(File file) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, getMimeType(uri));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "No app available to view the file", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
-    @Override
+    private String getMimeType(Uri uri) {
+        String mimeType = "*/*";
+        String fileName = getFileName(uri);
+
+        if (fileName.endsWith(".pdf")) {
+            mimeType = "application/pdf";
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            mimeType = "image/jpeg";
+        } else if (fileName.endsWith(".png")) {
+            mimeType = "image/png";
+        } else if (fileName.endsWith(".txt")) {
+            mimeType = "text/plain";
+        } else if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+            mimeType = "application/msword";
+        } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+            mimeType = "application/vnd.ms-excel";
+        } else if (fileName.endsWith(".csv")) {
+            mimeType = "text/csv";
+        } else if (fileName.endsWith(".zip")) {
+            mimeType = "application/zip";
+        } else if (fileName.endsWith(".rar")) {
+            mimeType = "application/x-rar-compressed";
+        } else if (fileName.endsWith(".7z")) {
+            mimeType = "application/x-7z-compressed";
+        } else if (fileName.endsWith(".mp4")) {
+            mimeType = "video/mp4";
+        } else if (fileName.endsWith(".mp3")) {
+            mimeType = "audio/mpeg";
+        } else if (fileName.endsWith(".ppt") || fileName.endsWith(".pptx")) {
+            mimeType = "application/vnd.ms-powerpoint";
+        } else if (fileName.endsWith(".apk")) {
+            mimeType = "application/vnd.android.package-archive";
+        } else if (fileName.endsWith(".gif")) {
+            mimeType = "image/gif";
+        } else if (fileName.endsWith(".html")) {
+            mimeType = "text/html";
+        } else if (fileName.endsWith(".xml")) {
+            mimeType = "application/xml";
+        } else if (fileName.endsWith(".tar")) {
+            mimeType = "application/x-tar";
+        } else if (fileName.endsWith(".avi")) {
+            mimeType = "video/x-msvideo";
+        } else if (fileName.endsWith(".flv")) {
+            mimeType = "video/x-flv";
+        } else if (fileName.endsWith(".mkv")) {
+            mimeType = "video/x-matroska";
+        } else if (fileName.endsWith(".mov")) {
+            mimeType = "video/quicktime";
+        } else if (fileName.endsWith(".wav")) {
+            mimeType = "audio/x-wav";
+        } else if (fileName.endsWith(".ogg")) {
+            mimeType = "audio/ogg";
+        } else if (fileName.endsWith(".json")) {
+            mimeType = "application/json";
+        }
+
+        return mimeType;
+    }
+
+    private String getFileName(Uri uri) {
+        String fileName = "unknown_file";
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                fileName = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME));
+            }
+        }
+        return fileName;
+    }
+
+    private void downloadFile(StorageReference fileRef) {
+        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            File downloadsDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Track MyGrade");
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            File destinationFile = new File(downloadsDir, fileRef.getName());
+
+            DownloadManager.Request request = new DownloadManager.Request(uri)
+                    .setTitle(fileRef.getName() + " - Downloading")
+                    .setDescription("Downloading file...")
+                    .setDestinationUri(Uri.fromFile(destinationFile))
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+
+            DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+            long downloadId = downloadManager.enqueue(request);
+
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Downloading " + fileRef.getName());
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            new Thread(() -> {
+                boolean downloading = true;
+                while (downloading) {
+                    DownloadManager.Query query = new DownloadManager.Query().setFilterById(downloadId);
+                    try (Cursor cursor = downloadManager.query(query)) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                            switch (status) {
+                                case DownloadManager.STATUS_SUCCESSFUL:
+                                    downloading = false;
+                                    break;
+                                case DownloadManager.STATUS_FAILED:
+                                    onDownloadFailed();
+                                    downloading = false;
+                                    break;
+                                case DownloadManager.STATUS_RUNNING:
+                                    updateDownloadProgress(cursor);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        onDownloadFailed();
+                        downloading = false;
+                    }
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                onDownloadComplete();
+            }).start();
+
+            showToast("Download Started");
+        }).addOnFailureListener(e -> {
+            showToast("Download failed: " + e.getMessage());
+            dismissProgressDialog();
+        });
+    }
+
+    private void updateDownloadProgress(Cursor cursor) {
+        int bytesDownloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+        int totalBytes = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+        if (totalBytes > 0) {
+            int progress = (int) ((bytesDownloaded * 100L) / totalBytes);
+            runOnUiThread(() -> progressDialog.setProgress(progress));
+        }
+    }
+
+    private void onDownloadFailed() {
+        runOnUiThread(() -> {
+            dismissProgressDialog();
+            showToast("Download failed!");
+        });
+    }
+
+    private void onDownloadComplete() {
+        runOnUiThread(() -> {
+            dismissProgressDialog();
+            showToast("Download completed!");
+        });
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    public void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+
+@Override
     public void onBackPressed() {
         Utils.intend(this,StaffActivity.class);
         finish();

@@ -21,12 +21,12 @@
             android:paddingVertical="8dp">
 
             <TextView
-                android:text="MarkSheets :"
+                android:text="Mark Sheets :"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:padding="6dp"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textColor="@color/light_violet"
                 android:textStyle="bold"/>
 
@@ -49,6 +49,16 @@
                 android:backgroundTint="@color/blue_600"
                 android:text="ADD"
                 android:textColor="@color/white"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginStart="18dp"
+                android:padding="6dp"
+                android:text="* NOTE  : Your Marksheets are visible to Staffs, Verify your marksheets before uploading."
+                android:textColor="@color/red"
+                android:layout_marginTop="5dp"
+                />
 
         </LinearLayout>
 
@@ -60,17 +70,17 @@
             android:paddingVertical="8dp">
 
             <TextView
-                android:text="Certificate Courses :"
+                android:text="Your Documents :"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:padding="6dp"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textColor="@color/light_violet"
                 android:textStyle="bold"/>
 
             <LinearLayout
-                android:id="@+id/layout_certificates"
+                android:id="@+id/layout_documents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="40dp"
@@ -81,7 +91,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btn_add_certificate"
+                android:id="@+id/btn_add_documents"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -89,45 +99,15 @@
                 android:text="ADD"
                 android:textColor="@color/white"
                 />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:paddingVertical="8dp">
-
             <TextView
-                android:text="Outside Participations :"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:padding="6dp"
-                android:textSize="18sp"
-                android:textColor="@color/light_violet"
-                android:textStyle="bold"/>
-
-            <LinearLayout
-                android:id="@+id/layout_participations"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="40dp"
-                android:padding="10dp"
-                android:orientation="vertical"
-                android:gravity="center_vertical"
-                android:paddingVertical="8dp">
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_add_outsideParticipation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="0dp"
-                android:backgroundTint="@color/blue_600"
-                android:textColor="@color/white"
-                android:text="ADD" />
+                android:textSize="14sp"
+                android:text="* NOTE  : It will not visible to anyone, You can save any Documents here."
+                android:textColor="@color/red"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="18dp"
+                />
 
         </LinearLayout>
 
