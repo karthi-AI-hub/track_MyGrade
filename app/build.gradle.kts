@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
@@ -53,6 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-perf")
 
     implementation("com.airbnb.android:lottie-compose:5.0.3")
 

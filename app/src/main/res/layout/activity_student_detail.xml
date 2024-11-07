@@ -277,6 +277,9 @@
                             android:layout_height="wrap_content"
                             android:textColor="@color/green"
                             android:text="N/A"
+                            android:autoLink="email"
+                            android:linksClickable="true"
+                            android:textColorLink="@color/green"
                             android:textAlignment="center"
                             android:textSize="16sp"
                             android:padding="8dp"
@@ -624,7 +627,6 @@
             android:padding="10dp"
             android:textStyle="bold"
             android:layout_marginTop="10dp"/>
-
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
