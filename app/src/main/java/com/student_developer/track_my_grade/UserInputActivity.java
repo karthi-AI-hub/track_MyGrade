@@ -8,11 +8,8 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -27,9 +24,9 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -43,8 +40,6 @@ import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -59,21 +54,16 @@ public class UserInputActivity extends BaseActivity {
     private Spinner spinnerDepartment;
     private EditText etName, etRegNo, etDob, etPhoneNo, etSem, etClg;
     private Button btnSubmit;
-
     private ProgressBar progressBar;
-    FirebaseDatabase database;
-    DatabaseReference myRef;
-    SharedPreferences sharedPref;
-    String rollNO , downloadUrl;
-
-
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
+    private SharedPreferences sharedPref;
+    private String SaveToClg, rollNO , downloadUrl;
     private static final int REQUEST_CODE_SELECT_IMAGE = 101;
     private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 102;
-
     private Uri imageUri;
     private ImageView imgProfilePicture;
     private Button btnUploadPicture;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +87,6 @@ public class UserInputActivity extends BaseActivity {
         rollNO = sharedPref.getString("roll_no", null);
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        myRef = database.getReference("Students").child(rollNO);
 
         etName = findViewById(R.id.ur_name);
         etRegNo = findViewById(R.id.ur_reg);
@@ -120,19 +109,40 @@ public class UserInputActivity extends BaseActivity {
         progressBar.setVisibility(View.VISIBLE);
         btnSubmit.setVisibility(View.GONE);
 
-        myRef.get().addOnCompleteListener(task -> {
+        DatabaseReference rootRef = database.getReference();
+
+        rootRef.get().addOnCompleteListener(task -> {
             progressBar.setVisibility(View.GONE);
             btnSubmit.setVisibility(View.VISIBLE);
-            if (task.isSuccessful() && task.getResult().exists()) {
-                startActivity(new Intent(this, CalculatorActivity.class));
-                finish();
-            } else  if (task.isSuccessful()) {
-                setOnclick();
+
+            if (task.isSuccessful() && task.getResult() != null) {
+                boolean rollNoFound = false;
+
+                for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
+                    String collegeName = collegeSnapshot.getKey();
+
+                    for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
+                        String departmentName = deptSnapshot.getKey();
+
+                        if (deptSnapshot.hasChild(rollNO)) {
+                            rollNoFound = true;
+                            startActivity(new Intent(this, CalculatorActivity.class));
+                            finish();
+                            break;
+                        }
+                    }
+                    if (rollNoFound) break;
+                }
+
+                if (!rollNoFound) {
+                    setOnclick();
+                }
             } else {
                 Toast.makeText(this, "Error fetching data. Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     private void setOnclick() {
@@ -454,9 +464,6 @@ public class UserInputActivity extends BaseActivity {
         }
     }
 
-
-
-
     private void saveToFirebase(String name, String regNo, String phoneNo,
                                 String dob, String sem, String clg, String department, String profileUrl) {
 
@@ -489,9 +496,12 @@ public class UserInputActivity extends BaseActivity {
                 ClgName.contains("eec") ||
                 ClgName.contains("excel engg")) {
             studentData.put("Clg", "EXCEL ENGINEERING COLLEGE");
+            SaveToClg = "Excel";
         }else{
             studentData.put("Clg", clg);
+            SaveToClg = clg;
         }
+        myRef = database.getReference(SaveToClg).child(department).child(rollNO);
         myRef.setValue(studentData)
                 .addOnCompleteListener(task -> {
                     progressBar.setVisibility(View.GONE);

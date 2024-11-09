@@ -1,5 +1,3 @@
-
-//RegisterActivity.java
 package com.student_developer.track_my_grade;
 
 import android.content.Context;
@@ -18,10 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.core.content.ContextCompat;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,7 +27,6 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +34,6 @@ import java.util.Map;
 
 public class RegisterActivity extends BaseActivity {
 
-    // Constants
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*]).+$";
     private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
@@ -60,7 +54,6 @@ public class RegisterActivity extends BaseActivity {
 
         EdgeToEdge.enable(this);
 
-        // Initialize Firebase Auth and Firestore
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         showToast("You Can Register Now");
@@ -94,10 +87,8 @@ public class RegisterActivity extends BaseActivity {
         btnMoveToLogin.setOnClickListener(loginClickListener);
         tvPrompt.setOnClickListener(loginClickListener);
 
-        // Submit Registration
         btnRegisterSubmit.setOnClickListener(v -> {hideKeyboard(btnRegisterSubmit);validateAndCheckUser();});
 
-        // Toggle Password Visibility
         ivTogglePassword.setOnClickListener(v -> {hideKeyboard(btnRegisterSubmit);togglePasswordVisibility();});
     }
 
@@ -174,7 +165,6 @@ public class RegisterActivity extends BaseActivity {
         }
     }
 
-
     private void checkIfUserExistsInFirestore(String rollNo, String email, Runnable onSuccess) {
         firestore.collection("Users").whereEqualTo("Email", email)
                 .get()
@@ -184,8 +174,7 @@ public class RegisterActivity extends BaseActivity {
                                 .get()
                                 .addOnCompleteListener(rollNoTask -> {
                                     if (rollNoTask.isSuccessful() && rollNoTask.getResult() != null && rollNoTask.getResult().isEmpty()) {
-                                        // Neither email nor roll number exist in Firestore, proceed with Firebase Authentication check
-                                        onSuccess.run();
+                                         onSuccess.run();
                                     } else {
                                         showProgressBar(false);
                                         showToast("Roll Number Already Exists");
@@ -222,13 +211,13 @@ public class RegisterActivity extends BaseActivity {
                 })
                 .addOnFailureListener(e -> showToast("Registration failed"));
     }
+
    private void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
-
 
     private String getTrimmedText(EditText editText) {
         return editText.getText().toString().trim();
@@ -256,9 +245,8 @@ public class RegisterActivity extends BaseActivity {
         return allValid;
     }
 
-
     private boolean isRollNoValid(String rollNo) {
-        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 7 && rollNo.length() <= 20 && rollNo.matches(ROLLNO_REGEX);
+        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 2 && rollNo.length() <= 20 && rollNo.matches(ROLLNO_REGEX);
     }
 
     private boolean isEmailValid(String email) {
@@ -291,7 +279,6 @@ public class RegisterActivity extends BaseActivity {
         btnRegisterSubmit.setEnabled(!show);
     }
 
-
     private void clearInputFields() {
         etRollNo.getText().clear();
         etEmail.getText().clear();
@@ -320,7 +307,6 @@ public class RegisterActivity extends BaseActivity {
         editText.requestFocus();
     }
 
-
     private void handleError(Exception exception) {
         if (exception instanceof FirebaseAuthWeakPasswordException) {
             setError(etPassword, getString(R.string.error_password_weak));
@@ -337,15 +323,13 @@ public class RegisterActivity extends BaseActivity {
         }
     }
 
-
     private void showSnackbar(String string) {
         Snackbar.make(findViewById(android.R.id.content), string, Snackbar.LENGTH_SHORT).show();
     }
 
-    // Override the onBackPressed method to show the exit dialog
     @Override
     public void onBackPressed() {
-        showExitConfirmationDialog(); // Call the method to show the dialog
+        showExitConfirmationDialog();
     }
 }
 

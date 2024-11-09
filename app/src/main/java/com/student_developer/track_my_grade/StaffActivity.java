@@ -38,7 +38,7 @@ public class StaffActivity extends BaseActivity {
     private ListView searchResultsListView;
     private TextView tvNeedHelp, tv_logOut, tvTitle;
     private ImageView ivNeedHelp;
-    private String staffName, userName;
+    private String staffName, userName, staffClg, userClg, SearchOnClg;
     private DatabaseReference databaseReference;
     private SharedPreferences sharedPref;
     private StudentAdapter adapter;
@@ -56,8 +56,13 @@ public class StaffActivity extends BaseActivity {
         EdgeToEdge.enable(this);
 
         sharedPref = StaffActivity.this.getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+
         userName = sharedPref.getString("user_name", "Staff");
         staffName = getIntent().getStringExtra("staff_Name");
+
+        userClg = sharedPref.getString("user_clg", "null");
+        staffClg = getIntent().getStringExtra("staff_Clg");
+
         searchBar = findViewById(R.id.searchBar);
         searchBar.setEnabled(true);
         searchBar.requestFocus();
@@ -72,6 +77,12 @@ public class StaffActivity extends BaseActivity {
             tvTitle.setText(staffName);
         }else{
             tvTitle.setText(userName);
+        }
+
+        if(staffClg != null){
+            SearchOnClg = staffClg;
+        }else{
+            SearchOnClg = userClg;
         }
 
         searchResultsListView = findViewById(R.id.searchResultsListView);

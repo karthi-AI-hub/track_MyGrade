@@ -23,11 +23,11 @@ import java.util.Objects;
 
 public class MainActivity extends BaseActivity {
     private ListView listView;
-    private CustomAdapter adapter; // Use CustomAdapter
+    private CustomAdapter adapter;
     private List<String> gpaDataList;
     private FirebaseFirestore db;
-    Button btn_logOut;
-    BottomNavigationView bottomNavigationView;
+    private Button btn_logOut;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +66,6 @@ public class MainActivity extends BaseActivity {
 
     private void loadCollectionGPA() {
         bottomNavigationView.setSelectedItemId(R.id.nav_collection_gpa);
-
-
         db.collection("GPA").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 gpaDataList.clear();
@@ -109,10 +107,9 @@ public class MainActivity extends BaseActivity {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String Email = document.getString("Email");
                     String RollNo = document.getString("Roll No");
-                    String Cgpa = document.getString("CGPA");
 
                     if (Email != null && RollNo != null) {
-                        String Users = "Email: " + Email + "\nRoll No: " + RollNo + "\nCGPA: " + Cgpa;
+                        String Users = "Email: " + Email + "\nRoll No: " + RollNo;
                         gpaDataList.add(Users);
                     }
                 }

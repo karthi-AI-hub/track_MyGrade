@@ -12,11 +12,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,9 +25,8 @@ public class SplashActivity extends BaseActivity {
 
     private static final int SPLASH_DISPLAY_LENGTH = 2000;
     private static final int NETWORK_CHECK_INTERVAL = 1000;
-    private String rollNO ,staffName;
+    private String rollNO ,staffName, staffClg;
     private FirebaseDatabase database;
-    private DatabaseReference myRef;
     private FirebaseAuth authLogin;
     private FirebaseFirestore db;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -42,8 +40,6 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        myRef = database.getReference("Students");
-
 
         sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
@@ -70,15 +66,28 @@ public class SplashActivity extends BaseActivity {
                             if (isStaff) {
                                 Intent intent = new Intent(SplashActivity.this, StaffActivity.class);
                                 intent.putExtra("staff_Name", staffName);
+                                intent.putExtra("staff_clg", staffClg);
                                 startActivity(intent);
                                 finish();
                             } else {
                                 Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
-                                myRef.child(rollNO).get().addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult().exists()) {
-                                            navigateTo(CalculatorActivity.class);
-                                        } else {
+                                DatabaseReference rootRef = database.getReference();
+                                rootRef.get().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        boolean rollNoFound = false;
+                                        for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
+                                            String collegeName = collegeSnapshot.getKey();
+                                            for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
+                                                String departmentName = deptSnapshot.getKey();
+                                                if (deptSnapshot.hasChild(rollNO)) {
+                                                    rollNoFound = true;
+                                                    navigateTo(CalculatorActivity.class);
+                                                    break;
+                                                }
+                                            }
+                                            if (rollNoFound) break;
+                                        }
+                                        if (!rollNoFound) {
                                             navigateTo(UserInputActivity.class);
                                         }
                                     } else {
@@ -86,6 +95,7 @@ public class SplashActivity extends BaseActivity {
                                     }
                                 });
                             }
+
                         });
                     } else {
                         Toast.makeText(SplashActivity.this,"User not Logged In",Toast.LENGTH_SHORT).show();
@@ -110,6 +120,7 @@ public class SplashActivity extends BaseActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         staffName = documentSnapshot.getString("User");
+                        staffClg = documentSnapshot.getString("College");
                         listener.onStaffCheck(true);
                     } else {
                         listener.onStaffCheck(false);

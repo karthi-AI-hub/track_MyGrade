@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-    <!-- Login and Sign Up buttons at the top of the screen -->
     <LinearLayout
 
         android:layout_width="match_parent"
@@ -144,8 +143,7 @@
         android:textSize="14sp"
         android:layout_marginTop="24dp" />
 
-    <!-- Optional ProgressBar for loading state -->
-    <ProgressBar
+     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -2,7 +2,6 @@ package com.student_developer.track_my_grade;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -24,19 +23,14 @@ import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
-
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,26 +39,21 @@ import java.util.Map;
 
 public class CalculatorFragment extends Fragment {
 
-    // Existing member variables
-
-    private FirebaseFirestore firestore;
-    TextView tv_gpa_result, tvGpa;
-    EditText etNoOfSubs, etsvToSem, etConfirmRoll;
-    Button btnGenerateSubs, btnsvToPro, btnsvToSem, btnConfirmRoll;
-    LinearLayout ll_no_of_sub;
-    ScrollView sv_containers;
-    LinearLayout ll_subjects_container;
-    LinearLayout ll_results;
-    LinearLayout ll_SvSem;
-    LinearLayout llconfirmRoll;
-    String rollno;
-    String rollNO;
-    int sem, TextViewIndex;
-    float gpa;
-
-    String noOfSubjects;
-    int numberOfSubjects, saveToSem;
-
+    private TextView tv_gpa_result, tvGpa;
+    private EditText etNoOfSubs, etsvToSem, etConfirmRoll;
+    private Button btnGenerateSubs, btnsvToPro, btnsvToSem, btnConfirmRoll, btnuploadresult;
+    private LinearLayout ll_no_of_sub;
+    private ScrollView sv_containers;
+    private LinearLayout ll_subjects_container;
+    private LinearLayout ll_results;
+    private LinearLayout ll_SvSem;
+    private LinearLayout llconfirmRoll;
+    private String rollno;
+    private String rollNO;
+    private int sem, TextViewIndex;
+    private float gpa;
+    private String noOfSubjects;
+    private int numberOfSubjects, saveToSem;
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
 
@@ -130,6 +119,7 @@ public class CalculatorFragment extends Fragment {
         etConfirmRoll = view.findViewById(R.id.et_confirmRoll);
         btnConfirmRoll = view.findViewById(R.id.btn_confirmRoll);
         tvGpa = view.findViewById(R.id.tv_gpa);
+        btnuploadresult = view.findViewById(R.id.btn_upload_result);
 
         btnConfirmRoll.setOnClickListener((View v) -> {
             hideKeyboard(v);
@@ -153,33 +143,27 @@ public class CalculatorFragment extends Fragment {
                         .addOnCompleteListener(rollNoTask -> {
                             if (rollNoTask.isSuccessful() && rollNoTask.getResult() != null) {
                                 if (!rollNoTask.getResult().isEmpty()) {
-                                    // Document exists, now check the Roll No field
                                     DocumentSnapshot documentSnapshot = rollNoTask.getResult().getDocuments().get(0);
                                     String firestoreRollNo = documentSnapshot.getString("Roll No");
                                     if (firestoreRollNo != null && firestoreRollNo.equals(rollno.toUpperCase())) {
-                                        // Hide the roll input and show the semester save layout
                                         llconfirmRoll.setVisibility(View.GONE);
                                         tvGpa.setText("CGPA RESULT (" + rollno.toUpperCase() + ")");
                                         ll_SvSem.setVisibility(View.VISIBLE);
                                     } else {
-                                        // If the 'Roll No' doesn't match
                                         etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                         Toast.makeText(requireContext(), "Roll No does not match", Toast.LENGTH_SHORT).show();
 
                                     }
                                 } else {
-                                    // If no document with that Roll No exists
                                     etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                     etConfirmRoll.setError("Authendication Failed, Enter your Roll No to Proceed.");
                                 }
                             } else {
-                                // Task was not successful
                                 Toast.makeText(requireContext(), "Error Confirming Roll No", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .addOnFailureListener(e -> {
-                            // Handle any failures (e.g., network error)
-                            Toast.makeText(requireContext(), "Error Confirming Roll No", Toast.LENGTH_SHORT).show();
+                              Toast.makeText(requireContext(), "Error Confirming Roll No", Toast.LENGTH_SHORT).show();
                         });
             }
         });
@@ -286,6 +270,10 @@ public class CalculatorFragment extends Fragment {
             }
         });
 
+        btnuploadresult.setOnClickListener(v -> {
+            Utils.intend(requireContext(),TextReconizingActivity.class);
+        });
+
 
         return view;
 
@@ -342,9 +330,7 @@ public class CalculatorFragment extends Fragment {
         etSubjectName.setHintTextColor(ContextCompat.getColor(getContext(), R.color.gray));
         etCr.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-        // GP EditText
         EditText etGp = new EditText(requireContext());
-
 
         etGp.setId(View.generateViewId());
         etGp.setTag("gp" + subjectNumber);
@@ -362,7 +348,6 @@ public class CalculatorFragment extends Fragment {
         etGp.setPadding(20, 20, 0, 20);
         etGp.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-        // Add EditTexts to the LinearLayout
         llSubjectDetail.addView(etSubjectName);
         llSubjectDetail.addView(etCr);
         llSubjectDetail.addView(etGp);
@@ -452,16 +437,14 @@ public class CalculatorFragment extends Fragment {
                     if (inputView instanceof EditText) {
                         EditText editText = (EditText) inputView;
 
-                        // Check if the input is empty
                         if (TextUtils.isEmpty(editText.getText().toString().trim())) {
                             editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                             editText.requestFocus();
-                            return false; // Return false if any EditText is empty
+                            return false;
                         } else {
                             editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.cell_background));
                         }
 
-                        // Validate GP (should be 10 or less)
                         if (editText.getTag().toString().startsWith("gp")) {
                             try {
                                 float gpValue = Float.parseFloat(editText.getText().toString().trim());
@@ -499,13 +482,10 @@ public class CalculatorFragment extends Fragment {
                 }
             }
         }
-        return true; // All inputs are valid
+        return true;
     }
 
-
     private void calculate() {
-        // Variables to hold the subject names, credit hours, and grade points
-
         collectSubject();
         String[] subjectNames = new String[ll_subjects_container.getChildCount()];
         int[] creditHours = new int[ll_subjects_container.getChildCount()];
@@ -561,7 +541,6 @@ public class CalculatorFragment extends Fragment {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Reference to the user document using the roll number input
         DocumentReference userRef = db.collection("Users").document(rollnoInput);
 
         Log.d("DEBUG", "User Input Roll No: " + rollnoInput);
@@ -576,21 +555,16 @@ public class CalculatorFragment extends Fragment {
                     return;
                    }
 
-                // Proceed with saving GPA if validation passes
-                Map<String, Object> userData = new HashMap<>();
+               Map<String, Object> userData = new HashMap<>();
                 userData.put("Sem " + sem, gpa);  // Store GPA for the specified semester
 
-                // Reference to the GPA document using the entered roll number
                 DocumentReference docRef = db.collection("GPA").document(finalRollnoInput);
 
-                // Fetch the document to check if the semester field exists
                 docRef.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            // Check if the semester already exists in the document
                             if (document.contains("Sem " + sem)) {
-                                // Update the existing GPA value
                                 docRef.update(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(requireContext(), "GPA updated successfully", Toast.LENGTH_SHORT).show();
@@ -600,12 +574,10 @@ public class CalculatorFragment extends Fragment {
                                             Toast.makeText(requireContext(), "Failed to update GPA", Toast.LENGTH_SHORT).show();
                                         });
                             } else {
-                                // Add a new field for the semester
                                 docRef.set(userData, SetOptions.merge())  // Safer way to add new fields
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(requireContext(), "New semester GPA added successfully", Toast.LENGTH_SHORT).show();
-                                            // Navigate to ProfileFragment after successful addition
-                                            navigateToProfileFragment();
+                                              navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to add new semester GPA", Toast.LENGTH_SHORT).show();
@@ -615,7 +587,6 @@ public class CalculatorFragment extends Fragment {
                             docRef.set(userData)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(requireContext(), "GPA saved successfully", Toast.LENGTH_SHORT).show();
-                                        // Navigate to ProfileFragment after successful creation
                                         navigateToProfileFragment();
                                     })
                                     .addOnFailureListener(e -> {
@@ -638,7 +609,6 @@ public class CalculatorFragment extends Fragment {
         });
     }
 
-    // Method to navigate to ProfileFragment
     private void navigateToProfileFragment() {
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
 

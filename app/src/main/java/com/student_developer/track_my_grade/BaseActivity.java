@@ -1,17 +1,13 @@
 package com.student_developer.track_my_grade;
 
-
 import android.app.AlertDialog;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
     }
     protected void showExitConfirmationDialog() {

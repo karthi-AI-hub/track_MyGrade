@@ -34,8 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class  LoginActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
-
-    // Error messages as constants
     private static final String ERROR_NO_INTERNET = "No Internet Connection.Make sure you are connected to Internet .";
     private static final String ERROR_EMAIL_REQUIRED = "Email is required.";
     private static final String ERROR_INVALID_EMAIL = "Enter a valid email address.";
@@ -54,10 +52,9 @@ public class  LoginActivity extends BaseActivity {
     private FirebaseFirestore db;
     private ImageView ivTogglePassword;
     private TextView forgetPassword;
-    LinearLayout ll_Container,ll_Pwreset;
-    String ReEmail;
-    TextView BackToLogin;
-
+    private LinearLayout ll_Container,ll_Pwreset;
+    private String ReEmail;
+    private TextView BackToLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +69,6 @@ public class  LoginActivity extends BaseActivity {
     }
 
     private void initializeUIElements() {
-
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         progressBar = findViewById(R.id.progressBar);
@@ -91,12 +87,8 @@ public class  LoginActivity extends BaseActivity {
         if (!Utils.isNetworkConnected(LoginActivity.this)) {
             showErrorMessage(ERROR_NO_INTERNET);
             btnSubmitLogin.setEnabled(true);
-
         }
-
-
     }
-
 
     private void setOnClickListeners() {
 
@@ -146,9 +138,11 @@ public class  LoginActivity extends BaseActivity {
             if (documentSnapshot.exists()) {
                 String role = documentSnapshot.getString("Role");
                 String userName = documentSnapshot.getString("User");
+                String clgName = documentSnapshot.getString("College");
                 SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("user_name", userName);
+                editor.putString("user_clg", clgName);
                 editor.apply();
 
                 if ("staff".equals(role)) {
@@ -161,14 +155,10 @@ public class  LoginActivity extends BaseActivity {
               });
     }
 
-
-
-    // Method to validate the email and check Firestore
     private void validateEmailAndSendReset() {
         findViewById(R.id.btn_PwReset).setOnClickListener(view -> {
             ReEmail = et_PwdReset.getText().toString().trim();
 
-            // Validate email format
             if (TextUtils.isEmpty(ReEmail)) {
                 setError(et_PwdReset,ERROR_EMAIL_REQUIRED);
                 return;
@@ -325,11 +315,6 @@ public class  LoginActivity extends BaseActivity {
         Log.e("LoginActivity", errorMessage, exception);
     }
 
-    private void clearInputFields() {
-        etEmail.setText("");
-        etPassword.setText("");
-    }
-
     private void clearEmailField() {
         clearField(etEmail);
     }
@@ -392,7 +377,7 @@ public class  LoginActivity extends BaseActivity {
     }
 
     private void showToast(String message) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show(); // Change to Toast if preferred
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void togglePasswordVisibility() {
@@ -401,12 +386,10 @@ public class  LoginActivity extends BaseActivity {
         ivTogglePassword.setImageResource(isPasswordVisible ? R.drawable.ic_visibility : R.drawable.ic_visibility_off);
         etPassword.setSelection(etPassword.length());
 
-        // Show Snackbar if the password field is not empty
         if (!TextUtils.isEmpty(etPassword.getText())) {
             showToast(isPasswordVisible ? "Password visible" : "Password hidden");
         }
     }
-
 
     public void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -415,30 +398,8 @@ public class  LoginActivity extends BaseActivity {
         }
     }
 
-
-
-
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        if (authLogin.getCurrentUser() != null) {
-//            SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-//            String rollNo = sharedPref.getString("roll_no", null);
-//
-//            if (rollNo != null) {
-//                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Already Logged In! Roll No: " + rollNo, Snackbar.LENGTH_SHORT).show();
-//                LoginActivity.rollNO = rollNo; // Save it to the static variable for future use
-//
-//            } else {
-//                Snackbar.make(LoginActivity.this.getCurrentFocus(),"Roll No not found!", Snackbar.LENGTH_SHORT).show();
-//            }
-//        } else {
-//            Snackbar.make(LoginActivity.this.getCurrentFocus(),"You Can Login Now!", Snackbar.LENGTH_SHORT).show();
-//        }
-//    }
-
     @Override
     public void onBackPressed() {
-        showExitConfirmationDialog(); // Call the method to show the dialog
+        showExitConfirmationDialog();
     }
 }

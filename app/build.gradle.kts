@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-
+    implementation("com.google.mlkit:text-recognition:16.0.1")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
