@@ -66,36 +66,11 @@ public class SplashActivity extends BaseActivity {
                             if (isStaff) {
                                 Intent intent = new Intent(SplashActivity.this, StaffActivity.class);
                                 intent.putExtra("staff_Name", staffName);
-                                intent.putExtra("staff_clg", staffClg);
+                                intent.putExtra("staff_Clg", staffClg);
                                 startActivity(intent);
                                 finish();
-                            } else {
-                                Toast.makeText(SplashActivity.this,"Roll No is : "+rollNO,Toast.LENGTH_SHORT).show();
-                                DatabaseReference rootRef = database.getReference();
-                                rootRef.get().addOnCompleteListener(task -> {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        boolean rollNoFound = false;
-                                        for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
-                                            String collegeName = collegeSnapshot.getKey();
-                                            for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
-                                                String departmentName = deptSnapshot.getKey();
-                                                if (deptSnapshot.hasChild(rollNO)) {
-                                                    rollNoFound = true;
-                                                    navigateTo(CalculatorActivity.class);
-                                                    break;
-                                                }
-                                            }
-                                            if (rollNoFound) break;
-                                        }
-                                        if (!rollNoFound) {
-                                            navigateTo(UserInputActivity.class);
-                                        }
-                                    } else {
-                                        Toast.makeText(SplashActivity.this, "Error fetching data. Please try again later.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                            }else{navigateTo(UserInputActivity.class);
                             }
-
                         });
                     } else {
                         Toast.makeText(SplashActivity.this,"User not Logged In",Toast.LENGTH_SHORT).show();

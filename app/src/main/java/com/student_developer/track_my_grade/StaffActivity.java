@@ -87,7 +87,7 @@ public class StaffActivity extends BaseActivity {
 
         searchResultsListView = findViewById(R.id.searchResultsListView);
         databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("AIDS");
+                .getReference(SearchOnClg).child("Student_List");
 
         studentList = new ArrayList<>();
         rollNoList = new ArrayList<>();
@@ -230,6 +230,7 @@ public class StaffActivity extends BaseActivity {
         String selectedRollNo = rollNoList.get(position);
         Intent intent = new Intent(this, StudentDetailActivity.class);
         intent.putExtra("rollNo", selectedRollNo.toUpperCase());
+        intent.putExtra("SearchOnClg",SearchOnClg);
         startActivity(intent);
         finish();
     }

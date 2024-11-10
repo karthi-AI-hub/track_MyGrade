@@ -67,7 +67,6 @@ public class CalculatorFragment extends Fragment {
         TextViewIndex = sharedPref.getInt("TextViewIndex", 1);
         ((CalculatorActivity) requireActivity()).setFabVisibility(View.VISIBLE);
 
-
         FirebaseFirestore.setLoggingEnabled(true);
 
         if (getActivity() != null) {
@@ -270,10 +269,12 @@ public class CalculatorFragment extends Fragment {
             }
         });
 
+        if(rollNO.equalsIgnoreCase("22AD045")) {
+            btnuploadresult.setVisibility(View.VISIBLE);
+        }
         btnuploadresult.setOnClickListener(v -> {
-            Utils.intend(requireContext(),TextReconizingActivity.class);
+            Utils.intend(requireContext(), TextReconizingActivity.class);
         });
-
 
         return view;
 
@@ -458,7 +459,7 @@ public class CalculatorFragment extends Fragment {
                                 Toast.makeText(requireContext(), "Please enter a valid number for GP", Toast.LENGTH_SHORT).show();
                                 editText.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                                 editText.requestFocus();
-                                return false; // Return false if GP input is not a number
+                                return false;
                             }
                         }
 
@@ -535,9 +536,9 @@ public class CalculatorFragment extends Fragment {
     }
 
     private void saveGpa(int intsem, float gpa, String rollnoInput) {
-        ll_SvSem.setVisibility(View.GONE);  // Hide the layout
+        ll_SvSem.setVisibility(View.GONE);
         rollnoInput = rollnoInput.toUpperCase();
-        String sem = String.valueOf(intsem); // Normalize roll number input
+        String sem = String.valueOf(intsem);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 

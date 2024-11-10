@@ -11,8 +11,8 @@ android {
         applicationId = "com.student_developer.track_my_grade"
         minSdk = 25
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -56,6 +56,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-perf")
 
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
     implementation("com.airbnb.android:lottie-compose:5.0.3")
 
     implementation("androidx.multidex:multidex:2.0.1")

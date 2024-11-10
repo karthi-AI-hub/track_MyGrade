@@ -42,7 +42,6 @@ public class  LoginActivity extends BaseActivity {
     private static final String ERROR_LOGIN_FAILED = "Login failed. Please try again.";
     private static final String ERROR_USER_NOT_REGISTERED = "This email address is not registered.";
     private static final String ERROR_INVALID_PASSWORD = "Invalid email Id or Password. Please try again.";
-    private static String rollNO;
     private EditText etEmail, etPassword;
     private ProgressBar progressBar;
     private Button btnSubmitLogin;
@@ -225,7 +224,6 @@ public class  LoginActivity extends BaseActivity {
             return;
         }
 
-
         showProgressBar(true);
         authLogin.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, this::handleLoginResponse);
@@ -253,8 +251,6 @@ public class  LoginActivity extends BaseActivity {
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("roll_no", rollNo);
                                     editor.apply();
-
-
                                     navigateTo(UserInputActivity.class);
                                 } else {
                                     showToast("Roll No not found.");
@@ -276,8 +272,6 @@ public class  LoginActivity extends BaseActivity {
             handleLoginError(task);
         }
     }
-
-
 
     private void showAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);

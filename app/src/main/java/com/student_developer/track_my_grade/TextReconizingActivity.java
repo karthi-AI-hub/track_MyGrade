@@ -51,8 +51,10 @@ public class TextReconizingActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_text_reconizing);
         recognizedTextView = findViewById(R.id.tv_Textresult);
+
         requestStoragePermission();
     }
 
@@ -157,19 +159,16 @@ public class TextReconizingActivity extends BaseActivity {
             String blockText = block.getText();
             recognizedTextView.append("BlockText: " + blockText + "\n\n");
 
-            // Regular expressions for CR and GP values
-            Pattern crPattern = Pattern.compile("\\b\\d+\\b"); // Matches integer numbers for CR
-            Pattern gpPattern = Pattern.compile("\\b\\d+(\\.\\d{1,2})?\\b"); // Matches floating numbers for GP
+            Pattern crPattern = Pattern.compile("\\b\\d+\\b");
+            Pattern gpPattern = Pattern.compile("\\b\\d+(\\.\\d{1,2})?\\b");
 
             Matcher crMatcher = crPattern.matcher(blockText);
             Matcher gpMatcher = gpPattern.matcher(blockText);
 
-            // Find and add CR values
             while (crMatcher.find()) {
                 crValues.add(crMatcher.group());
             }
 
-            // Find and add GP values
             while (gpMatcher.find()) {
                 gpValues.add(gpMatcher.group());
             }

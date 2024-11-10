@@ -126,7 +126,10 @@ public class UserInputActivity extends BaseActivity {
 
                         if (deptSnapshot.hasChild(rollNO)) {
                             rollNoFound = true;
-                            startActivity(new Intent(this, CalculatorActivity.class));
+                            Intent intent = new Intent(this, CalculatorActivity.class);
+                            intent.putExtra("collegeName", collegeName);
+                            intent.putExtra("departmentName", departmentName);
+                            startActivity(intent);
                             finish();
                             break;
                         }

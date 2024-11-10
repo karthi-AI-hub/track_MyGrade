@@ -10,8 +10,14 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 
 public class CalculatorActivity extends BaseActivity {
 
@@ -24,12 +30,25 @@ public class CalculatorActivity extends BaseActivity {
     private RelativeLayout rlFAB;
     private TextView tv_opt1, tv_opt2 ,tv_opt3;
     private boolean isMenuOpen = false;
-
+    private String DBcollegeName;
+    private String DBdepartmentName;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
+
+//        new Thread(
+//                () -> {
+//                     MobileAds.initialize(this, initializationStatus -> {});
+//                })
+//                .start();
+
+
+        DBcollegeName = getIntent().getStringExtra("collegeName");
+        System.out.println("collegeName: " + DBcollegeName);
+        DBdepartmentName = getIntent().getStringExtra("departmentName");
 
         loadFragment(new ProfileFragment());
 
@@ -93,8 +112,10 @@ public class CalculatorActivity extends BaseActivity {
             if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new ProfileFragment());
                 btnProfile.setEnabled(isProfileLoading);
+                if (isMenuOpen) {
+                    closeMenu();
+                }
                 setFabVisibility(View.GONE);
-                closeMenu();
                 btnCalculator.setEnabled(!isProfileLoading);
                 btnGraph.setEnabled(!isProfileLoading);
             }
@@ -103,20 +124,13 @@ public class CalculatorActivity extends BaseActivity {
         btnCalculator.setOnClickListener(v -> {
             if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new CalculatorFragment());
-
+                if (isMenuOpen) {
+                    closeMenu();
+                }
                 setFabVisibility(View.VISIBLE);
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(true);
                 btnGraph.setEnabled(!isProfileLoading);
-
-                rlFAB.setVisibility(View.VISIBLE);
-                fab_menu.setVisibility(View.VISIBLE);
-                fab_opt1.setVisibility(View.GONE);
-                fab_opt2.setVisibility(View.GONE);
-                fab_opt3.setVisibility(View.GONE);
-                tv_opt1.setVisibility(View.GONE);
-                tv_opt2.setVisibility(View.GONE);
-                tv_opt3.setVisibility(View.GONE);
             }
 
         });
@@ -124,8 +138,10 @@ public class CalculatorActivity extends BaseActivity {
         btnGraph.setOnClickListener(v -> {
             if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new GraphFragment());
+                if (isMenuOpen) {
+                    closeMenu();
+                }
                 setFabVisibility(View.GONE);
-                closeMenu();
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(!isProfileLoading);
                 btnGraph.setEnabled(false);
@@ -151,16 +167,26 @@ public class CalculatorActivity extends BaseActivity {
     public void setFabVisibility(int visibility) {
         rlFAB.setVisibility(visibility);
     }
+
     private void openMenu() {
-        fab_opt1.setVisibility(View.VISIBLE);
-        tv_opt1.setVisibility(View.VISIBLE);
         fab_opt2.setVisibility(View.VISIBLE);
         tv_opt2.setVisibility(View.VISIBLE);
         fab_opt3.setVisibility(View.VISIBLE);
         tv_opt3.setVisibility(View.VISIBLE);
 
-        fab_opt1.animate().translationY(-500).alpha(1f).start();
-        tv_opt1.animate().translationY(-530).alpha(1f).start();
+        String collegeName = getIntent().getStringExtra("collegeName");
+
+        if ("Excel".equalsIgnoreCase(collegeName)) {
+            fab_opt1.setVisibility(View.VISIBLE);
+            tv_opt1.setVisibility(View.VISIBLE);
+
+            fab_opt1.animate().translationY(-500).alpha(1f).start();
+            tv_opt1.animate().translationY(-530).alpha(1f).start();
+        } else {
+            fab_opt1.setVisibility(View.GONE);
+            tv_opt1.setVisibility(View.GONE);
+        }
+
         fab_opt2.animate().translationY(-350).alpha(1f).start();
         tv_opt2.animate().translationY(-380).alpha(1f).start();
         fab_opt3.animate().translationY(-200).alpha(1f).start();
@@ -168,6 +194,7 @@ public class CalculatorActivity extends BaseActivity {
 
         isMenuOpen = true;
     }
+
 
     private void closeMenu() {
 
@@ -181,13 +208,18 @@ public class CalculatorActivity extends BaseActivity {
         tv_opt3.animate().translationY(0).alpha(0f).start();
 
 
-
-
         isMenuOpen = false;
     }
     private void loadFragment(Fragment fragment) {
         if (fragment == null || isTransactionInProgress) return;
         isTransactionInProgress = true;
+
+        if (fragment instanceof ProfileFragment) {
+            Bundle bundle = new Bundle();
+            bundle.putString("collegeName", DBcollegeName);
+            bundle.putString("departmentName", DBdepartmentName);
+            fragment.setArguments(bundle);
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
@@ -211,9 +243,6 @@ public class CalculatorActivity extends BaseActivity {
         btnProfile.setEnabled(!loading);
         btnCalculator.setEnabled(!loading);
         btnGraph.setEnabled(!loading);
-    }
-    private float dpToPx(float dp) {
-        return dp * getResources().getDisplayMetrics().density;
     }
 
     @Override

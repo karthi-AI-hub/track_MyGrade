@@ -70,7 +70,7 @@ public class ProfileFragment extends Fragment {
     private Map<String, String> departmentNames;
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
-    String rollNo;
+    String rollNo, DBofClg, DBofDept;
 
 
     @Override
@@ -110,6 +110,10 @@ public class ProfileFragment extends Fragment {
         sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
+        if (getArguments() != null) {
+            DBofClg = getArguments().getString("collegeName");
+            DBofDept = getArguments().getString("departmentName");
+        }
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
@@ -117,15 +121,13 @@ public class ProfileFragment extends Fragment {
             ((CalculatorActivity) getActivity()).setProfileLoading(true);
         }
 
-
-         db = FirebaseFirestore.getInstance();
-
+        db = FirebaseFirestore.getInstance();
 
         rollNo = rollNO.toUpperCase();
         docRef = db.collection("GPA").document(rollNo);
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        myRef = database.getReference("Students").child(rollNO.toUpperCase());
+        myRef = database.getReference(DBofClg).child(DBofDept).child(rollNO.toUpperCase());
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         email = firebaseUser.getEmail();
@@ -309,8 +311,6 @@ public class ProfileFragment extends Fragment {
                         .update(cgpaData)
                         .addOnSuccessListener(avoid -> {
                             setProText(pro_cgpa, String.format("%.2f", meanGPA));
-
-
                         });
 
                 if (meanGPA != null) {

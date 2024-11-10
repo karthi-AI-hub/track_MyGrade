@@ -75,17 +75,16 @@ import java.util.Map;
 
 public class StudentDetailActivity extends AppCompatActivity {
 
-    private DatabaseReference databaseReference;
     private FirebaseFirestore db;
     private LinearLayout[] semesterLayouts;
     private LinearLayout mainContainer, layoutMarkSheets;
     private FirebaseStorage storage;
     private StorageReference storageRef;
-    private static final int STORAGE_PERMISSION_CODE = 101;
-    private long downloadId;
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
     private ProgressDialog progressDialog;
     private LineChart lineChart;
-    private String rollNo, name;
+    private String rollNo, DBofClg;
     private int currentSemester;
     private Map<String, String> departmentNames;
     private ImageView pro_photo;
@@ -102,10 +101,11 @@ public class StudentDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         rollNo = getIntent().getStringExtra("rollNo");
+        DBofClg = getIntent().getStringExtra("SearchOnClg");
         setProText(pro_roll, rollNo);
 
-        databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("Students").child(rollNo);
+        database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        myRef = database.getReference(DBofClg);
 
         checkInternetAndProcess();
 
@@ -199,47 +199,56 @@ public class StudentDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchStudentDetails(){
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void fetchStudentDetails() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String name = dataSnapshot.child("Name").getValue(String.class).toUpperCase();
-                    String regNo = dataSnapshot.child("RegNo").getValue(String.class).toUpperCase();
-                    String clg = dataSnapshot.child("Clg").getValue(String.class).toUpperCase();
-                    String dept = dataSnapshot.child("Dept").getValue(String.class);
-                    String sem = dataSnapshot.child("SEM").getValue(String.class);
-                    String dob = dataSnapshot.child("DOB").getValue(String.class).toUpperCase();
-                    String phno = dataSnapshot.child("PhNo").getValue(String.class);
-                    String profileUrl = dataSnapshot.child("Profile").getValue(String.class);
+            public void onDataChange(DataSnapshot collegeSnapshot) {
+                boolean rollNoFound = false;
 
-                    if (profileUrl != null) {
-                        new LoadImageFromURL(pro_photo).execute(profileUrl);
+                for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
+                    if (deptSnapshot.hasChild(rollNo)) {
+                        rollNoFound = true;
+
+                        DataSnapshot rollNoSnapshot = deptSnapshot.child(rollNo);
+                        String name = rollNoSnapshot.child("Name").getValue(String.class).toUpperCase();
+                        String regNo = rollNoSnapshot.child("RegNo").getValue(String.class).toUpperCase();
+                        String clg = rollNoSnapshot.child("Clg").getValue(String.class).toUpperCase();
+                        String dept = deptSnapshot.getKey();
+                        String sem = rollNoSnapshot.child("SEM").getValue(String.class);
+                        String dob = rollNoSnapshot.child("DOB").getValue(String.class).toUpperCase();
+                        String phno = rollNoSnapshot.child("PhNo").getValue(String.class);
+                        String profileUrl = rollNoSnapshot.child("Profile").getValue(String.class);
+
+                        if (profileUrl != null) {
+                            new LoadImageFromURL(pro_photo).execute(profileUrl);
+                        }
+
+                        String fullDept = departmentNames.getOrDefault(dept, dept);
+                        currentSemester = Integer.parseInt(sem);
+                        removeExtraSemester(currentSemester);
+
+                        setProText(pro_name, name);
+                        setProText(pro_reg, regNo);
+                        setProText(pro_clg, clg);
+                        setProText(pro_dob, dob);
+                        setProText(pro_phno, phno);
+                        pro_dept.setText(fullDept + ", SEM-" + sem);
+                        break;
                     }
+                }
 
-                    String fullDept = departmentNames.getOrDefault(dept, dept);
-                    currentSemester = Integer.parseInt(sem);
-                    removeExtraSemester(currentSemester);
-                    setProText(pro_name, name.toUpperCase());
-                    setProText(pro_reg, regNo.toUpperCase());
-                    setProText(pro_clg, clg.toUpperCase());
-                    setProText(pro_dob, dob.toUpperCase());
-                    setProText(pro_phno, phno);
-                    pro_dept.setText(fullDept + ", SEM-" + sem);
-
-                } else {
-                    Toast.makeText(StudentDetailActivity.this, "No Data Found.", Toast.LENGTH_SHORT).show();
-
+                if (!rollNoFound) {
+                    Toast.makeText(getApplicationContext(), "Roll number not found in any department.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(StudentDetailActivity.this, "Error in Retriving Data.", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(getApplicationContext(), "Error fetching data. Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void loadGPAData() {
         DocumentReference documentRef = db.collection("GPA").document(rollNo);
@@ -394,8 +403,6 @@ public class StudentDetailActivity extends AppCompatActivity {
         semesterCardView.setUseCompatPadding(true);
         semesterCardView.setPadding(8, 8, 8, 8);
         semesterCardView.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_bf, null));
-
-
 
         TableLayout tableLayout = new TableLayout(this);
         tableLayout.setStretchAllColumns(true);
