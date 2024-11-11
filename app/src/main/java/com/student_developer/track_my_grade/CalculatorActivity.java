@@ -1,7 +1,9 @@
 package com.student_developer.track_my_grade;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,8 +44,6 @@ public class CalculatorActivity extends BaseActivity {
     private RelativeLayout rlFAB;
     private TextView tv_opt1, tv_opt2 ,tv_opt3;
     private boolean isMenuOpen = false;
-    private String DBcollegeName;
-    private String DBdepartmentName;
     private InterstitialAd mInterstitialAd;
     private static final String TAG = "CalculatorActivity";
     private AdView adView;
@@ -60,10 +60,6 @@ public class CalculatorActivity extends BaseActivity {
         MobileAds.initialize(this);
         loadAd();
         loadBannerAd();
-
-        DBcollegeName = getIntent().getStringExtra("collegeName");
-        System.out.println("collegeName: " + DBcollegeName);
-        DBdepartmentName = getIntent().getStringExtra("departmentName");
 
         loadFragment(new ProfileFragment());
 
@@ -189,23 +185,23 @@ public class CalculatorActivity extends BaseActivity {
         fab_opt3.setVisibility(View.VISIBLE);
         tv_opt3.setVisibility(View.VISIBLE);
 
-        String collegeName = getIntent().getStringExtra("collegeName");
-
+        SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+        String collegeName = sharedPref.getString("collegeName", "");
         if ("Excel".equalsIgnoreCase(collegeName)) {
             fab_opt1.setVisibility(View.VISIBLE);
             tv_opt1.setVisibility(View.VISIBLE);
 
-            fab_opt1.animate().translationY(-500).alpha(1f).start();
-            tv_opt1.animate().translationY(-530).alpha(1f).start();
+            fab_opt1.animate().translationY(-400).alpha(1f).start();
+            tv_opt1.animate().translationY(-430).alpha(1f).start();
         } else {
             fab_opt1.setVisibility(View.GONE);
             tv_opt1.setVisibility(View.GONE);
         }
 
-        fab_opt2.animate().translationY(-350).alpha(1f).start();
-        tv_opt2.animate().translationY(-380).alpha(1f).start();
-        fab_opt3.animate().translationY(-200).alpha(1f).start();
-        tv_opt3.animate().translationY(-230).alpha(1f).start();
+        fab_opt2.animate().translationY(-250).alpha(1f).start();
+        tv_opt2.animate().translationY(-280).alpha(1f).start();
+        fab_opt3.animate().translationY(-100).alpha(1f).start();
+        tv_opt3.animate().translationY(-130).alpha(1f).start();
 
         isMenuOpen = true;
     }
@@ -229,12 +225,6 @@ public class CalculatorActivity extends BaseActivity {
         if (fragment == null || isTransactionInProgress) return;
         isTransactionInProgress = true;
 
-        if (fragment instanceof ProfileFragment) {
-            Bundle bundle = new Bundle();
-            bundle.putString("collegeName", DBcollegeName);
-            bundle.putString("departmentName", DBdepartmentName);
-            fragment.setArguments(bundle);
-        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);

@@ -42,7 +42,7 @@ public class SplashActivity extends BaseActivity {
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
         sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        rollNO = sharedPref.getString("roll_no", null);
+        rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
         authLogin = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -69,7 +69,43 @@ public class SplashActivity extends BaseActivity {
                                 intent.putExtra("staff_Clg", staffClg);
                                 startActivity(intent);
                                 finish();
-                            }else{navigateTo(UserInputActivity.class);
+                            }else{
+                                DatabaseReference rootRef = database.getReference();
+                                rootRef.get().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        boolean rollNoFound = false;
+
+                                        for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
+                                            String collegeName = collegeSnapshot.getKey();
+                                            if ("StudentList".equals(collegeName)) {
+                                                continue;
+                                            }
+                                            for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
+                                                String departmentName = deptSnapshot.getKey();
+
+                                                if (deptSnapshot.hasChild(rollNO)) {
+                                                    rollNoFound = true;
+                                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                                    editor.putString("collegeName", collegeName);
+                                                    editor.putString("departmentName", departmentName);
+                                                    editor.apply();
+                                                    Intent intent = new Intent(SplashActivity.this, CalculatorActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                    break;
+                                                }
+                                            }
+                                            if (rollNoFound) break;
+                                        }
+
+                                        if (!rollNoFound) {
+                                            navigateTo(UserInputActivity.class);
+                                        }
+                                    } else {
+                                        Toast.makeText(SplashActivity.this, "Error fetching data. Please try again later.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
                             }
                         });
                     } else {

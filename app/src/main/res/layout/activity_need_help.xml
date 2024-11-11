@@ -96,141 +96,217 @@
             android:layout_height="2dp"
             android:background="@color/gray"/>
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="25dp">
+            android:layout_marginTop="25dp"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Frequently Asked Questions :"
                 android:drawableStart="@drawable/icon_questions"
                 android:drawablePadding="10dp"
+                android:text="Frequently Asked Questions :"
                 android:textColor="@color/light_violet"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1) Can I update my personal information?"
-                android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="1) "
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="Can I update my personal information?"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvRequestMail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\t\t\t\t\t\t\t\t Yes, you can update your details by sending an email with the subject 'EDIT_REQUEST' to trackmygrade@gmail.com."
-                android:textColor="@color/black"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
                 android:autoLink="email"
                 android:linksClickable="false"
+                android:paddingStart="0dp"
+                android:text="Yes, you can update your details by sending an email with the subject 'EDIT_REQUEST' to trackmygrade@gmail.com."
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
                 android:textColorLink="@color/light_blue_900"
-                android:textSize="14sp"
-                android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp" />
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="2) "
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="Is it possible to modify subject details after calculating my GPA?"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2) Is it possible to modify subject details after calculating my GPA?"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
                 android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="16sp"
+                android:text="Yes, you can modify subject details and recalculate the GPA for the respective semester."
                 android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp" />
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="3) "
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="How should I calculate my GPA if I have backlogs?"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\t\t\t\t\t\t\t\t Yes, you can modify subject details and recalculate the GPA for the respective semester."
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
                 android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
+                android:text="You should calculate your GPA by excluding any backlog subjects from the semester."
                 android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp" />
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                android:drawablePadding="5dp"
+                android:text="4) "
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="How do I calculate my GPA if I have cleared my backlogs?"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3) How should I calculate my GPA if I have backlogs?"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
                 android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="16sp"
+                android:text="You can recalculate your GPA for the respective semester, including the cleared backlog subjects."
                 android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp" />
+                android:textColor="@color/black"
+                android:textSize="14sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\t\t\t\t\t\t\t\tYou should calculate your GPA by excluding any backlog subjects from the semester."
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
                 android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
+                android:text="5) "
                 android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp" />
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4) How do I calculate my GPA if I have cleared my backlogs?"
-                android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="\t\t\t\t\t\t\t\tYou can recalculate your GPA for the respective semester, including the cleared backlog subjects."
-                android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5) How I update my Semerster?"
-                android:drawablePadding="5dp"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:drawablePadding="5dp"
+                    android:text="How can I update my Semerster?"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvUpdateSem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\t\t\t\t\t\t\t\tYou can update your Semester by sending an email with the subject 'UPDATE_SEM_REQUEST' to trackmygrade@gmail.com."
-                android:textColor="@color/black"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="10dp"
                 android:autoLink="email"
                 android:linksClickable="false"
-                android:textColorLink="@color/light_blue_900"
-                android:textSize="14sp"
+                android:text="You can update your Semester by sending an email with the subject 'UPDATE_SEM_REQUEST' to trackmygrade@gmail.com."
                 android:textAlignment="viewStart"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="10dp" />
+                android:textColor="@color/black"
+                android:textColorLink="@color/light_blue_900"
+                android:textSize="14sp" />
 
         </LinearLayout>
-
 
         <View
             android:layout_width="match_parent"
@@ -257,14 +333,14 @@
                 android:id="@+id/tvContactEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="In case of any assistance or inquiries, please contact at trackmygrade@gmail.com ,We look forward to helping you."
+                android:text="In case of any assistance, please contact at  trackmygrade@gmail.com .We look forward to helping you."
                 android:textColor="@color/black"
                 android:autoLink="email"
                 android:linksClickable="false"
                 android:textColorLink="@color/light_blue_900"
                 android:textSize="16sp"
                 android:textAlignment="viewStart"
-                android:layout_marginStart="50dp"
+                android:layout_marginStart="40dp"
                 android:layout_marginTop="10dp" />
         </LinearLayout>
 

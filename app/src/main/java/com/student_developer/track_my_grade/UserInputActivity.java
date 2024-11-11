@@ -62,7 +62,6 @@ public class UserInputActivity extends BaseActivity {
     private String SaveToClg, rollNO , downloadUrl;
     private static final int REQUEST_CODE_SELECT_IMAGE = 101;
     private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 102;
-    private Uri imageUri;
     private ImageView imgProfilePicture;
     private Button btnUploadPicture;
 
@@ -128,9 +127,11 @@ public class UserInputActivity extends BaseActivity {
 
                         if (deptSnapshot.hasChild(rollNO)) {
                             rollNoFound = true;
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("collegeName", collegeName);
+                            editor.putString("departmentName", departmentName);
+                            editor.apply();
                             Intent intent = new Intent(this, CalculatorActivity.class);
-                            intent.putExtra("collegeName", collegeName);
-                            intent.putExtra("departmentName", departmentName);
                             startActivity(intent);
                             finish();
                             break;
@@ -332,38 +333,28 @@ public class UserInputActivity extends BaseActivity {
 
     private Uri compressImage(Uri uri) {
         try {
-            // Load the bitmap from the given Uri
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
 
-            // Compress the bitmap into JPEG format
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             int quality = 100;
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-
-            // Reduce quality until image size is below 5 MB
             while (outputStream.toByteArray().length / 1024 > 5120) {
                 outputStream.reset();
                 quality -= 10;
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-                if (quality <= 10) break; // Minimum quality threshold to avoid over-compression
+                if (quality <= 10) break;
             }
-
-            // Get the compressed image data
             byte[] imageData = outputStream.toByteArray();
-
-            // Create a temporary file for the compressed image
             File tempFile = File.createTempFile("compressed_image", ".jpg", getCacheDir());
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             fileOutputStream.write(imageData);
             fileOutputStream.close();
-
-            // Get the Uri of the temp file
             return Uri.fromFile(tempFile);
 
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error compressing image", Toast.LENGTH_SHORT).show();
-            return null; // Return null to handle the error in onActivityResult
+            return null;
         }
     }
 
@@ -540,9 +531,10 @@ public class UserInputActivity extends BaseActivity {
                     btnSubmit.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Student information saved successfully", Toast.LENGTH_SHORT).show();
+                        editor.putString("collegeName", SaveToClg);
+                        editor.putString("departmentName", department);
+                        editor.apply();
                         Intent intent = new Intent(this, CalculatorActivity.class);
-                        intent.putExtra("collegeName", clg);
-                        intent.putExtra("departmentName", department);
                         startActivity(intent);
                         finish();
                     } else {

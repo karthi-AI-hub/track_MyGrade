@@ -110,13 +110,12 @@ public class ProfileFragment extends Fragment {
         sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
-        if (getArguments() != null) {
-            DBofClg = getArguments().getString("collegeName");
-            DBofDept = getArguments().getString("departmentName");
-            System.out.println("RollNo : "+ rollNO);
-            System.out.println("collegeName : "+ DBofClg);
-            System.out.println("departmentName : "+ DBofDept);
-        }
+        DBofClg = sharedPref.getString("collegeName", null);
+        DBofDept = sharedPref.getString("departmentName", null);
+        System.out.println("RollNo : "+ rollNO);
+        System.out.println("collegeName : "+ DBofClg);
+        System.out.println("departmentName : "+ DBofDept);
+
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
