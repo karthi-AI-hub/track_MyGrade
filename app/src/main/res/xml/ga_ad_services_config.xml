@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ad-services-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <service
+        android:name="com.google.android.gms.ads.AdServices"
+        android:enabled="true"
+        android:exported="true" />
+</ad-services-config>

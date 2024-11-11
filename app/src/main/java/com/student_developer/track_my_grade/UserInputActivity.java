@@ -40,6 +40,7 @@ import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,7 +85,7 @@ public class UserInputActivity extends BaseActivity {
 
     private void init() {
         sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        rollNO = sharedPref.getString("roll_no", null);
+        rollNO = sharedPref.getString("roll_no", null).toUpperCase();
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
@@ -110,7 +111,6 @@ public class UserInputActivity extends BaseActivity {
         btnSubmit.setVisibility(View.GONE);
 
         DatabaseReference rootRef = database.getReference();
-
         rootRef.get().addOnCompleteListener(task -> {
             progressBar.setVisibility(View.GONE);
             btnSubmit.setVisibility(View.VISIBLE);
@@ -120,7 +120,9 @@ public class UserInputActivity extends BaseActivity {
 
                 for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
                     String collegeName = collegeSnapshot.getKey();
-
+                    if ("StudentList".equals(collegeName)) {
+                        continue;
+                    }
                     for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {
                         String departmentName = deptSnapshot.getKey();
 
@@ -259,6 +261,7 @@ public class UserInputActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null) {
@@ -267,16 +270,32 @@ public class UserInputActivity extends BaseActivity {
                 Toast.makeText(this, "Error selecting image. Please try again.", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
-            imageUri = UCrop.getOutput(data);
-            if (imageUri != null) {
-                imgProfilePicture.setImageURI(imageUri);
-                Uri compressedImageUri = compressImage(imageUri);
-                uploadProfilePicture(compressedImageUri);
-                progressBar.setVisibility(View.VISIBLE);
-                btnUploadPicture.setVisibility(View.GONE);
+            Uri croppedImageUri = UCrop.getOutput(data);
+
+            if (croppedImageUri != null) {
+                imgProfilePicture.setImageURI(croppedImageUri);
+                Uri compressedImageUri = compressImage(croppedImageUri);
+                if (compressedImageUri != null) {
+                    uploadProfilePicture(compressedImageUri);
+                    progressBar.setVisibility(View.VISIBLE);
+                    btnUploadPicture.setVisibility(View.GONE);
+                } else {
+                    Toast.makeText(this, "Error compressing image. Please try again.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Error processing image. Please try again.", Toast.LENGTH_SHORT).show();
             }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            Throwable cropError = UCrop.getError(data);
+            Toast.makeText(this, "Error during image cropping: " + (cropError != null ? cropError.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
+
+
+
 
 
     private void startCrop(@NonNull Uri uri) {
@@ -313,31 +332,41 @@ public class UserInputActivity extends BaseActivity {
 
     private Uri compressImage(Uri uri) {
         try {
-
+            // Load the bitmap from the given Uri
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
 
+            // Compress the bitmap into JPEG format
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             int quality = 100;
-
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+
+            // Reduce quality until image size is below 5 MB
             while (outputStream.toByteArray().length / 1024 > 5120) {
                 outputStream.reset();
                 quality -= 10;
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
-                if (quality <= 10) break;
+                if (quality <= 10) break; // Minimum quality threshold to avoid over-compression
             }
 
+            // Get the compressed image data
             byte[] imageData = outputStream.toByteArray();
-            String path = MediaStore.Images.Media.insertImage(getContentResolver(), BitmapFactory.decodeByteArray(imageData, 0, imageData.length), "CompressedImage", null);
 
-            return Uri.parse(path);
+            // Create a temporary file for the compressed image
+            File tempFile = File.createTempFile("compressed_image", ".jpg", getCacheDir());
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            fileOutputStream.write(imageData);
+            fileOutputStream.close();
+
+            // Get the Uri of the temp file
+            return Uri.fromFile(tempFile);
 
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error compressing image", Toast.LENGTH_SHORT).show();
-            return uri;
+            return null; // Return null to handle the error in onActivityResult
         }
     }
+
 
 
 
@@ -511,7 +540,11 @@ public class UserInputActivity extends BaseActivity {
                     btnSubmit.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Student information saved successfully", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(UserInputActivity.this, CalculatorActivity.class));finish();
+                        Intent intent = new Intent(this, CalculatorActivity.class);
+                        intent.putExtra("collegeName", clg);
+                        intent.putExtra("departmentName", department);
+                        startActivity(intent);
+                        finish();
                     } else {
                         Toast.makeText(this, "Failed to save data", Toast.LENGTH_SHORT).show();
                     }

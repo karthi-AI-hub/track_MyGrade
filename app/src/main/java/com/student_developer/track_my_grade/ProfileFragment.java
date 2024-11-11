@@ -113,6 +113,9 @@ public class ProfileFragment extends Fragment {
         if (getArguments() != null) {
             DBofClg = getArguments().getString("collegeName");
             DBofDept = getArguments().getString("departmentName");
+            System.out.println("RollNo : "+ rollNO);
+            System.out.println("collegeName : "+ DBofClg);
+            System.out.println("departmentName : "+ DBofDept);
         }
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
@@ -127,7 +130,7 @@ public class ProfileFragment extends Fragment {
         docRef = db.collection("GPA").document(rollNo);
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        myRef = database.getReference(DBofClg).child(DBofDept).child(rollNO.toUpperCase());
+        myRef = database.getReference(DBofClg).child(DBofDept).child(rollNo);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         email = firebaseUser.getEmail();
@@ -342,21 +345,30 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String name = dataSnapshot.child("Name").getValue(String.class).toUpperCase();
-                    String regNo = dataSnapshot.child("RegNo").getValue(String.class).toUpperCase();
-                    String clg = dataSnapshot.child("Clg").getValue(String.class).toUpperCase();
+                    String name = dataSnapshot.child("Name").getValue(String.class);
+                    String regNo = dataSnapshot.child("RegNo").getValue(String.class);
+                    String clg = dataSnapshot.child("Clg").getValue(String.class);
                     String dept = dataSnapshot.child("Dept").getValue(String.class);
                     String sem = dataSnapshot.child("SEM").getValue(String.class);
-                    String dob = dataSnapshot.child("DOB").getValue(String.class).toUpperCase();
+                    String dob = dataSnapshot.child("DOB").getValue(String.class);
                     String phno = dataSnapshot.child("PhNo").getValue(String.class);
                     String profileUrl = dataSnapshot.child("Profile").getValue(String.class);
+
+                    name = name != null ? name.toUpperCase() : "UNKNOWN";
+                    regNo = regNo != null ? regNo.toUpperCase() : "UNKNOWN";
+                    clg = clg != null ? clg.toUpperCase() : "UNKNOWN";
+                    dept = dept != null ? dept : "UNKNOWN";
+                    sem = sem != null ? sem : "UNKNOWN";
+                    dob = dob != null ? dob.toUpperCase() : "UNKNOWN";
+                    phno = phno != null ? phno : "UNKNOWN";
+
+                    String fullDept = departmentNames.getOrDefault(dept, dept);
 
                     if (profileUrl != null) {
                         new LoadImageFromURL(pro_photo).execute(profileUrl);
                     }
 
-                    String fullDept = departmentNames.getOrDefault(dept, dept);
-                    currentSemester = Integer.parseInt(sem);
+                    currentSemester = !sem.equals("UNKNOWN") ? Integer.parseInt(sem) : 1;
                     removeExtraSemester(currentSemester);
                     setProText(pro_name, name.toUpperCase());
                     setProText(pro_reg, regNo.toUpperCase());

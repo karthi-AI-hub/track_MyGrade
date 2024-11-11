@@ -242,36 +242,43 @@ public class  LoginActivity extends BaseActivity {
                         .whereEqualTo("Email", email)
                         .get()
                         .addOnCompleteListener(queryTask -> {
-                            if (queryTask.isSuccessful() && !queryTask.getResult().isEmpty()) {
-                                DocumentSnapshot document = queryTask.getResult().getDocuments().get(0);
-                                String rollNo = document.getString("Roll No");
-
-                                if (rollNo != null) {
-                                    SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putString("roll_no", rollNo);
-                                    editor.apply();
-                                    navigateTo(UserInputActivity.class);
+                            if (queryTask.isSuccessful()) {
+                                if (queryTask.getResult().isEmpty()) {
+                                    showToast("Email not registered. Please check your email or sign up.");
                                 } else {
-                                    showToast("Roll No not found.");
+                                    DocumentSnapshot document = queryTask.getResult().getDocuments().get(0);
+                                    String rollNo = document.getString("Roll No");
+
+                                    if (rollNo != null) {
+                                        SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString("roll_no", rollNo);
+                                        editor.apply();
+                                        navigateTo(UserInputActivity.class);
+                                    } else {
+                                        showToast("Roll No not found in user profile.");
+                                    }
                                 }
                             } else {
-                                showToast("Failed to fetch Roll No.");
+                                showToast("Error fetching user data. Please try again.");
                             }
                         })
                         .addOnFailureListener(e -> {
                             Log.e("LoginActivity", "Error fetching Roll No: ", e);
-                            showToast("Error fetching Roll No.");
+                            showToast("Error connecting to database. Check your connection.");
                         });
             } else {
                 firebaseUser.sendEmailVerification();
                 authLogin.signOut();
                 showAlertDialog();
+                showToast("Verification email sent. Please verify and log in again.");
             }
         } else {
             handleLoginError(task);
         }
     }
+
+
 
     private void showAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);

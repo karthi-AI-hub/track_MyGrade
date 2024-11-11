@@ -11,7 +11,7 @@ android {
         applicationId = "com.student_developer.track_my_grade"
         minSdk = 25
         targetSdk = 34
-        versionCode = 3
+        versionCode = 2
         versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

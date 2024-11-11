@@ -36,7 +36,7 @@ public class RegisterActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*]).+$";
-    private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
+    //private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
 
     private EditText etRollNo, etEmail, etPassword, etConfirmPassword;
     private ProgressBar progressBar;
@@ -246,7 +246,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private boolean isRollNoValid(String rollNo) {
-        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 2 && rollNo.length() <= 20 && rollNo.matches(ROLLNO_REGEX);
+        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 2 && rollNo.length() <= 20;
     }
 
     private boolean isEmailValid(String email) {

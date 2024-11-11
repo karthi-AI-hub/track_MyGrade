@@ -3,15 +3,27 @@ package com.student_developer.track_my_grade;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.ads.MobileAds;
@@ -33,18 +45,21 @@ public class CalculatorActivity extends BaseActivity {
     private String DBcollegeName;
     private String DBdepartmentName;
     private InterstitialAd mInterstitialAd;
+    private static final String TAG = "CalculatorActivity";
+    private AdView adView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
-//        new Thread(
-//                () -> {
-//                     MobileAds.initialize(this, initializationStatus -> {});
-//                })
-//                .start();
+        MobileAds.initialize(this, initializationStatus -> {
+            Log.d(TAG, "AdMob initialized.");
+        });
 
+        MobileAds.initialize(this);
+        loadAd();
+        loadBannerAd();
 
         DBcollegeName = getIntent().getStringExtra("collegeName");
         System.out.println("collegeName: " + DBcollegeName);
@@ -243,6 +258,93 @@ public class CalculatorActivity extends BaseActivity {
         btnProfile.setEnabled(!loading);
         btnCalculator.setEnabled(!loading);
         btnGraph.setEnabled(!loading);
+    }
+    private void loadAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(this, "ca-app-pub-9796820425295040/4351001136", adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        Log.i(TAG, "onAdLoaded");
+
+                        mInterstitialAd.show(CalculatorActivity.this);
+
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                Log.d(TAG, "Ad was dismissed.");
+                                loadAd();
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                Log.e(TAG, "Failed to show ad: " + adError.getMessage());
+                                mInterstitialAd = null;
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                Log.d(TAG, "Ad is showing.");
+                                mInterstitialAd = null; }
+                        });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        Log.e(TAG, "Ad failed to load: " + loadAdError.toString());
+                        mInterstitialAd = null;
+                    }
+                });
+    }
+    private void loadBannerAd(){
+        adView = new AdView(this);
+        adView.setAdUnitId("ca-app-pub-9796820425295040/2726900028");
+        adView.setAdSize(AdSize.SMART_BANNER);
+
+        LinearLayout layout = findViewById(R.id.bannerAdLayout);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        layout.removeAllViews();
+        layout.addView(adView);
+        adView.loadAd(adRequest);
+
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdImpression() {
+                // Code to be executed when an impression is recorded
+                // for an ad.
+            }
+
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+        });
+
     }
 
     @Override

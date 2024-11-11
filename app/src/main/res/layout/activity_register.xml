@@ -63,6 +63,7 @@
         android:drawablePadding="20dp"
         android:background="@drawable/edittext_backgrouond"
     android:inputType="none"
+        android:autofillHints="username"
         android:maxLines="1"/>
 
     <EditText

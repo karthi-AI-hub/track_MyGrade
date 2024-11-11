@@ -87,7 +87,7 @@ public class StaffActivity extends BaseActivity {
 
         searchResultsListView = findViewById(R.id.searchResultsListView);
         databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference(SearchOnClg).child("Student_List");
+                .getReference("StudentList").child(SearchOnClg);
 
         studentList = new ArrayList<>();
         rollNoList = new ArrayList<>();
