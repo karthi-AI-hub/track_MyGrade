@@ -42,7 +42,6 @@
         android:src="@drawable/ucrop_shadow_upside" />
 
     <LinearLayout
-        android:id="@+id/wrapper_states"
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_wrapper_states"
         android:layout_below="@+id/controls_shadow"

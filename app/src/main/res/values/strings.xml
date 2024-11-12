@@ -1,29 +1,17 @@
 <resources>
-    <string name="app_name">Track My Grade</string>
-    <string name="track">Track</string>
-    <string name="my_grade">My Grade</string>
-    <string name="splash_logo">App Logo</string>
-    <string name="title_activity_login2">LoginActivity2</string>
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
-    <string name="invalid_password">Password must be >5 characters</string>
-    <string name="login_failed">"Login failed"</string>
-    <string name="error_roll_no_invalid">Enter a valid Roll No.</string>
-    <string name="error_email_invalid">Enter a valid email address.</string>
-    <string name="error_password_weak">Password must be at least 8 characters long and contain at least one letter, one number, and one special character.</string>
-    <string name="error_password_mismatch">Passwords do not match.</string>
+    <string name="app_name" translatable="false">Track My Grade</string>
+    <string name="splash_logo" translatable="false">App Logo</string>
+    <string name="error_roll_no_invalid" translatable="false">Enter a valid Roll No.</string>
+    <string name="error_email_invalid" translatable="false">Enter a valid email address.</string>
+    <string name="error_password_weak" translatable="false">Password must be at least 8 characters long and contain at least one letter, one number, and one special character.</string>
+    <string name="error_password_mismatch" translatable="false">Passwords do not match.</string>
 
-    <string name="error_email_collision">Email is already in use</string>
-    <string name="error_network">Network error, please try again later</string>
-    <string name="error_authentication_failed">Authentication failed</string>
-    <string name="error_registration">Registration error: %1$s</string>
-    <string name="title_activity_user_input">UserInputActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="error_email_collision" translatable="false">Email is already in use</string>
+    <string name="error_network" translatable="false">Network error, please try again later</string>
+    <string name="error_authentication_failed" translatable="false">Authentication failed</string>
+    <string name="error_registration" translatable="false">Registration error: %1$s</string>
+    <string name="title_activity_user_input" translatable="false">UserInputActivity</string>
+
 
     <string-array name="departments">
         <item>Department</item>

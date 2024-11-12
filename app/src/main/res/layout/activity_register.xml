@@ -9,6 +9,7 @@
 
     <!-- Login and Sign Up buttons at the top of the screen -->
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -16,6 +17,7 @@
 
         <Button
             android:id="@+id/btnLogin"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -23,10 +25,11 @@
             android:backgroundTint="@color/white"
             android:contentDescription="Login Button"
             android:text="Login"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/btnSignUp"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/purple_500"
@@ -39,7 +42,6 @@
 
     <!-- Registration Title -->
     <TextView
-        android:id="@+id/registerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="REGISTER"
@@ -114,6 +116,7 @@
             android:id="@+id/ivTogglePassword"
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:contentDescription="eye"
             android:src="@drawable/ic_visibility_off"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"

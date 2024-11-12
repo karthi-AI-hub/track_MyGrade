@@ -85,6 +85,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:layout_marginTop="10dp">
             <LinearLayout
@@ -174,11 +175,11 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/blue_600"
                     android:text="DOB"
-                    android:drawableStart="@drawable/icon_birthdate"
                     android:drawablePadding="10dp"
                     android:textSize="16sp"
                     android:padding="8dp"
-                    android:background="?android:attr/selectableItemBackground"/>
+                    android:background="?android:attr/selectableItemBackground"
+                    app:drawableStartCompat="@drawable/icon_birthdate" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -214,11 +215,11 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/blue_600"
                     android:text="Phone No"
-                    android:drawableStart="@drawable/icon_phone"
                     android:drawablePadding="10dp"
                     android:textSize="16sp"
                     android:padding="8dp"
-                    android:background="?android:attr/selectableItemBackground"/>
+                    android:background="?android:attr/selectableItemBackground"
+                    app:drawableStartCompat="@drawable/icon_phone" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -255,11 +256,11 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/blue_600"
                     android:text="Email Id"
-                    android:drawableStart="@drawable/baseline_mail_24"
                     android:drawablePadding="10dp"
                     android:textSize="16sp"
                     android:padding="8dp"
-                    android:background="?android:attr/selectableItemBackground"/>
+                    android:background="?android:attr/selectableItemBackground"
+                    app:drawableStartCompat="@drawable/baseline_mail_24" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -300,11 +301,11 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/blue_600"
                     android:text="CGPA"
-                    android:drawableStart="@drawable/icon_sem"
                     android:drawablePadding="10dp"
                     android:textSize="16sp"
                     android:padding="8dp"
-                    android:background="?android:attr/selectableItemBackground"/>
+                    android:background="?android:attr/selectableItemBackground"
+                    app:drawableStartCompat="@drawable/icon_sem" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

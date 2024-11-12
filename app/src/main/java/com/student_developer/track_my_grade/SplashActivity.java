@@ -42,7 +42,7 @@ public class SplashActivity extends BaseActivity {
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
         sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        rollNO = sharedPref.getString("roll_no", null).toUpperCase();
+        rollNO = sharedPref.getString("roll_no", null);
 
         authLogin = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

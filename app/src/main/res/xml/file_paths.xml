@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
+<paths>
     <!-- This allows access to all files in the external files directory -->
     <external-path name="external_files" path="." />
     <!-- You can also specify paths to specific directories if needed -->

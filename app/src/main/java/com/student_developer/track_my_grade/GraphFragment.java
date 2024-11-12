@@ -7,14 +7,11 @@ import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -44,7 +41,7 @@ import java.util.Map;
 
 public class GraphFragment extends Fragment {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPref;
     TextView tvGraph, tvSemSubject, tvNoData;
     String rollNO ;

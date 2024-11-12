@@ -1,15 +1,9 @@
 package com.student_developer.track_my_grade;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,7 +25,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,7 +34,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -49,7 +41,6 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

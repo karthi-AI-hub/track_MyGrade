@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:background="@drawable/gradient_bf"
     android:orientation="vertical">
+
     <TextView
         android:id="@+id/tv_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/icon_close"
         android:padding="6dp"
         android:textSize="14sp"
         android:text="CLOSE"
@@ -19,11 +20,12 @@
         android:textColor="@color/red"
         android:drawablePadding="10dp"
         android:layout_gravity="end"
-        />
+        app:drawableStartCompat="@drawable/icon_close" />
 
     <ImageView
         android:id="@+id/full_image_View"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="full_pro_pic"
         android:scaleType="fitCenter" />
 </LinearLayout>

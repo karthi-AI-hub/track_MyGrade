@@ -14,6 +14,7 @@
         android:orientation="vertical">
     <LinearLayout
 
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -21,6 +22,7 @@
 
         <Button
             android:id="@+id/btnLogin"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/purple_500"
@@ -33,6 +35,7 @@
 
         <Button
             android:id="@+id/btnSignUp"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/white"
@@ -44,7 +47,6 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/loginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="LOGIN"
@@ -101,6 +103,7 @@
             android:id="@+id/ivTogglePassword"
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:contentDescription="eye"
             android:src="@drawable/ic_visibility_off"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
@@ -160,7 +163,7 @@
     <LinearLayout
         android:id="@+id/ll_pwreset"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center">
@@ -168,6 +171,7 @@
             android:id="@+id/et_pwreset_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="emailAddress"
             android:minHeight="45dp"
             android:hint="Enter Email to reset password"
             android:drawingCacheQuality="high"

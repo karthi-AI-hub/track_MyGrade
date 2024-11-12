@@ -84,6 +84,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:baselineAligned="false"
                     android:orientation="horizontal"
                     android:layout_marginTop="10dp">
                     <LinearLayout
@@ -172,11 +173,11 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue_600"
                         android:text="DOB"
-                        android:drawableStart="@drawable/icon_birthdate"
                         android:drawablePadding="10dp"
                         android:textSize="16sp"
                         android:padding="8dp"
-                        android:background="?android:attr/selectableItemBackground"/>
+                        android:background="?android:attr/selectableItemBackground"
+                        app:drawableStartCompat="@drawable/icon_birthdate" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -211,11 +212,11 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue_600"
                         android:text="Phone No"
-                        android:drawableStart="@drawable/icon_phone"
                         android:drawablePadding="10dp"
                         android:textSize="16sp"
                         android:padding="8dp"
-                        android:background="?android:attr/selectableItemBackground"/>
+                        android:background="?android:attr/selectableItemBackground"
+                        app:drawableStartCompat="@drawable/icon_phone" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -253,11 +254,11 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue_600"
                         android:text="Email Id"
-                        android:drawableStart="@drawable/baseline_mail_24"
                         android:drawablePadding="10dp"
                         android:textSize="16sp"
                         android:padding="8dp"
-                        android:background="?android:attr/selectableItemBackground"/>
+                        android:background="?android:attr/selectableItemBackground"
+                        app:drawableStartCompat="@drawable/baseline_mail_24" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -299,11 +300,11 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue_600"
                         android:text="CGPA:"
-                        android:drawableStart="@drawable/icon_sem"
                         android:drawablePadding="10dp"
                         android:textSize="16sp"
                         android:padding="8dp"
-                        android:background="?android:attr/selectableItemBackground"/>
+                        android:background="?android:attr/selectableItemBackground"
+                        app:drawableStartCompat="@drawable/icon_sem" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -340,14 +341,12 @@
 
 
             <LinearLayout
-                android:id="@+id/llCgpaList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/gradient_bf"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvCgpaTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CGPA Result"
@@ -695,7 +694,6 @@
                 android:layout_marginTop="10dp"/>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/con_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -705,7 +703,6 @@
                 android:padding="10dp">
 
                 <TableLayout
-                    android:id="@+id/tableLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:stretchColumns="*"

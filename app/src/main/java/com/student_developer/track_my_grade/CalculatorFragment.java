@@ -2,6 +2,7 @@ package com.student_developer.track_my_grade;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -23,14 +24,17 @@ import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import com.google.firebase.firestore.DocumentSnapshot;
+
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -501,11 +505,11 @@ public class CalculatorFragment extends Fragment {
                     if (inputView instanceof EditText) {
                         EditText editText = (EditText) inputView;
                         if (j == 0) {
-                            subjectNames[i] = editText.getText().toString().trim(); // Store subject name
+                            subjectNames[i] = editText.getText().toString().trim();
                         } else if (j == 1) {
-                            creditHours[i] = Integer.parseInt(editText.getText().toString().trim()); // Store CR
+                            creditHours[i] = Integer.parseInt(editText.getText().toString().trim());
                         } else if (j == 2) {
-                            gradePoints[i] = Float.parseFloat(editText.getText().toString().trim()); // Store GP
+                            gradePoints[i] = Float.parseFloat(editText.getText().toString().trim());
                         }
                     }
                 }
@@ -619,18 +623,10 @@ public class CalculatorFragment extends Fragment {
     }
 
 
-    private void showExitDialogFromFragment() {
-        if (getActivity() instanceof BaseActivity) {
-            BaseActivity baseActivity = (BaseActivity) getActivity();
-            baseActivity.showExitConfirmationDialog();  // Call the method from BaseActivity
-        }
-    }
-
     public void saveAllSubjects(int saveToSem) {
         List<Subject> subjectList = collectSubject();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Define the target semester document path based on saveToSem
         String semesterDocumentPath = "GPA/" + rollNO + "/Semester/SEM - " + saveToSem;
 
         db.document(semesterDocumentPath).get()
