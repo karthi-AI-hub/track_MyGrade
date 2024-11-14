@@ -378,6 +378,7 @@ public class ProfileFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putInt("current_sem", currentSemester);
                     editor.putString("stuRegNo", regNo);
+                    editor.putString("stuDoB", dob);
                     editor.apply();
 
 

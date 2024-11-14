@@ -18,11 +18,15 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Track_My_Grade"
+        android:usesCleartextTraffic="true"
         tools:targetApi="34">
-
+        <activity
+            android:name=".GetResult"
+            android:exported="false" />
         <activity
             android:name=".UploadDocumentActivity"
             android:exported="false" />
@@ -73,6 +77,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -86,12 +91,9 @@
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="true" />
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-9796820425295040~4457978198" />
-
-
     </application>
 
 </manifest>

@@ -7,10 +7,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -114,6 +119,11 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
             }
         });
 
+        fab_opt1.setOnClickListener(v -> {
+
+            startActivity(new Intent(this, GetResult.class));
+        });
+
 
         btnProfile.setOnClickListener(v -> {
 
@@ -165,6 +175,8 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         });
 
     }
+
+
     private void openNeedHelpActivity() {
         Utils.intend(this, NeedHelpActivity.class);
         finish();
@@ -387,7 +399,6 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         });
 
     }
-
 
 
     @Override

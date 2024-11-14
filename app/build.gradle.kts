@@ -81,6 +81,8 @@ dependencies {
     implementation (libs.fragment)
     implementation(project(":uCrop"))
 
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("org.jsoup:jsoup:1.13.1")
     implementation (libs.mpandroidchart)
 }
 
