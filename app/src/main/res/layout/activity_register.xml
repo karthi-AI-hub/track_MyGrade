@@ -50,7 +50,6 @@
         android:textColor="@color/black"
         android:layout_marginTop="100dp" />
 
-    <!-- Name EditText -->
     <EditText
         android:id="@+id/etRollNo"
         android:layout_width="match_parent"
@@ -64,8 +63,9 @@
         android:layout_marginTop="16dp"
         android:drawablePadding="20dp"
         android:background="@drawable/edittext_backgrouond"
-    android:inputType="none"
-        android:autofillHints="username"
+        android:inputType="textNoSuggestions|text"
+        android:importantForAutofill="no"
+        android:autofillHints=""
         android:maxLines="1"/>
 
     <EditText
@@ -163,6 +163,20 @@
         android:inputType="textPassword"
         android:autofillHints="password"/>
 
+    <CheckBox
+        android:id="@+id/checkbox_terms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:textColorLink="@color/blue_600"
+        android:paddingStart="25dp"
+        android:checked="true"
+        android:text="I agree to the Terms and Conditions and Privacy Policy"
+        android:clickable="true"
+        android:linksClickable="true" />
+
     <Button
         android:id="@+id/btnRegisterSubmit"
         android:layout_width="match_parent"
@@ -172,7 +186,6 @@
         android:textColor="@android:color/white"
         android:layout_marginTop="16dp" />
 
-    <!-- "Already have an account? Login" text at the bottom -->
     <TextView
         android:id="@+id/loginPrompt"
         android:layout_width="wrap_content"

@@ -22,9 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Track_My_Grade"
         tools:targetApi="34">
-        <activity
-            android:name=".TextReconizingActivity"
-            android:exported="false" />
+
         <activity
             android:name=".UploadDocumentActivity"
             android:exported="false" />
@@ -84,10 +82,6 @@
             android:name="android.adservices.AD_SERVICES_CONFIG"
             android:resource="@xml/ga_ad_services_config"
             tools:replace="android:resource" />
-
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr"/>
 
         <meta-data
             android:name="firebase_performance_logcat_enabled"

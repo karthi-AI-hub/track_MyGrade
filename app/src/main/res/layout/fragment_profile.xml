@@ -39,8 +39,8 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/pro_photo"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
             android:layout_marginBottom="5dp"
             android:src="@drawable/profile"
             android:layout_gravity="center"
@@ -305,7 +305,7 @@
                     android:textSize="16sp"
                     android:padding="8dp"
                     android:background="?android:attr/selectableItemBackground"
-                    app:drawableStartCompat="@drawable/icon_sem" />
+                    app:drawableStartCompat="@drawable/icon_course" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -342,14 +342,12 @@
 
 
         <LinearLayout
-            android:id="@+id/llCgpaList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/gradient_bf"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvCgpaTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="CGPA Result"

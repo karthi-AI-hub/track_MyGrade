@@ -80,7 +80,7 @@ public class StudentDetailActivity extends AppCompatActivity {
     private Map<String, String> departmentNames;
     private ImageView pro_photo;
     private TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
-    private TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
+    private TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +135,6 @@ public class StudentDetailActivity extends AppCompatActivity {
         tvpro6 = findViewById(R.id.tv_pro6);
         tvpro7 = findViewById(R.id.tv_pro7);
         tvpro8 = findViewById(R.id.tv_pro8);
-        tvCGPATotal = findViewById(R.id.tvCgpaTotal);
 
         pro_photo = findViewById(R.id.pro_photo);
         pro_name = findViewById(R.id.pro_name);

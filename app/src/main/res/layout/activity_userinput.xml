@@ -28,6 +28,7 @@
             android:id="@+id/ur_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints=""
             android:hint="Name"
             android:drawableStart="@drawable/baseline_person_24"
             android:textColor="@color/black"

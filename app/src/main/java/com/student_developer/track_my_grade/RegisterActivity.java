@@ -2,21 +2,29 @@ package com.student_developer.track_my_grade;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.text.style.ClickableSpan;
 import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseNetworkException;
@@ -36,14 +44,15 @@ public class RegisterActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*]).+$";
-    //private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
+    private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
 
+    private CheckBox checkboxTerms;
     private EditText etRollNo, etEmail, etPassword, etConfirmPassword;
     private ProgressBar progressBar;
     private Button btnRegisterSubmit, btnMoveToLogin;
     private TextView passwordStrengthIndicator, tvPrompt;
     private ImageView ivTogglePassword;
-
+    SharedPreferences sharedPref;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
 
@@ -73,8 +82,34 @@ public class RegisterActivity extends BaseActivity {
         passwordStrengthIndicator = findViewById(R.id.passwordStrength_Indicator);
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
         tvPrompt = findViewById(R.id.loginPrompt);
+        checkboxTerms = findViewById(R.id.checkbox_terms);
+        sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
 
+        checkChechBoxClicked();
         setupRealTimeValidation();
+    }
+
+    private void checkChechBoxClicked() {
+        String termsText = "I agree to the Terms and Conditions and Privacy Policy";
+        SpannableString spannableString = new SpannableString(termsText);
+        ClickableSpan termsClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/trackmygrade/TermsAndConditions"));
+                startActivity(browserIntent);
+            }
+        };
+        spannableString.setSpan(termsClickableSpan, 15, 35, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ClickableSpan privacyClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://sites.google.com/view/trackmygrade/PrivacyPolicies/"));
+                startActivity(browserIntent);
+            }
+        };
+        spannableString.setSpan(privacyClickableSpan, 40, 54, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        checkboxTerms.setText(spannableString);
+        checkboxTerms.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 
@@ -132,7 +167,8 @@ public class RegisterActivity extends BaseActivity {
         String password = getTrimmedText(etPassword);
         String confirmPassword = getTrimmedText(etConfirmPassword);
 
-        if (isInputValid(rollNo, email, password, confirmPassword)) {
+        if (isInputValid(rollNo, email, password, confirmPassword, checkboxTerms)) {
+
             if (!Utils.isNetworkConnected(this)) {
                 Snackbar.make(findViewById(android.R.id.content), "No Internet, Please try again later to Register.", Snackbar.LENGTH_LONG).show();
                 btnRegisterSubmit.setEnabled(true);
@@ -205,6 +241,9 @@ public class RegisterActivity extends BaseActivity {
                 .addOnSuccessListener(aVoid -> {
                     showToast("Registration successful");
                     clearInputFields();
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("roll_no", rollNo);
+                    editor.apply();
                     startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
                     overridePendingTransition(0, 0);
 
@@ -223,7 +262,7 @@ public class RegisterActivity extends BaseActivity {
         return editText.getText().toString().trim();
     }
 
-    private boolean isInputValid(String rollNo, String email, String password, String confirmPassword) {
+    private boolean isInputValid(String rollNo, String email, String password, String confirmPassword, CheckBox checkBox) {
         List<Pair<EditText, String>> validations = new ArrayList<>();
         validations.add(new Pair<>(etRollNo, isRollNoValid(rollNo) ? null : getString(R.string.error_roll_no_invalid)));
         validations.add(new Pair<>(etEmail, isEmailValid(email) ? null : getString(R.string.error_email_invalid)));
@@ -234,19 +273,26 @@ public class RegisterActivity extends BaseActivity {
         for (Pair<EditText, String> validation : validations) {
             if (validation.second != null) {
                 validation.first.setError(validation.second);
-                validation.first.setBackground(ContextCompat.getDrawable(this, R.drawable.edit_text_round_corner)); // Set red border when error
-                validation.first.requestFocus();
+                validation.first.setBackground(ContextCompat.getDrawable(this, R.drawable.edit_text_round_corner));
                 allValid = false;
             } else {
-                validation.first.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_backgrouond)); // Reset border when valid
+                validation.first.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_backgrouond));
             }
         }
-
+        if (!isBoxChecked(checkBox)) {
+            allValid = false;
+            checkboxTerms.setBackground(ContextCompat.getDrawable(this, R.drawable.edit_text_round_corner));
+        }else{
+            checkboxTerms.setError(null);
+        }
         return allValid;
     }
 
+    private boolean isBoxChecked(CheckBox Checkbox){
+        return Checkbox.isChecked();
+    }
     private boolean isRollNoValid(String rollNo) {
-        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 2 && rollNo.length() <= 20;
+        return !TextUtils.isEmpty(rollNo) && rollNo.length() >= 2 && rollNo.length() <= 20 && rollNo.matches(ROLLNO_REGEX);
     }
 
     private boolean isEmailValid(String email) {

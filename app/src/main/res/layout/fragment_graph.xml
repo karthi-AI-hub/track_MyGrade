@@ -64,7 +64,6 @@
                 android:visibility="gone"/>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/con_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -74,7 +73,6 @@
             android:padding="10dp">
 
             <TableLayout
-                android:id="@+id/tableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:stretchColumns="*"

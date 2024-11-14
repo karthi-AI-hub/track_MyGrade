@@ -1,30 +1,38 @@
 [versions]
 agp = "8.5.2"
-firebaseBom = "33.3.0"
+firebaseBom = "33.5.1"
+fragment = "1.8.5"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+lottieCompose = "5.0.3"
 material = "1.12.0"
-activity = "1.9.2"
-constraintlayout = "2.1.4"
-annotation = "1.8.2"
-lifecycleLivedataKtx = "2.8.6"
-lifecycleViewmodelKtx = "2.8.6"
-firebaseAuth = "23.0.0"
-firebaseFirestore = "25.1.0"
+activity = "1.9.3"
+constraintlayout = "2.2.0"
+annotation = "1.9.1"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
+firebaseAuth = "23.1.0"
+firebaseFirestore = "25.1.1"
 googleGmsGoogleServices = "4.4.2"
-firebaseAnalytics = "22.1.0"
+firebaseAnalytics = "22.1.2"
 firebaseDatabase = "21.0.0"
 firebaseStorage = "21.0.1"
-playServicesAds = "23.4.0"
+mpandroidchart = "v3.1.0"
+multidex = "2.0.1"
+playServicesAds = "23.5.0"
+playServicesAdsLite = "23.5.0"
 
 [libraries]
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
+firebase-perf = { module = "com.google.firebase:firebase-perf" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -36,7 +44,10 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+play-services-ads-lite = { module = "com.google.android.gms:play-services-ads-lite", version.ref = "playServicesAdsLite" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

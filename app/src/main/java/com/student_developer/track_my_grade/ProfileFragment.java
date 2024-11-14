@@ -491,17 +491,6 @@ public class ProfileFragment extends Fragment {
         transaction.commit();
     }
 
-    private void clearTextViews() {
-        tvpro1.setText("");
-        tvpro2.setText("");
-        tvpro3.setText("");
-        tvpro4.setText("");
-        tvpro5.setText("");
-        tvpro6.setText("");
-        tvpro7.setText("");
-        tvpro8.setText("");
-    }
-
     private void setButtonsEnabled(boolean enabled) {
         tvpro1.setEnabled(enabled);
         tvpro2.setEnabled(enabled);

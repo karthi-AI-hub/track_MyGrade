@@ -276,9 +276,7 @@ public class CalculatorFragment extends Fragment {
         if(rollNO.equalsIgnoreCase("22AD045")) {
             btnuploadresult.setVisibility(View.VISIBLE);
         }
-        btnuploadresult.setOnClickListener(v -> {
-            Utils.intend(requireContext(), TextReconizingActivity.class);
-        });
+
 
         return view;
 
