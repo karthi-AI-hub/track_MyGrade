@@ -8,8 +8,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class NeedHelpActivity extends BaseActivity {
+public class NeedHelpActivity extends AppCompatActivity {
 
     TextView emailTextView, tvRequestMail, tvUpdateSem;
     ImageView logo;
@@ -73,17 +74,5 @@ public class NeedHelpActivity extends BaseActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        boolean isFromStaff = getIntent().getBooleanExtra("from_staff", false);
-
-        if (isFromStaff) {
-            Utils.intend(this, StaffActivity.class);
-            finish();
-        } else {
-            Utils.intend(this, CalculatorActivity.class);
-            finish();
-        }
-    }
 
 }

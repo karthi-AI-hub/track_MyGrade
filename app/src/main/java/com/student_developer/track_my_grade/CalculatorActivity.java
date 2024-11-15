@@ -39,6 +39,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.ads.MobileAds;
 
+import java.util.Calendar;
+
 
 public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewardListener {
 
@@ -112,21 +114,20 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         fab_opt2.setOnClickListener(v -> {
             Intent intent = new Intent(CalculatorActivity.this, UploadDocumentActivity.class);
             startActivity(intent);
-            finish();
-            CalculatorActivity.this.overridePendingTransition(0, 0);
-            if (CalculatorActivity.this != null) {
-                CalculatorActivity.this.finish();
-            }
         });
 
         fab_opt1.setOnClickListener(v -> {
-
-            startActivity(new Intent(this, GetResult.class));
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            if (hour >= 10 && hour < 17) {
+                startActivity(new Intent(this, GetResultActivity.class));
+            } else {
+                Toast.makeText(this, "Results can only be accessed between 10 AM and 5 PM.", Toast.LENGTH_SHORT).show();
+            }
         });
 
 
         btnProfile.setOnClickListener(v -> {
-
             btnProfile.setEnabled(false);
             if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new ProfileFragment());
@@ -179,7 +180,6 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
 
     private void openNeedHelpActivity() {
         Utils.intend(this, NeedHelpActivity.class);
-        finish();
     }
 
     private void tranferFAB(){

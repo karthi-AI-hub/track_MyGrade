@@ -147,9 +147,7 @@ public class StaffActivity extends BaseActivity {
 
     private void openHelpActivity() {
         Intent intent = new Intent(StaffActivity.this, NeedHelpActivity.class);
-        intent.putExtra("from_staff", true);
         startActivity(intent);
-        finish();
     }
 
     private void handleSearchTextChanged(String rollNo) {

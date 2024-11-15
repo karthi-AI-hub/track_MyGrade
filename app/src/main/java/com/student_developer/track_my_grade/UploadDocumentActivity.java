@@ -628,10 +628,4 @@ private String getFileExtension(Uri fileUri) {
         }
     }
 
-
-
-    @Override
-    public void onBackPressed() {
-        Utils.intend(this, CalculatorActivity.class);
-    }
 }
