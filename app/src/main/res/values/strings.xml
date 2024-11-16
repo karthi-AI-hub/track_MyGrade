@@ -16,10 +16,12 @@
     <string-array name="departments">
         <item>Department</item>
         <item>AIDS</item>
+        <item>AIML</item>
         <item>AERO</item>
         <item>AGRI</item>
         <item>BME</item>
         <item>CSE</item>
+        <item>CSBS</item>
         <item>CIVIL</item>
         <item>ECE</item>
         <item>EEE</item>
@@ -28,6 +30,24 @@
         <item>MECH</item>
         <item>PCT</item>
         <item>SF</item>
+        <item>ARCHITECTURE</item>
+        <item>MARINE</item>
+        <item>CHEMICAL</item>
+        <item>BIO TECHNOLOGY</item>
+        <item>CYBER SECURITY</item>
+    </string-array>
+
+
+    <string-array name="ArraySem">
+        <item>Semeseter</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
     </string-array>
 
 

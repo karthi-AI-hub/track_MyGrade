@@ -12,7 +12,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -25,6 +24,9 @@
         android:theme="@style/Theme.Track_My_Grade"
         android:usesCleartextTraffic="true"
         tools:targetApi="34">
+        <activity
+            android:name=".SubCodeActivity"
+            android:exported="false" />
         <activity
             android:name=".GetResultActivity"
             android:exported="false" />

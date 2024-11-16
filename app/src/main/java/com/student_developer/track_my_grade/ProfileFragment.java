@@ -511,10 +511,12 @@ public class ProfileFragment extends Fragment {
     private void initializeDepartmentNames() {
         departmentNames = new HashMap<>();
         departmentNames.put("AIDS", "Artificial Intelligence & Data Science");
+        departmentNames.put("AIML", "Artificial Intelligence & Machine Learning");
         departmentNames.put("AERO", "Aerospace Engineering");
         departmentNames.put("AGRI", "Agricultural Engineering");
         departmentNames.put("BME", "Bio Medical Engineering");
         departmentNames.put("CSE", "Computer Science and Engineering");
+        departmentNames.put("CSBS", "Computer Science and Bussiness Stytems");
         departmentNames.put("CIVIL", "Civil Engineering");
         departmentNames.put("ECE", "Electronics and Communication Engineering");
         departmentNames.put("EEE", "Electrical and Electronics Engineering");
@@ -523,6 +525,12 @@ public class ProfileFragment extends Fragment {
         departmentNames.put("MECH", "Mechanical Engineering");
         departmentNames.put("PCT", "Petroleum Chemical Technology");
         departmentNames.put("SF", "Safety & Fire");
+        departmentNames.put("ARCHITECTURE", "Architecture");
+        departmentNames.put("MARINE", "Marine Engineering");
+        departmentNames.put("CHEMICAL", "Chemical Engineering");
+        departmentNames.put("BIO TECHNOLOGY", "Bio Technology");
+        departmentNames.put("CYBER SECURITY", "Cyber Security");
+
     }
 
     public void onDestroyView() {

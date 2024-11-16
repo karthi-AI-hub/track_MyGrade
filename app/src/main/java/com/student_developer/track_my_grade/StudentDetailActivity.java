@@ -361,10 +361,12 @@ public class StudentDetailActivity extends AppCompatActivity {
     private void initializeDepartmentNames() {
         departmentNames = new HashMap<>();
         departmentNames.put("AIDS", "Artificial Intelligence & Data Science");
+        departmentNames.put("AIML", "Artificial Intelligence & Machine Learning");
         departmentNames.put("AERO", "Aerospace Engineering");
         departmentNames.put("AGRI", "Agricultural Engineering");
         departmentNames.put("BME", "Bio Medical Engineering");
         departmentNames.put("CSE", "Computer Science and Engineering");
+        departmentNames.put("CSBS", "Computer Science and Bussiness Stytems");
         departmentNames.put("CIVIL", "Civil Engineering");
         departmentNames.put("ECE", "Electronics and Communication Engineering");
         departmentNames.put("EEE", "Electrical and Electronics Engineering");
@@ -373,6 +375,11 @@ public class StudentDetailActivity extends AppCompatActivity {
         departmentNames.put("MECH", "Mechanical Engineering");
         departmentNames.put("PCT", "Petroleum Chemical Technology");
         departmentNames.put("SF", "Safety & Fire");
+        departmentNames.put("ARCHITECTURE", "Architecture");
+        departmentNames.put("MARINE", "Marine Engineering");
+        departmentNames.put("CHEMICAL", "Chemical Engineering");
+        departmentNames.put("BIO TECHNOLOGY", "Bio Technology");
+        departmentNames.put("CYBER SECURITY", "Cyber Security");
     }
 
 
@@ -447,7 +454,7 @@ public class StudentDetailActivity extends AppCompatActivity {
             sno.setTextColor(Color.BLACK);
 
             TextView subjectName = new TextView(this);
-            subjectName.setText((String) subject.get("subjectName"));
+            subjectName.setText((String) subject.get("name"));
             subjectName.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             subjectName.setPadding(20, 20, 0, 20);
@@ -457,7 +464,7 @@ public class StudentDetailActivity extends AppCompatActivity {
 
 
             TextView credit = new TextView(this);
-            credit.setText((String) subject.get("cr"));
+            credit.setText((String) subject.get("credits"));
             credit.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             credit.setPadding(10, 20, 10, 20);
@@ -467,7 +474,7 @@ public class StudentDetailActivity extends AppCompatActivity {
 
 
             TextView gradePoint = new TextView(this);
-            gradePoint.setText((String) subject.get("gp"));
+            gradePoint.setText((String) subject.get("grade"));
             gradePoint.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             gradePoint.setPadding(0, 20, 20, 20);

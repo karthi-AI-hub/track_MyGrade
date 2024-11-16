@@ -118,7 +118,7 @@ public class UserInputActivity extends BaseActivity {
 
                 for (DataSnapshot collegeSnapshot : task.getResult().getChildren()) {
                     String collegeName = collegeSnapshot.getKey();
-                    if ("StudentList".equals(collegeName)) {
+                    if ("StudentList".equals(collegeName) || "CR_List".equals(collegeName)) {
                         continue;
                     }
                     for (DataSnapshot deptSnapshot : collegeSnapshot.getChildren()) {

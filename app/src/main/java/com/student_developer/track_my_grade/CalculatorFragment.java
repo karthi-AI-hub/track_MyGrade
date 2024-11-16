@@ -43,9 +43,9 @@ import java.util.Map;
 
 public class CalculatorFragment extends Fragment {
 
-    private TextView tv_gpa_result, tvGpa;
+    private TextView tv_gpa_result, tvGpa, tvNOCPorGP;
     private EditText etNoOfSubs, etsvToSem, etConfirmRoll;
-    private Button btnGenerateSubs, btnsvToPro, btnsvToSem, btnConfirmRoll, btnuploadresult;
+    private Button btnGenerateSubs, btnsvToPro, btnsvToSem, btnConfirmRoll;
     private LinearLayout ll_no_of_sub;
     private ScrollView sv_containers;
     private LinearLayout ll_subjects_container;
@@ -122,8 +122,11 @@ public class CalculatorFragment extends Fragment {
         etConfirmRoll = view.findViewById(R.id.et_confirmRoll);
         btnConfirmRoll = view.findViewById(R.id.btn_confirmRoll);
         tvGpa = view.findViewById(R.id.tv_gpa);
-        btnuploadresult = view.findViewById(R.id.btn_upload_result);
+        tvNOCPorGP = view.findViewById(R.id.tv_NoCRorGP);
 
+        tvNOCPorGP.setOnClickListener(v->{
+            Utils.intend(getContext(),SubCodeActivity.class);
+        });
         btnConfirmRoll.setOnClickListener((View v) -> {
             hideKeyboard(v);
             rollno = etConfirmRoll.getText().toString().trim().toUpperCase();
@@ -272,14 +275,7 @@ public class CalculatorFragment extends Fragment {
                 etNoOfSubs.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
             }
         });
-
-        if(rollNO.equalsIgnoreCase("22AD045")) {
-            btnuploadresult.setVisibility(View.VISIBLE);
-        }
-
-
         return view;
-
     }
 
 
@@ -608,15 +604,15 @@ public class CalculatorFragment extends Fragment {
             }
         }).addOnFailureListener(e -> {
             Toast.makeText(requireContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.e("ERROR", "Error fetching user data", e);  // Log the exception
+            Log.e("ERROR", "Error fetching user data", e);
         });
     }
 
     private void navigateToProfileFragment() {
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
 
-        transaction.replace(R.id.fragment_container, new ProfileFragment()); // Replace the current fragment with ProfileFragment
-        transaction.addToBackStack(null); // Optional: add this transaction to the back stack so users can navigate back
+        transaction.replace(R.id.fragment_container, new ProfileFragment());
+        transaction.addToBackStack(null);
         transaction.commitAllowingStateLoss();
     }
 

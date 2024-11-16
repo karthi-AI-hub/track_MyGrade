@@ -165,8 +165,6 @@
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="12dp"/>
         </LinearLayout>
-
-        <!-- Instruction note at the bottom -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -179,7 +177,7 @@
 
     <LinearLayout
         android:id="@+id/ll_no_of_subs"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:orientation="vertical">
@@ -187,11 +185,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enter the number of subjects you have to calculate GPA using CR &amp; GP ."
+            android:text=" Calculate GPA using CR &amp; GP ."
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:layout_gravity="center"
             android:layout_marginBottom="16dp" />
 
         <LinearLayout
@@ -238,37 +235,17 @@
             android:layout_marginTop="12dp"
             android:layout_gravity="center" />
 
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="OR"-->
-<!--            android:textSize="20sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:layout_marginTop="16dp" />-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Calculate GPA by Upload your Result."-->
-<!--            android:textSize="20sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:layout_marginTop="16dp" />-->
-        <Button
-            android:id="@+id/btn_upload_result"
+        <TextView
+            android:id="@+id/tv_NoCRorGP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Click Here"
-            android:layout_marginTop="10dp"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@color/blue_600"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="12dp"
-            android:visibility="gone"
-            android:layout_gravity="center" />
+            android:text="Dont't have CR or GP? CLICK HERE"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:textColor="@color/blue_600"
+            android:layout_marginTop="18dp" />
+
 
 
     </LinearLayout>

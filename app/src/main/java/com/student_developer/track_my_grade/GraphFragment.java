@@ -207,7 +207,7 @@ public class GraphFragment extends Fragment {
             tableRow.setBackground(ResourcesCompat.getDrawable(getResources(), R.color.lightGray, null));
 
             TextView subjectName = new TextView(getContext());
-            subjectName.setText((String) subject.get("subjectName"));
+            subjectName.setText((String) subject.get("name"));
             subjectName.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             subjectName.setPadding(20, 20, 0, 20);
@@ -217,7 +217,7 @@ public class GraphFragment extends Fragment {
 
 
             TextView credit = new TextView(getContext());
-            credit.setText((String) subject.get("cr"));
+            credit.setText((String) subject.get("credits"));
             credit.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             credit.setPadding(10, 20, 10, 20);
@@ -227,7 +227,7 @@ public class GraphFragment extends Fragment {
 
 
             TextView gradePoint = new TextView(getContext());
-            gradePoint.setText((String) subject.get("gp"));
+            gradePoint.setText((String) subject.get("grade"));
             gradePoint.setLayoutParams(new TableRow.LayoutParams(
                     0, TableRow.LayoutParams.WRAP_CONTENT, 1f));
             gradePoint.setPadding(0, 20, 20, 20);
