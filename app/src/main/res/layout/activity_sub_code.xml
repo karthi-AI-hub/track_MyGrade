@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_bf"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".SubCodeActivity">
+
+    <LinearLayout
+        android:id="@+id/ll_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="12dp"
+        android:padding="8dp">
+        <Spinner
+            android:id="@+id/SubCode_dept"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:textColor="@color/black"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edittext_backgrouond"
+            android:padding="12dp"/>
+        <Spinner
+            android:id="@+id/SubCode_Sem"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/black"
+            android:background="@drawable/edittext_backgrouond"
+            android:padding="12dp"/>
+        <Button
+            android:id="@+id/btn_enter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CHOOSE"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:backgroundTint="@color/blue_600"/>
+        <TextView
+            android:id="@+id/tv_noDept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:text="Not found Department ? Report here."
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:gravity="center"/>
+     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                <TableLayout
+                    android:id="@+id/tableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*"
+                    android:background="@drawable/gradient_bf" />
+                    <Button
+                        android:id="@+id/btn_calGPA"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Calculate GPA"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/blue_600"
+                        android:padding="10dp" />
+                    <TextView
+                        android:id="@+id/tv_noSubject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/red"
+                        android:text="Incorrect Subject list ? Report here."
+                        android:layout_marginTop="10dp"
+                        android:textSize="15sp"
+                        android:textAlignment="center"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+        </ScrollView>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        android:indeterminate="false"
+        android:progressTint="@android:color/white"
+        android:theme="@style/CustomProgressBar"
+        android:layout_gravity="center" />
+
+</LinearLayout>

@@ -125,8 +125,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="10dp"/>
 
-        <!-- "Don't have an account? Sign Up" text at the bottom -->
-        <Button
+       <Button
             android:id="@+id/btnLoginSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

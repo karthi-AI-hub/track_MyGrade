@@ -44,7 +44,7 @@ public class RegisterActivity extends BaseActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*]).+$";
-    private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{7,8}$";
+    private static final String ROLLNO_REGEX = "^[A-Za-z0-9]{2,20}$";
 
     private CheckBox checkboxTerms;
     private EditText etRollNo, etEmail, etPassword, etConfirmPassword;
