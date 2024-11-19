@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,7 +33,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SubCodeActivity extends AppCompatActivity {
 
@@ -45,6 +48,7 @@ public class SubCodeActivity extends AppCompatActivity {
     private String department, semester;
     private TableLayout tableLayout;
     private DatabaseReference databaseReference;
+    private List<Subject2> subjectList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,10 @@ public class SubCodeActivity extends AppCompatActivity {
     }
 
     private void setClick() {
+        btn_GPA.setOnClickListener(v -> {
+            calculateGPA();
+        });
+
         btn_input.setOnClickListener(v->{
             if(ValidInput()){
                 databaseReference = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -150,19 +158,20 @@ public class SubCodeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tableLayout.removeAllViews();
-
+                subjectList.clear();
 
                 TableRow headerRow = new TableRow(SubCodeActivity.this);
                 addCellToRow(headerRow, "S.No", true);
                 addCellToRow(headerRow, "Sub Code", true);
                 addCellToRow(headerRow, "Credit", true);
-                addCellToRow(headerRow, "GP", true);
+                addCellToRow(headerRow, "Grade", true);
                 tableLayout.addView(headerRow);
 
                 int serialNumber = 1;
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String subjectCode = child.child("CODE").getValue(String.class);
                     String credit = child.child("CREDIT").getValue(String.class);
+                    final int creditValue = Integer.parseInt(credit);
 
                     TableRow tableRow = new TableRow(SubCodeActivity.this);
                     tableRow.setBackgroundResource(R.drawable.gradient_bf);
@@ -189,8 +198,23 @@ public class SubCodeActivity extends AppCompatActivity {
                     );
                     gpaAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                     gpaSpinner.setAdapter(gpaAdapter);
-                    tableRow.addView(gpaSpinner);
 
+                    gpaSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                            String grade = (String) parentView.getItemAtPosition(position);
+                            if (!grade.equals("Grade")) {
+                                Subject2 subject2 = new Subject2(subjectCode, creditValue, grade);
+                                subjectList.add(subject2);
+                            }
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                        }
+                    });
+
+                    tableRow.addView(gpaSpinner);
                     tableLayout.addView(tableRow);
                     serialNumber++;
                 }
@@ -220,6 +244,31 @@ public class SubCodeActivity extends AppCompatActivity {
         }
         row.addView(cell);
     }
+
+    private void calculateGPA() {
+        if (subjectList.isEmpty()) {
+            Toast.makeText(this, "No grades selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int totalGradePoints = 0;
+        int totalCredits = 0;
+
+
+        for (Subject2 subject : subjectList) {
+            totalGradePoints += subject.getGPAContribution();
+            totalCredits += subject.getCredit();
+        }
+
+        double gpa = (double) totalGradePoints / totalCredits;
+        displayGPA(gpa);
+    }
+
+    private void displayGPA(double gpa) {
+        String gpaStr = String.format("%.2f", gpa);
+        Toast.makeText(this, "Your GPA: " + gpaStr, Toast.LENGTH_LONG).show();
+    }
+
 
     @Override
     public void onBackPressed() {
