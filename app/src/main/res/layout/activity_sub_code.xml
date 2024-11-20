@@ -106,6 +106,167 @@
 
         </ScrollView>
     </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_svTOPro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/tv_gpa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CGPA RESULT"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_GPA_res"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  Your GPA is : 0.00"
+            android:textColor="@color/black"
+            android:layout_marginTop="10dp"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+        <Button
+            android:id="@+id/btn_svToPro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="12dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/blue_600"
+            android:layout_marginTop="20dp"
+            android:text="Save to Profile" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/ll_confirm_roll"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="16dp"
+        android:layout_marginTop="35dp"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm your Roll NO to store your GPA."
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/et_confirmRoll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:minHeight="30dp"
+            android:hint="Confirm Your RollNo"
+            android:textColor="@color/green"
+            android:textColorHint="@color/gray"
+            android:textAlignment="center"
+            android:maxLength="8"
+            android:maxLines="1"
+            android:inputType="textNoSuggestions"
+            android:background="@drawable/edittext_backgrouond"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="30dp"
+            android:padding="10dp" />
+
+        <Button
+            android:id="@+id/btn_confirmRoll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/blue_600"
+            android:textColor="@color/white"
+            android:text="CONFIRM"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" * NOTE : Enter yours own Roll No."
+            android:textColor="#F40404"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="start"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_sv_sem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:layout_marginTop="35dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter the Semester number you want to save this GPA. "
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_svToSem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints="none"
+                android:minHeight="48dp"
+                android:hint="Enter the Semester"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:background="@drawable/edittext_backgrouond"
+                android:inputType="number"
+                android:maxLength="1"
+                android:textColorHint="@color/gray"
+                android:textColor="@color/black"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_svToSem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SAVE"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/blue_600"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="12dp"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=" * Note: You can change your Semester GPA whenever you want."
+            android:textColor="#F40404"
+            android:textStyle="normal"
+            android:textSize="14sp"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"

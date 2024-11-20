@@ -1,16 +1,14 @@
 package com.student_developer.track_my_grade;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
-import android.print.PageRange;
-import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
-import android.print.PrintManager;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -26,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class GetResultActivity extends AppCompatActivity {
 
@@ -128,55 +127,67 @@ public class GetResultActivity extends AppCompatActivity {
         return day + "-" + formattedMonth + "-" + year;
     }
 
-
     private void saveWebViewAsPDF() {
-        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("ResultDocument");
+        // Get the full content height and width of the WebView (scaled)
+        int contentWidth = (int) (webView.getWidth() * webView.getScale());
+        int contentHeight = (int) (webView.getContentHeight() * webView.getScale());
 
-        File pdfFile = new File(getExternalFilesDir(null), "ResultDocument.pdf");
-        pdfUri = Uri.fromFile(pdfFile);
+        // Define the A4 page size (595 x 842 points) for the PDF
+        int pdfWidth = 595; // A4 width in points
+        int pdfHeight = 842; // A4 height in points
 
-        printManager.print("ResultDocument", new PrintDocumentAdapterWrapper(printAdapter, pdfFile),
-                new PrintAttributes.Builder().build());
+        // Calculate the scaling factor to fit the full content into a single page
+        float scaleX = (float) pdfWidth / contentWidth; // Scaling factor for width
+        float scaleY = (float) pdfHeight / contentHeight; // Scaling factor for height
+        float scaleFactor = Math.min(scaleX, scaleY); // Use the smaller scaling factor to fit within A4 size
+
+        // Apply the scale factor
+        int scaledWidth = (int) (contentWidth * scaleFactor);
+        int scaledHeight = (int) (contentHeight * scaleFactor);
+
+        // Create a PDF document
+        PdfDocument pdfDocument = new PdfDocument();
+
+        // Create a page with the scaled dimensions
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pdfWidth, pdfHeight, 1).create();
+        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
+        // Get the canvas of the page
+        Canvas canvas = page.getCanvas();
+        canvas.scale(scaleFactor, scaleFactor); // Apply the scaling factor
+
+        // Measure and draw the WebView content
+        webView.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY));
+        webView.layout(0, 0, webView.getMeasuredWidth(), webView.getMeasuredHeight());
+        webView.draw(canvas);
+
+        // Finish the page
+        pdfDocument.finishPage(page);
+
+        // Save the PDF to the Downloads/Track MyGrade directory
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Downloads.DISPLAY_NAME, "ResultDocument.pdf");
+        contentValues.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
+        contentValues.put(MediaStore.Downloads.RELATIVE_PATH, "Download/Track MyGrade");
+
+        Uri pdfUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
+        if (pdfUri == null) {
+            Toast.makeText(this, "Failed to create file in Downloads", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try (OutputStream outputStream = getContentResolver().openOutputStream(pdfUri)) {
+            pdfDocument.writeTo(outputStream);
+            Toast.makeText(this, "PDF saved successfully in Track MyGrade folder", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error saving PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } finally {
+            pdfDocument.close();
+        }
     }
 
-    private class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
-        private final PrintDocumentAdapter wrapped;
-        private final File file;
-
-        PrintDocumentAdapterWrapper(PrintDocumentAdapter wrapped, File file) {
-            this.wrapped = wrapped;
-            this.file = file;
-        }
-
-        @Override
-        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
-                             CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
-            wrapped.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, extras);
-        }
-
-        @Override
-        public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
-                            CancellationSignal cancellationSignal, WriteResultCallback callback) {
-            try (FileOutputStream out = new FileOutputStream(file);
-                 ParcelFileDescriptor.AutoCloseInputStream in = new ParcelFileDescriptor.AutoCloseInputStream(destination)) {
-
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-
-                callback.onWriteFinished(pages);
-                Toast.makeText(GetResultActivity.this, "PDF saved successfully", Toast.LENGTH_SHORT).show();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                callback.onWriteFailed(e.toString());
-            }
-        }
-
-    }
 
 
     private void shareResultFile(Uri fileUri) {

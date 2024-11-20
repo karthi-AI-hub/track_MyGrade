@@ -138,10 +138,7 @@ public class CalculatorFragment extends Fragment {
                 etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etConfirmRoll.setError("Roll No does not match");
                 etConfirmRoll.requestFocus();
-            } else if (rollno.length() < 7 || rollno.length() > 9) {
-                etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
-                etConfirmRoll.requestFocus();
-            } else {
+            }else {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("Users")
                         .whereEqualTo("Roll No", rollno.toUpperCase())
@@ -510,10 +507,6 @@ public class CalculatorFragment extends Fragment {
             }
         }
 
-        System.out.println(subjectNames);
-        System.out.println(creditHours);
-        System.out.println(gradePoints);
-
         ll_subjects_container.setVisibility(View.GONE);
         ll_results.setVisibility(View.VISIBLE);
         gpa = calculateCGPA(creditHours, gradePoints);
@@ -631,7 +624,6 @@ public class CalculatorFragment extends Fragment {
                                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Updated Semester " + saveToSem + " data successfully!"))
                                 .addOnFailureListener(e -> Log.e("Firestore", "Failed to update semester data", e));
                     } else {
-                        // Create new document for the semester if it doesn't exist
                         db.document(semesterDocumentPath)
                                 .set(Collections.singletonMap("subjects", subjectList))
                                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Created Semester " + saveToSem + " data successfully!"))
