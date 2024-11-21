@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ public class GraphFragment extends Fragment {
     TextView tvGraph, tvSemSubject, tvNoData;
     String rollNO ;
     LinearLayout mainContainer;
+    private ProgressBar proBar;
     private LineChart lineChart;
     private ConnectivityManager.NetworkCallback networkCallback;
     private ConnectivityManager connectivityManager;
@@ -57,6 +59,7 @@ public class GraphFragment extends Fragment {
         sharedPref = requireActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
 
+        proBar = view.findViewById(R.id.progressBar);
         mainContainer = view.findViewById(R.id.main_container);
         lineChart = view.findViewById(R.id.chart);
         tvGraph = view.findViewById(R.id.tv_Graph);
@@ -71,6 +74,7 @@ public class GraphFragment extends Fragment {
         } else {
 
             tvNoData.setVisibility(View.VISIBLE);
+            proBar.setVisibility(View.VISIBLE);
             tvSemSubject.setVisibility(View.GONE);
             tvGraph.setVisibility(View.GONE);
             lineChart.setVisibility(View.GONE);
@@ -88,6 +92,7 @@ public class GraphFragment extends Fragment {
                             loadData();
                         } finally {
                             tvNoData.setVisibility(View.GONE);
+                            proBar.setVisibility(View.GONE);
                             tvSemSubject.setVisibility(View.VISIBLE);
                             tvGraph.setVisibility(View.VISIBLE);
                             lineChart.setVisibility(View.VISIBLE);
@@ -103,6 +108,7 @@ public class GraphFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         Utils.Snackbar(view, "Network lost...", "long");
                         tvNoData.setVisibility(View.VISIBLE);
+                        proBar.setVisibility(View.VISIBLE);
                         tvGraph.setVisibility(View.GONE);
                         tvSemSubject.setVisibility(View.GONE);
                         lineChart.setVisibility(View.GONE);
@@ -124,6 +130,7 @@ public class GraphFragment extends Fragment {
         } else {
 
             tvNoData.setVisibility(View.GONE);
+            proBar.setVisibility(View.GONE);
             tvGraph.setVisibility(View.VISIBLE);
             lineChart.setVisibility(View.VISIBLE);
             tvSemSubject.setVisibility(View.VISIBLE);
@@ -294,6 +301,7 @@ public class GraphFragment extends Fragment {
 
 
                 tvNoData.setVisibility(View.GONE);
+                proBar.setVisibility(View.GONE);
                 tvGraph.setVisibility(View.VISIBLE);
                 lineChart.setVisibility(View.VISIBLE);
                 tvGraph.setVisibility(View.VISIBLE);
@@ -301,6 +309,7 @@ public class GraphFragment extends Fragment {
             } else {
 
                 tvNoData.setVisibility(View.GONE);
+                proBar.setVisibility(View.GONE);
                 tvGraph.setVisibility(View.VISIBLE);
                 lineChart.setVisibility(View.VISIBLE);
                 tvGraph.setVisibility(View.VISIBLE);

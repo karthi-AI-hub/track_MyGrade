@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SubCodeActivity extends AppCompatActivity {
@@ -65,7 +66,7 @@ public class SubCodeActivity extends AppCompatActivity {
     private String rollNO;
     private int saveToSem, sem;
     private float gpa;
-    private int numberOfSubjects = 0;
+    private int numberOfSubjects = 0 , TextViewIndex;
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
 
@@ -78,6 +79,7 @@ public class SubCodeActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("UserPref", Context.MODE_PRIVATE);
         rollNO = sharedPref.getString("roll_no", null);
         sem = sharedPref.getInt("current_sem", 1);
+        TextViewIndex = sharedPref.getInt("TextViewIndex", 1);
 
 
         initUI();
@@ -103,8 +105,8 @@ public class SubCodeActivity extends AppCompatActivity {
                     if (saveToSem > 0 && saveToSem <= sem) {
                         et_svToSem.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_backgrouond));
                         saveGpa(saveToSem, gpa, rollNO);
-                        //saveAllSubjects(saveToSem);
-                        tv_gpa_res.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
+                        saveAllSubjects(saveToSem);
+                        tv_gpa_res.setText("Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
                     } else {
                         et_svToSem.setBackground(ContextCompat.getDrawable(this, R.drawable.edit_text_round_corner));
                         et_svToSem.requestFocus();
@@ -143,6 +145,7 @@ public class SubCodeActivity extends AppCompatActivity {
 
         btn_svToPRO.setOnClickListener(v->{
             hideKeyboard(v);
+            btn_svToPRO.setVisibility(View.GONE);
             ll_confirmRoll.setVisibility(View.VISIBLE);
         });
 
@@ -272,6 +275,7 @@ public class SubCodeActivity extends AppCompatActivity {
         etConfirmRoll = findViewById(R.id.et_confirmRoll);
         tvGpa = findViewById(R.id.tv_gpa);
         et_svToSem = findViewById(R.id.et_svToSem);
+        et_svToSem.setText(String.valueOf(TextViewIndex));
         btn_SvToSem = findViewById(R.id.btn_svToSem);
 
 
@@ -307,7 +311,21 @@ public class SubCodeActivity extends AppCompatActivity {
                 int serialNumber = 1;
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String subjectCode = child.child("CODE").getValue(String.class);
-                    String credit = child.child("CREDIT").getValue(String.class);
+                    String credit = "";
+                    try {
+                        Object creditObj = child.child("CREDIT").getValue();
+                        if (creditObj instanceof String) {
+                            credit = (String) creditObj;
+                        } else if (creditObj instanceof Number) {
+                            credit = String.valueOf(((Number) creditObj).intValue());
+                        } else {
+                            //credit = "0"; // Default or error value if CREDIT is null or unexpected type
+                        }
+                    } catch (Exception e) {
+                        Log.e("DataParsing", "Error parsing CREDIT value", e);
+                        //credit = "0"; // Fallback in case of an error
+                    }
+
                     final int creditValue = Integer.parseInt(credit);
 
                     TableRow tableRow = new TableRow(SubCodeActivity.this);
@@ -365,47 +383,38 @@ public class SubCodeActivity extends AppCompatActivity {
         });
     }
 
-//    public void saveAllSubjects(int saveToSem) {
-//        List<Subject> subjectList = collectSubject();
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//        String semesterDocumentPath = "GPA/" + rollNO + "/Semester/SEM - " + saveToSem;
-//
-//        db.document(semesterDocumentPath).get()
-//                .addOnSuccessListener(documentSnapshot -> {
-//                    if (documentSnapshot.exists()) {
-//                        db.document(semesterDocumentPath)
-//                                .update("subjects", subjectList)
-//                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Updated Semester " + saveToSem + " data successfully!"))
-//                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to update semester data", e));
-//                    } else {
-//                        db.document(semesterDocumentPath)
-//                                .set(Collections.singletonMap("subjects", subjectList))
-//                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Created Semester " + saveToSem + " data successfully!"))
-//                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to create semester data", e));
-//                    }
-//                })
-//                .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
-//    }
-//
-//    private List<Subject> collectSubject() {
-//        List<Subject> subjects = new ArrayList<>();
-//        for (int i = 0; i < numberOfSubjects; i++) {
-//            TableRow row = (TableRow) tableLayout.getChildAt(i + 1);
-//            TextView tvSubjectCode = (TextView) row.getChildAt(1);
-//            TextView tvCredit = (TextView) row.getChildAt(2);
-//            Spinner spinnerGrade = (Spinner) row.getChildAt(3);
-//
-//            String subjectCode = tvSubjectCode.getText().toString();
-//            String credit = tvCredit.getText().toString();
-//            String grade = spinnerGrade.getSelectedItem().toString();
-//
-//            if (!grade.equals("Grade")) {
-//                subjects.add(new Subject(subjectCode, credit, grade));
-//            }
-//        }
-//        return subjects;
-//    }
+    public void saveAllSubjects(int saveToSem) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String semesterDocumentPath = "GPA/" + rollNO + "/Semester/SEM - " + saveToSem;
+
+        List<Map<String, Object>> transformedSubjectList = new ArrayList<>();
+        for (Subject2 subject : subjectList) {
+            Map<String, Object> transformedSubject = new HashMap<>();
+            transformedSubject.put("name", subject.getCode());
+            transformedSubject.put("credits", String.valueOf(subject.getCredit()));
+            transformedSubject.put("grade", subject.getGrade());
+
+            transformedSubjectList.add(transformedSubject);
+        }
+
+
+        db.document(semesterDocumentPath).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        db.document(semesterDocumentPath)
+                                .update("subjects", transformedSubjectList)
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Updated Semester " + saveToSem + " data successfully!"))
+                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to update semester data", e));
+                    } else {
+                        db.document(semesterDocumentPath)
+                                .set(Collections.singletonMap("subjects", transformedSubjectList))
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Created Semester " + saveToSem + " data successfully!"))
+                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to create semester data", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
+    }
 
 
     private void hideKeyboard(View view) {
@@ -420,7 +429,7 @@ public class SubCodeActivity extends AppCompatActivity {
         cell.setGravity(Gravity.CENTER);
         cell.setPadding(20, 20, 20, 20);
         cell.setTextSize(16);
-        cell.setTextColor(isHeader ? getResources().getColor(android.R.color.white) : Color.BLACK); // Header is white; content is black
+        cell.setTextColor(isHeader ? getResources().getColor(android.R.color.white) : Color.BLACK);
         if(isHeader){
             cell.setBackgroundResource(R.color.light_violet);
         }
@@ -457,24 +466,27 @@ public class SubCodeActivity extends AppCompatActivity {
             return;
         }
 
-        gpa = (float) totalGradePoints / totalCredits;
+        gpa = Math.round(((float) totalGradePoints / totalCredits) * 100) / 100.0f;
         displayGPA(gpa);
     }
+
 
 
     private void displayGPA(double gpa) {
         ll2.setVisibility(View.GONE);
         ll_svToPRO.setVisibility(View.VISIBLE);
-        String gpaStr = String.format("%.2f", gpa);
-        tv_gpa_res.setText("  Your GPA is : " + gpaStr);
+        String gpaStr = String.format(Locale.US, "%.2f", gpa);
+        tv_gpa_res.setText("Your GPA is : " + gpaStr);
     }
+
 
     private void saveGpa(int intsem, float gpa, String rollnoInput) {
         ll_SvSem.setVisibility(View.GONE);
         rollnoInput = rollnoInput.toUpperCase();
         String sem = String.valueOf(intsem);
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        float roundedGpa = Math.round(gpa * 100) / 100.0f;
 
         DocumentReference userRef = db.collection("Users").document(rollnoInput);
 
@@ -491,7 +503,8 @@ public class SubCodeActivity extends AppCompatActivity {
                 }
 
                 Map<String, Object> userData = new HashMap<>();
-                userData.put("Sem " + sem, gpa);
+                userData.put("Sem " + sem, roundedGpa);
+                System.out.println(roundedGpa);
 
                 DocumentReference docRef = db.collection("GPA").document(finalRollnoInput);
 
@@ -536,7 +549,7 @@ public class SubCodeActivity extends AppCompatActivity {
                     }
                 }).addOnFailureListener(e -> {
                     Toast.makeText(this, "Error fetching GPA document", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR", "Error fetching GPA document", e);  // Log the exception
+                    Log.e("ERROR", "Error fetching GPA document", e);
                 });
             } else {
                 Toast.makeText(this, "Error fetching user data: Document does not exist", Toast.LENGTH_SHORT).show();
@@ -546,6 +559,7 @@ public class SubCodeActivity extends AppCompatActivity {
             Log.e("ERROR", "Error fetching user data", e);
         });
     }
+
 
 
     @Override

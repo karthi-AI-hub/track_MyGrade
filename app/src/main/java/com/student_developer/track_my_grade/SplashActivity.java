@@ -23,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends BaseActivity {
 
-    private static final int SPLASH_DISPLAY_LENGTH = 2000;
+    private static final int SPLASH_DISPLAY_LENGTH = 3500;
     private static final int NETWORK_CHECK_INTERVAL = 1000;
     private String rollNO ,staffName, staffClg;
     private FirebaseDatabase database;
@@ -49,9 +49,10 @@ public class SplashActivity extends BaseActivity {
 
         ImageView logo = findViewById(R.id.logo);
         TextView title = findViewById(R.id.titleTextView);
+        TextView title2 = findViewById(R.id.titleTextView2);
         ProgressBar progressBar = findViewById(R.id.progressBar);
 
-        animateSplashScreen(logo, title, progressBar);
+        animateSplashScreen(logo, title,title2, progressBar);
         handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
     }
 
@@ -148,9 +149,10 @@ public class SplashActivity extends BaseActivity {
         finish();
     }
 
-    private void animateSplashScreen(ImageView logo, TextView title, ProgressBar progressBar) {
+    private void animateSplashScreen(ImageView logo, TextView title,TextView title2, ProgressBar progressBar) {
         logo.setVisibility(View.INVISIBLE);
         title.setVisibility(View.INVISIBLE);
+        title2.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
 
         logo.setScaleX(0f);
@@ -170,7 +172,16 @@ public class SplashActivity extends BaseActivity {
                 .alpha(1f)
                 .setDuration(1500)
                 .setStartDelay(1000)
-                .withStartAction(() -> title.setVisibility(View.VISIBLE))
+                .withStartAction(() ->title.setVisibility(View.VISIBLE))
+                .start();
+
+        title2.setTranslationY(100f);
+        title2.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(1500)
+                .setStartDelay(1500)
+                .withStartAction(() ->title2.setVisibility(View.VISIBLE))
                 .start();
 
         progressBar.setAlpha(0f);

@@ -110,7 +110,7 @@
 
     <LinearLayout
         android:id="@+id/ll_svTOPro"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
@@ -120,18 +120,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CGPA RESULT"
+            android:layout_gravity="center"
             android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:visibility="gone"/>
+            android:textSize="24sp"
+            android:textStyle="bold"/>
         <TextView
             android:id="@+id/tv_GPA_res"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="  Your GPA is : 0.00"
+            android:text="Your GPA is : 0.00"
+            android:layout_gravity="center"
             android:textColor="@color/black"
             android:layout_marginTop="10dp"
-            android:textSize="22sp"
+            android:textSize="16sp"
             android:textStyle="bold"/>
         <Button
             android:id="@+id/btn_svToPro"

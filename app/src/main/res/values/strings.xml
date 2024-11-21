@@ -20,9 +20,9 @@
         <item>AERO</item>
         <item>AGRI</item>
         <item>BME</item>
-        <item>CSE</item>
-        <item>CSBS</item>
         <item>CIVIL</item>
+        <item>CSBS</item>
+        <item>CSE</item>
         <item>ECE</item>
         <item>EEE</item>
         <item>FT</item>
@@ -38,9 +38,25 @@
     </string-array>
 
     <string-array name="crDept">
+
         <item>Department</item>
+        <item>AIDS</item>
+        <item>AIML</item>
+        <item>AERO</item>
+        <item>AGRI</item>
+        <item>BME</item>
+        <item>CIVIL</item>
+        <item>CSBS</item>
         <item>CSE</item>
+        <item>ECE</item>
         <item>EEE</item>
+        <item>FT</item>
+        <item>IT</item>
+        <item>MECH</item>
+        <item>PCT</item>
+        <item>SF</item>
+        <item>ARCHITECTURE</item>
+        <item>CYBER SECURITY</item>
     </string-array>
 
 

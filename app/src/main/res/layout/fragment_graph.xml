@@ -25,6 +25,18 @@
             android:textAlignment="center"
             android:textColor="@color/black"
             android:padding="10dp"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:layout_marginTop="10dp"
+            android:indeterminate="false"
+            android:progressTint="@android:color/white"
+            android:theme="@style/CustomProgressBar"
+            android:layout_gravity="center" />
+
 
         <TextView
             android:id="@+id/tv_Graph"

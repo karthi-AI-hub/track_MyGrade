@@ -300,7 +300,6 @@ public class ProfileFragment extends Fragment {
                 }
 
                 meanGPA = (count > 0) ? (sum / count) : null;
-                meanGPA = (count > 0) ? (sum / count) : null;
                 if (meanGPA != null) {
                     meanGPA = Double.valueOf(String.format("%.2f", meanGPA));
                 }

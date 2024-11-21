@@ -128,44 +128,35 @@ public class GetResultActivity extends AppCompatActivity {
     }
 
     private void saveWebViewAsPDF() {
-        // Get the full content height and width of the WebView (scaled)
         int contentWidth = (int) (webView.getWidth() * webView.getScale());
         int contentHeight = (int) (webView.getContentHeight() * webView.getScale());
 
-        // Define the A4 page size (595 x 842 points) for the PDF
-        int pdfWidth = 595; // A4 width in points
-        int pdfHeight = 842; // A4 height in points
+        int pdfWidth = 595;
+        int pdfHeight = 842;
 
-        // Calculate the scaling factor to fit the full content into a single page
-        float scaleX = (float) pdfWidth / contentWidth; // Scaling factor for width
-        float scaleY = (float) pdfHeight / contentHeight; // Scaling factor for height
-        float scaleFactor = Math.min(scaleX, scaleY); // Use the smaller scaling factor to fit within A4 size
+        float scaleX = (float) pdfWidth / contentWidth;
+        float scaleY = (float) pdfHeight / contentHeight;
+        float scaleFactor = Math.min(scaleX, scaleY);
 
         // Apply the scale factor
         int scaledWidth = (int) (contentWidth * scaleFactor);
         int scaledHeight = (int) (contentHeight * scaleFactor);
 
-        // Create a PDF document
         PdfDocument pdfDocument = new PdfDocument();
 
-        // Create a page with the scaled dimensions
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(pdfWidth, pdfHeight, 1).create();
         PdfDocument.Page page = pdfDocument.startPage(pageInfo);
 
-        // Get the canvas of the page
         Canvas canvas = page.getCanvas();
-        canvas.scale(scaleFactor, scaleFactor); // Apply the scaling factor
+        canvas.scale(scaleFactor, scaleFactor);
 
-        // Measure and draw the WebView content
         webView.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(contentHeight, View.MeasureSpec.EXACTLY));
         webView.layout(0, 0, webView.getMeasuredWidth(), webView.getMeasuredHeight());
         webView.draw(canvas);
 
-        // Finish the page
         pdfDocument.finishPage(page);
 
-        // Save the PDF to the Downloads/Track MyGrade directory
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.Downloads.DISPLAY_NAME, "ResultDocument.pdf");
         contentValues.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
@@ -179,6 +170,7 @@ public class GetResultActivity extends AppCompatActivity {
 
         try (OutputStream outputStream = getContentResolver().openOutputStream(pdfUri)) {
             pdfDocument.writeTo(outputStream);
+            this.pdfUri = pdfUri;
             Toast.makeText(this, "PDF saved successfully in Track MyGrade folder", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,6 +178,7 @@ public class GetResultActivity extends AppCompatActivity {
         } finally {
             pdfDocument.close();
         }
+
     }
 
 

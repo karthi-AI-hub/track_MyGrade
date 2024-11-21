@@ -356,7 +356,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private void loadBannerAd(){
         adView = new AdView(this);
         adView.setAdUnitId("ca-app-pub-9796820425295040/2726900028");
-        adView.setAdSize(AdSize.SMART_BANNER);
+        adView.setAdSize(AdSize.BANNER);
         LinearLayout layout = findViewById(R.id.bannerAdLayout);
         layout.removeAllViews();
         layout.addView(adView);
@@ -375,10 +375,12 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 // to the app after tapping on an ad.
             }
 
-            @Override
-            public void onAdFailedToLoad(LoadAdError adError) {
-                // Code to be executed when an ad request fails.
-            }
+                @Override
+                public void onAdFailedToLoad(LoadAdError adError) {
+                    Log.e("AdError", "Ad failed to load: " + adError.getMessage());
+
+                }
+
 
             @Override
             public void onAdImpression() {

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CalculatorFragment extends Fragment {
@@ -511,7 +512,9 @@ public class CalculatorFragment extends Fragment {
         ll_results.setVisibility(View.VISIBLE);
         gpa = calculateCGPA(creditHours, gradePoints);
         gpa = Float.parseFloat(String.format("%.2f", gpa));
+        gpa = Float.parseFloat(String.format(Locale.US, "%.2f", gpa));
         tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa));
+        System.out.println(gpa);
 
     }
 
@@ -531,6 +534,8 @@ public class CalculatorFragment extends Fragment {
         rollnoInput = rollnoInput.toUpperCase();
         String sem = String.valueOf(intsem);
 
+        float roundedGpa = Math.round(gpa * 100) / 100.0f;
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         DocumentReference userRef = db.collection("Users").document(rollnoInput);
@@ -542,13 +547,15 @@ public class CalculatorFragment extends Fragment {
             if (documentSnapshot.exists()) {
                 String rollNoFromDb = documentSnapshot.getString("Roll No");
 
-                   if (!finalRollnoInput.equals(rollNoFromDb)) {
+                if (!finalRollnoInput.equals(rollNoFromDb)) {
                     Toast.makeText(requireContext(), "You can only save GPA for your own roll number.", Toast.LENGTH_SHORT).show();
                     return;
-                   }
+                }
 
-               Map<String, Object> userData = new HashMap<>();
-                userData.put("Sem " + sem, gpa);  // Store GPA for the specified semester
+                // Prepare data to save
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("Sem " + sem, roundedGpa);
+                System.out.println(roundedGpa);
 
                 DocumentReference docRef = db.collection("GPA").document(finalRollnoInput);
 
@@ -560,16 +567,16 @@ public class CalculatorFragment extends Fragment {
                                 docRef.update(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(requireContext(), "GPA updated successfully", Toast.LENGTH_SHORT).show();
-                                                 navigateToProfileFragment();
+                                            navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to update GPA", Toast.LENGTH_SHORT).show();
                                         });
                             } else {
-                                docRef.set(userData, SetOptions.merge())  // Safer way to add new fields
+                                docRef.set(userData, SetOptions.merge())
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(requireContext(), "New semester GPA added successfully", Toast.LENGTH_SHORT).show();
-                                              navigateToProfileFragment();
+                                            navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to add new semester GPA", Toast.LENGTH_SHORT).show();
@@ -590,7 +597,7 @@ public class CalculatorFragment extends Fragment {
                     }
                 }).addOnFailureListener(e -> {
                     Toast.makeText(requireContext(), "Error fetching GPA document", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR", "Error fetching GPA document", e);  // Log the exception
+                    Log.e("ERROR", "Error fetching GPA document", e);
                 });
             } else {
                 Toast.makeText(requireContext(), "Error fetching user data: Document does not exist", Toast.LENGTH_SHORT).show();
@@ -600,6 +607,7 @@ public class CalculatorFragment extends Fragment {
             Log.e("ERROR", "Error fetching user data", e);
         });
     }
+
 
     private void navigateToProfileFragment() {
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
