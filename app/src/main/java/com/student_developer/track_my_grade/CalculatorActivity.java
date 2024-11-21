@@ -33,6 +33,8 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -54,9 +56,12 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private TextView tv_opt1, tv_opt2 ,tv_opt3;
     private boolean isMenuOpen = false;
     private SharedPreferences sharedPref;
-    private AdView adView;
-    private InterstitialAd mInterstitialAd;
-    private RewardedInterstitialAd rewardedInterstitialAd;
+    private AdView mBannerAd;
+    private InterstitialAd mInterstitialAd,mInterstitialAd2;
+    private RewardedInterstitialAd mRewardedAd;
+    private RewardedAd rewardedAd, rewardedAd2, rewardedAd3;
+    private long lastAdTime = 0; // Timestamp of the last ad shown
+    private static final long AD_COOLDOWN = 1 * 10 * 1000;
     private static final String TAG = "CalculatorActivity";
 
     @Override
@@ -64,11 +69,14 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
-        MobileAds.initialize(this, initializationStatus -> {
-            loadBannerAd();
-            loadAd();
-            loadRewardAd();
-        });
+        MobileAds.initialize(this, initializationStatus -> Log.d(TAG, "AdMob initialized."));
+        loadBannerAd();
+        loadRewardNewAd3();
+        loadRewardNewAd2();
+
+        loadRewardedAd();
+        loadInterstitialAd();
+
 
         loadFragment(new ProfileFragment());
 
@@ -132,7 +140,10 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
             if (!isProfileLoading && !isTransactionInProgress) {
                 loadFragment(new ProfileFragment());
                 showInterstitialAd();
-                showRewardedInterstitialAd();
+                showRewardedAd();
+                showRewardedNewAd2();
+                showRewardedNewAd3();
+
                 btnProfile.setEnabled(isProfileLoading);
                 if (isMenuOpen) {
                     closeMenu();
@@ -151,7 +162,11 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 }
                 setFabVisibility(View.VISIBLE);
                 showInterstitialAd();
-                showRewardedInterstitialAd();
+                showRewardedAd();
+                showRewardedNewAd2();
+                showRewardedNewAd3();
+
+
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(true);
                 btnGraph.setEnabled(!isProfileLoading);
@@ -167,7 +182,11 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 }
                 setFabVisibility(View.GONE);
                 showInterstitialAd();
-                showRewardedInterstitialAd();
+                showRewardedAd();
+                showRewardedNewAd2();
+                showRewardedNewAd3();
+
+
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(!isProfileLoading);
                 btnGraph.setEnabled(false);
@@ -272,25 +291,24 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         btnGraph.setEnabled(!loading);
     }
 
-    private void loadAd() {
+    private void loadInterstitialAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-9796820425295040/4351001136", adRequest,
+        InterstitialAd.load(this, "ca-app-pub-9796820425295040/4351001136", adRequest, // Test Ad Unit ID
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
                         mInterstitialAd = interstitialAd;
-                        Log.i(TAG, "Interstitial ad loaded.");
+                        Log.d(TAG, "Interstitial Ad loaded.");
 
                         mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
                             public void onAdDismissedFullScreenContent() {
-                                Log.d(TAG, "Interstitial ad dismissed.");
-                                loadAd();  // Load a new interstitial ad
+                                Log.d(TAG, "Interstitial Ad dismissed.");
+                                loadInterstitialAd();
                             }
 
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                Log.e(TAG, "Failed to show interstitial ad.");
+                            public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+                                Log.e(TAG, "Failed to show Interstitial Ad.");
                                 mInterstitialAd = null;
                             }
                         });
@@ -298,108 +316,178 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        Log.e(TAG, "Interstitial ad failed to load.");
+                        Log.e(TAG, "Interstitial Ad failed to load: " + loadAdError.getMessage());
                         mInterstitialAd = null;
                     }
                 });
     }
+    private void showInterstitialAd() {
+        long currentTime = System.currentTimeMillis();
+        if ( currentTime - lastAdTime >= AD_COOLDOWN) {
+            if(mInterstitialAd != null) {
+                mInterstitialAd.show(this);
+                //lastAdTime = currentTime;
+            }else{
 
-    public void showInterstitialAd() {
-        if (mInterstitialAd != null) {
-            mInterstitialAd.show(this);
+            }
         } else {
-            Log.d(TAG, "Interstitial ad not ready yet.");
-            loadAd();
+            loadInterstitialAd();
+            Log.d(TAG, "Interstitial cooldown not passed.");
         }
     }
 
-    private void loadRewardAd() {
+
+    private void loadRewardNewAd2() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedInterstitialAd.load(this, "ca-app-pub-9796820425295040/9791502834",adRequest,
-                new RewardedInterstitialAdLoadCallback() {
+        RewardedAd.load(this, "ca-app-pub-9796820425295040/6899262523", adRequest, new RewardedAdLoadCallback() {
+            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+                rewardedAd2 = rewardednewAd;
+                Log.d(TAG, "RewardedNew Ad 2 loaded.");
+                rewardedAd2.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
-                    public void onAdLoaded(RewardedInterstitialAd ad) {
-                        rewardedInterstitialAd = ad;
-                        Log.d(TAG, "Rewarded interstitial ad loaded.");
-                        rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    public void onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "RewardedNew Ad 2 dismissed.");
+                        loadRewardNewAd2();
+                    }
+
+                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+                        Log.e(TAG, "Failed to show RewardedNew Ad2: " + adError.getMessage());
+                        rewardedAd2 = null;
+                    }
+                });
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
+                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
+
+                rewardedAd2 = null;
+
+            }
+        });
+    }
+    private void loadRewardNewAd3() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, "ca-app-pub-9796820425295040/8663770339", adRequest, new RewardedAdLoadCallback() {
+            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+                rewardedAd3 = rewardednewAd;
+                Log.d(TAG, "RewardedNew Ad 3 loaded.");
+                rewardedAd3.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "RewardedNew Ad 3 dismissed.");
+                        loadRewardNewAd3();
+                    }
+
+                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+                        Log.e(TAG, "Failed to show RewardedNew Ad 3: " + adError.getMessage());
+                        rewardedAd3 = null;
+                    }
+                });
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.e(TAG, "RewardedNew Ad 3 failed to load: " + loadAdError.getMessage());
+                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+                rewardedAd3 = null;
+            }
+        });
+    }
+
+    private void showRewardedNewAd2() {
+        if (rewardedAd2 != null) {
+            rewardedAd2.show(this, rewardItem -> {
+
+            });
+        } else {
+            Log.d(TAG, "Rewarded Ad2 not ready or cooldown not passed.");
+            loadRewardNewAd2();
+        }
+    }
+    private void showRewardedNewAd3() {
+        if (rewardedAd3 != null) {
+            rewardedAd3.show(this, rewardItem -> {
+
+            });
+        } else {
+            Log.d(TAG, "Rewarded Ad3 not ready or cooldown not passed.");
+            loadRewardNewAd3();
+        }
+    }
+
+
+    private void loadRewardedAd() {
+        RewardedInterstitialAd.load(CalculatorActivity.this, "ca-app-pub-9796820425295040/9791502834",
+                new AdRequest.Builder().build(),  new RewardedInterstitialAdLoadCallback() {
+                    public void onAdLoaded(@NonNull RewardedInterstitialAd rewardedAd) {
+                        mRewardedAd = rewardedAd;
+                        Log.d(TAG, "Rewarded Ad loaded.");
+
+                        mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
                             public void onAdDismissedFullScreenContent() {
-                                Log.d(TAG, "Rewarded interstitial ad dismissed.");
-                                loadRewardAd();  // Load a new rewarded ad
+                                Log.d(TAG, "Rewarded Ad dismissed.");
+                                loadRewardedAd();
                             }
 
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                Log.e(TAG, "Failed to show rewarded interstitial ad.");
-                                rewardedInterstitialAd = null;
+
+                            public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+                                Log.e(TAG, "Failed to show Rewarded Ad.");
+                                mRewardedAd = null;
                             }
                         });
                     }
 
                     @Override
-                    public void onAdFailedToLoad(LoadAdError loadAdError) {
-                        Log.e(TAG, "Rewarded interstitial ad failed to load.");
-                        rewardedInterstitialAd = null;
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        Log.e(TAG, "Rewarded Ad failed to load: " + loadAdError.getMessage());
+                        mRewardedAd = null;
                     }
                 });
     }
-
-    public void showRewardedInterstitialAd() {
-        if (rewardedInterstitialAd != null) {
-            rewardedInterstitialAd.show(this,this);
+    private void showRewardedAd() {
+        if (mRewardedAd != null) {
+            mRewardedAd.show(this, rewardItem -> {
+                // Grant reward to the user
+            });
         } else {
-            Log.d(TAG, "Rewarded interstitial ad not ready yet.");
-            loadRewardAd();  // Load if the ad wasn't ready
+            Log.d(TAG, "Rewarded Ad not ready or cooldown not passed.");
+            loadRewardedAd();
         }
     }
 
-    private void loadBannerAd(){
-        adView = new AdView(this);
-        adView.setAdUnitId("ca-app-pub-9796820425295040/2726900028");
-        adView.setAdSize(AdSize.BANNER);
-        LinearLayout layout = findViewById(R.id.bannerAdLayout);
-        layout.removeAllViews();
-        layout.addView(adView);
+    private void loadBannerAd() {
+        mBannerAd = new AdView(this);
+        mBannerAd.setAdUnitId("ca-app-pub-9796820425295040/2726900028");
+        mBannerAd.setAdSize(AdSize.BANNER);
+
+        LinearLayout adContainer = findViewById(R.id.bannerAdLayout);
+        adContainer.addView(mBannerAd);
+
         AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        mBannerAd.loadAd(adRequest);
 
-        adView.setAdListener(new AdListener() {
-            @Override
-            public void onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-            }
-
-                @Override
-                public void onAdFailedToLoad(LoadAdError adError) {
-                    Log.e("AdError", "Ad failed to load: " + adError.getMessage());
-
-                }
-
-
-            @Override
-            public void onAdImpression() {
-                // Code to be executed when an impression is recorded
-                // for an ad.
-            }
-
+        mBannerAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
+                Log.d(TAG, "Banner Ad loaded.");
             }
 
             @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
+            public void onAdFailedToLoad(@NonNull LoadAdError adError) {
+                Log.e(TAG, "Banner Ad failed to load: " + adError.getMessage());
+                Log.e(TAG, "Ad failed to load - Error code: " + adError.getCode() + ", Domain: " + adError.getDomain());
+
+            }
+
+            @Override
+            public void onAdClicked() {
+                Log.d(TAG, "Banner Ad clicked.");
             }
         });
-
     }
 
 
@@ -408,11 +496,15 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         if (isMenuOpen) {
             closeMenu();
         } else {
-            showInterstitialAd();
-            showRewardedInterstitialAd();
-            showExitConfirmationDialog();
+            if (mInterstitialAd != null && System.currentTimeMillis() - lastAdTime >= AD_COOLDOWN) {
+                mInterstitialAd.show(this);
+                lastAdTime = System.currentTimeMillis();
+            } else {
+                showExitConfirmationDialog();
+            }
         }
     }
+
 
     @Override
     public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
