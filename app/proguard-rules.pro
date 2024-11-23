@@ -1,21 +1,40 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Firebase Crashlytics
+-keep class com.google.firebase.firestore.** { *; }
+-keep class com.google.firebase.crashlytics.** { *; }
+-dontwarn com.google.firebase.crashlytics.**
+-keep class com.google.firebase.analytics.** { *; }
+-dontwarn com.google.firebase.analytics.**
+-keep class com.google.firebase.analytics.FirebaseAnalytics { *; }
+-keep class com.google.firebase.messaging.FirebaseMessaging { *; }
+-keep class com.google.firebase.auth.FirebaseAuth { *; }
+-keep class com.google.firebase.database.FirebaseDatabase { *; }
+-keep class com.google.firebase.firestore.FirebaseFirestore { *; }
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Firebase Storage
+-keep class com.google.firebase.storage.FirebaseStorage { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Firebase Remote Config
+-keep class com.google.firebase.remoteconfig.FirebaseRemoteConfig { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep Firestore annotations
+-keep @com.google.firebase.firestore.IgnoreExtraProperties class * { *; }
+-keep @com.google.firebase.firestore.ServerTimestamp class * { *; }
+
+# Keep classes used by Firebase
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+
+# Keep Firestore UserDataReader and other internal classes
+-keep class com.google.firebase.firestore.UserDataReader { *; }
+-keep class com.google.firebase.firestore.core.UserData { *; }
+-keep class com.google.firebase.firestore.core.UserData$ParseContext { *; }
+
+# Keep your custom Subject class if used with Firestore
+-keep class com.student_developer.track_my_grade.Subject { *; }
+
+# Keep classes with Firebase annotations (like @PropertyName, @ServerTimestamp, etc.)
+-keepclassmembers class * {
+    @com.google.firebase.firestore.PropertyName <methods>;
+    @com.google.firebase.firestore.ServerTimestamp <methods>;
+    @com.google.firebase.firestore.IgnoreExtraProperties <methods>;
+}

@@ -30,6 +30,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -67,7 +68,7 @@ public class CalculatorFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_calculator, container, false);
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("UserPref", Context.MODE_PRIVATE);
-        rollNO = sharedPref.getString("roll_no", null);
+        rollNO = sharedPref.getString("roll_no", "null");
         sem = sharedPref.getInt("current_sem", 1);
         TextViewIndex = sharedPref.getInt("TextViewIndex", 1);
         ((CalculatorActivity) requireActivity()).setFabVisibility(View.VISIBLE);
@@ -125,8 +126,8 @@ public class CalculatorFragment extends Fragment {
         tvGpa = view.findViewById(R.id.tv_gpa);
         tvNOCPorGP = view.findViewById(R.id.tv_NoCRorGP);
 
-        tvNOCPorGP.setOnClickListener(v->{
-            Utils.intend(getContext(),SubCodeActivity.class);
+        tvNOCPorGP.setOnClickListener(v -> {
+            Utils.intend(getContext(), SubCodeActivity.class);
         });
         btnConfirmRoll.setOnClickListener((View v) -> {
             hideKeyboard(v);
@@ -139,7 +140,7 @@ public class CalculatorFragment extends Fragment {
                 etConfirmRoll.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                 etConfirmRoll.setError("Roll No does not match");
                 etConfirmRoll.requestFocus();
-            }else {
+            } else {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("Users")
                         .whereEqualTo("Roll No", rollno.toUpperCase())
@@ -167,7 +168,7 @@ public class CalculatorFragment extends Fragment {
                             }
                         })
                         .addOnFailureListener(e -> {
-                              Toast.makeText(requireContext(), "Error Confirming Roll No", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), "Error Confirming Roll No", Toast.LENGTH_SHORT).show();
                         });
             }
         });
@@ -177,17 +178,31 @@ public class CalculatorFragment extends Fragment {
                 hideKeyboard(v);
                 String semesterInput = etsvToSem.getText().toString().trim();
 
+                // Validate semester input
                 if (TextUtils.isEmpty(semesterInput)) {
                     etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                     etsvToSem.requestFocus();
+                    Toast.makeText(requireContext(), "Please enter a valid semester number.", Toast.LENGTH_SHORT).show();
                 } else {
                     saveToSem = Integer.parseInt(semesterInput);
 
+                    // Validate semester range
                     if (saveToSem > 0 && saveToSem <= sem) {
                         etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edittext_backgrouond));
-                        saveGpa(saveToSem, gpa, rollno);
-                        saveAllSubjects(saveToSem);
-                        tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
+
+                        // Validate GPA and Roll No
+                        if (ValidateData(saveToSem, gpa, rollno)) {
+                            try {
+                                // Save GPA and subjects
+                                saveGpa(saveToSem, gpa, rollno);
+                                saveAllSubjects(saveToSem);
+                            } catch (Exception e) {
+                                Log.e("DatabaseError", "Error saving data: ", e);
+                                FirebaseCrashlytics.getInstance().recordException(e);
+                                Toast.makeText(requireContext(), "Failed to save GPA", Toast.LENGTH_SHORT).show();
+                            }
+                            tv_gpa_result.setText("  Your GPA is : " + String.format("%.2f", gpa) + " for Sem " + saveToSem + " saved successfully.");
+                        }
                     } else {
                         etsvToSem.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_round_corner));
                         etsvToSem.requestFocus();
@@ -195,37 +210,9 @@ public class CalculatorFragment extends Fragment {
                     }
                 }
             } else {
-                Utils.Snackbar(requireView(), "No Internet. Waiting for connection...","long");
-                btnsvToSem.setEnabled(false);
-
-                connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                networkCallback = new ConnectivityManager.NetworkCallback() {
-                    @Override
-                        public void onAvailable(Network network) {
-                            requireActivity().runOnUiThread(() -> {
-                                etsvToSem.setEnabled(true);
-                                btnsvToSem.setEnabled(true);
-                                Utils.Snackbar(requireView(), "Network connected. Now submit your GPA","long");
-                            });
-
-                            connectivityManager.unregisterNetworkCallback(this);
-                        }
-
-                        @Override
-                        public void onLost(Network network) {
-                            requireActivity().runOnUiThread(() -> {
-                                etsvToSem.setEnabled(false);
-                                btnsvToSem.setEnabled(false);
-                            });
-                        }
-
-                };
-                if (connectivityManager != null) {
-                    connectivityManager.registerDefaultNetworkCallback(networkCallback);
-                }
+                handleNoInternet();
             }
         });
-
 
         btnsvToPro.setOnClickListener(v -> {
             hideKeyboard(v);
@@ -531,14 +518,18 @@ public class CalculatorFragment extends Fragment {
 
     private void saveGpa(int intsem, float gpa, String rollnoInput) {
         ll_SvSem.setVisibility(View.GONE);
-        rollnoInput = rollnoInput.toUpperCase();
-        String sem = String.valueOf(intsem);
+        FirebaseCrashlytics.getInstance().setCustomKey("GPA", gpa);
+        FirebaseCrashlytics.getInstance().setCustomKey("Semester", intsem);
+        FirebaseCrashlytics.getInstance().setCustomKey("RollNo", rollnoInput);
 
+        Log.d("SavingData", "Semester: " + intsem + ", GPA: " + gpa + ", RollNo: " + rollnoInput);
+
+        String sem = String.valueOf(intsem);
         float roundedGpa = Math.round(gpa * 100) / 100.0f;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("Users").document(rollnoInput.toUpperCase());
 
-        DocumentReference userRef = db.collection("Users").document(rollnoInput);
 
         Log.d("DEBUG", "User Input Roll No: " + rollnoInput);
 
@@ -552,7 +543,6 @@ public class CalculatorFragment extends Fragment {
                     return;
                 }
 
-                // Prepare data to save
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("Sem " + sem, roundedGpa);
                 System.out.println(roundedGpa);
@@ -563,33 +553,40 @@ public class CalculatorFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            if (document.contains("Sem " + sem)) {
+                            if (document != null && document.exists() && document.contains("Sem " + sem)) {
                                 docRef.update(userData)
                                         .addOnSuccessListener(aVoid -> {
+                                            Log.d("Firestore", "GPA updated successfully");
                                             Toast.makeText(requireContext(), "GPA updated successfully", Toast.LENGTH_SHORT).show();
                                             navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to update GPA", Toast.LENGTH_SHORT).show();
+                                            handleFirestoreError(e, "Failed to update GPA");
                                         });
                             } else {
                                 docRef.set(userData, SetOptions.merge())
                                         .addOnSuccessListener(aVoid -> {
+                                            Log.d("Firestore", "GPA added successfully");
                                             Toast.makeText(requireContext(), "New semester GPA added successfully", Toast.LENGTH_SHORT).show();
                                             navigateToProfileFragment();
                                         })
                                         .addOnFailureListener(e -> {
                                             Toast.makeText(requireContext(), "Failed to add new semester GPA", Toast.LENGTH_SHORT).show();
+                                            handleFirestoreError(e, "Failed to save GPA");
                                         });
                             }
                         } else {
                             docRef.set(userData)
                                     .addOnSuccessListener(aVoid -> {
+                                        Log.d("FirestoreSuccess", "GPA saved successfully for RollNo: " + finalRollnoInput);
                                         Toast.makeText(requireContext(), "GPA saved successfully", Toast.LENGTH_SHORT).show();
                                         navigateToProfileFragment();
                                     })
                                     .addOnFailureListener(e -> {
+                                        Log.e("FirestoreFailure", "Failed to save GPA for RollNo: " + finalRollnoInput, e);
                                         Toast.makeText(requireContext(), "Failed to save GPA", Toast.LENGTH_SHORT).show();
+                                        handleFirestoreError(e, "Failed to save GPA");
                                     });
                         }
                     } else {
@@ -598,14 +595,12 @@ public class CalculatorFragment extends Fragment {
                 }).addOnFailureListener(e -> {
                     Toast.makeText(requireContext(), "Error fetching GPA document", Toast.LENGTH_SHORT).show();
                     Log.e("ERROR", "Error fetching GPA document", e);
+                    handleFirestoreError(e, "Error fetching GPA document");
                 });
             } else {
                 Toast.makeText(requireContext(), "Error fetching user data: Document does not exist", Toast.LENGTH_SHORT).show();
             }
-        }).addOnFailureListener(e -> {
-            Toast.makeText(requireContext(), "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.e("ERROR", "Error fetching user data", e);
-        });
+        }).addOnFailureListener(e -> handleFirestoreError(e, "Error fetching user data"));
     }
 
 
@@ -629,16 +624,53 @@ public class CalculatorFragment extends Fragment {
                     if (documentSnapshot.exists()) {
                         db.document(semesterDocumentPath)
                                 .update("subjects", subjectList)
-                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Updated Semester " + saveToSem + " data successfully!"))
-                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to update semester data", e));
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Subjects updated successfully"))
+                                .addOnFailureListener(e -> handleFirestoreError(e, "Failed to update subjects"));
                     } else {
                         db.document(semesterDocumentPath)
                                 .set(Collections.singletonMap("subjects", subjectList))
-                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Created Semester " + saveToSem + " data successfully!"))
-                                .addOnFailureListener(e -> Log.e("Firestore", "Failed to create semester data", e));
+                                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Subjects saved successfully"))
+                                .addOnFailureListener(e -> handleFirestoreError(e, "Failed to save subjects"));
                     }
                 })
-                .addOnFailureListener(e -> Log.e("Firestore", "Failed to check for semester document", e));
+                .addOnFailureListener(e -> handleFirestoreError(e, "Failed to check subjects document"));    }
+    private boolean ValidateData(int sem, float gpa, String rollno) {
+        if (sem <= 0 || gpa <= 0 || TextUtils.isEmpty(rollno)) {
+            Log.e("ValidationError", "Invalid data: Sem=" + sem + ", GPA=" + gpa + ", RollNo=" + rollno);
+            FirebaseCrashlytics.getInstance().log("Validation Error: Sem=" + sem + ", GPA=" + gpa + ", RollNo=" + rollno);
+            Toast.makeText(requireContext(), "Invalid data. Cannot save GPA.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+    private void handleFirestoreError(Exception e, String message) {
+        Log.e("FirestoreError", message, e);
+        FirebaseCrashlytics.getInstance().recordException(e);
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    private void handleNoInternet() {
+        Utils.Snackbar(requireView(), "No Internet. Waiting for connection...", "long");
+        btnsvToSem.setEnabled(false);
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                requireActivity().runOnUiThread(() -> {
+                    btnsvToSem.setEnabled(true);
+                    Utils.Snackbar(requireView(), "Network connected. Now submit your GPA", "long");
+                });
+            }
+
+            @Override
+            public void onLost(Network network) {
+                requireActivity().runOnUiThread(() -> btnsvToSem.setEnabled(false));
+            }
+        };
+
+        if (connectivityManager != null) {
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        }
     }
 
 

@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("com.google.firebase.firebase-perf")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -11,8 +12,8 @@ android {
         applicationId = "com.student_developer.track_my_grade"
         minSdk = 25
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.1"
+        versionCode = 8
+        versionName = "1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,12 +28,12 @@ android {
 
     buildTypes {
         release {
-//            isMinifyEnabled = true
-//            isShrinkResources = true
-//            proguardFiles(
-//                getDefaultProguardFile("proguard-android-optimize.txt"),
-//                "proguard-rules.pro"
-//            )
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -45,6 +46,11 @@ android {
     buildFeatures {
         viewBinding = true
 
+    }
+    buildTypes.all {
+        configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+            mappingFileUploadEnabled = true
+        }
     }
 
 }
@@ -72,6 +78,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.firebase.database)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
@@ -84,6 +91,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jsoup:jsoup:1.13.1")
     implementation (libs.mpandroidchart)
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
+    implementation("com.google.firebase:firebase-crashlytics")
+
 }
 
 apply(plugin = "com.google.gms.google-services")

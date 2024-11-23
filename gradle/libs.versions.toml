@@ -23,6 +23,9 @@ mpandroidchart = "v3.1.0"
 multidex = "2.0.1"
 playServicesAds = "23.5.0"
 playServicesAdsLite = "23.5.0"
+firebaseMessaging = "24.1.0"
+firebaseCrashlytics = "19.2.1"
+googleFirebaseCrashlytics = "3.0.2"
 
 [libraries]
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -48,8 +51,11 @@ mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "
 multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 play-services-ads-lite = { module = "com.google.android.gms:play-services-ads-lite", version.ref = "playServicesAdsLite" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlytics" }
 

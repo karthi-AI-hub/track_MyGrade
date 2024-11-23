@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,11 +59,11 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private boolean isMenuOpen = false;
     private SharedPreferences sharedPref;
     private AdView mBannerAd;
-    private InterstitialAd mInterstitialAd,mInterstitialAd2;
+    private InterstitialAd mInterstitialAd;
     private RewardedInterstitialAd mRewardedAd;
-    private RewardedAd rewardedAd, rewardedAd2, rewardedAd3;
-    private long lastAdTime = 0; // Timestamp of the last ad shown
-    private static final long AD_COOLDOWN = 1 * 10 * 1000;
+    private RewardedAd rewardedAd1, rewardedAd2, rewardedAd3;
+    private long lastAdTime = 0;
+    private static long AD_COOLDOWN = 3 * 60 * 1000;
     private static final String TAG = "CalculatorActivity";
 
     @Override
@@ -70,12 +72,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         setContentView(R.layout.activity_calculator);
 
         MobileAds.initialize(this, initializationStatus -> Log.d(TAG, "AdMob initialized."));
-        loadBannerAd();
-        loadRewardNewAd3();
-        loadRewardNewAd2();
-
-        loadRewardedAd();
-        loadInterstitialAd();
+       loadAds();
 
 
         loadFragment(new ProfileFragment());
@@ -137,22 +134,31 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
 
         btnProfile.setOnClickListener(v -> {
             btnProfile.setEnabled(false);
-            if (!isProfileLoading && !isTransactionInProgress) {
-                loadFragment(new ProfileFragment());
-                showInterstitialAd();
-                showRewardedAd();
-                showRewardedNewAd2();
-                showRewardedNewAd3();
+                if (!isProfileLoading && !isTransactionInProgress) {
+                    loadFragment(new ProfileFragment());
 
-                btnProfile.setEnabled(isProfileLoading);
-                if (isMenuOpen) {
-                    closeMenu();
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - lastAdTime >= AD_COOLDOWN) {
+                        showInterstitialAd();
+                        showRewardedAd();
+                        showRewardedNewAd1();
+                        showRewardedNewAd2();
+                        showRewardedNewAd3();
+
+                        lastAdTime = currentTime;
+                    } else {
+                        Log.d(TAG, "Ad cooldown not completed. Ads will not be shown.");
+                    }
+
+                    btnProfile.setEnabled(isProfileLoading);
+                    if (isMenuOpen) {
+                        closeMenu();
+                    }
+                    setFabVisibility(View.GONE);
+                    btnCalculator.setEnabled(!isProfileLoading);
+                    btnGraph.setEnabled(!isProfileLoading);
                 }
-                setFabVisibility(View.GONE);
-                btnCalculator.setEnabled(!isProfileLoading);
-                btnGraph.setEnabled(!isProfileLoading);
-            }
-        });
+            });
 
         btnCalculator.setOnClickListener(v -> {
             if (!isProfileLoading && !isTransactionInProgress) {
@@ -161,17 +167,24 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     closeMenu();
                 }
                 setFabVisibility(View.VISIBLE);
-                showInterstitialAd();
-                showRewardedAd();
-                showRewardedNewAd2();
-                showRewardedNewAd3();
 
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastAdTime >= AD_COOLDOWN) {
+                    showInterstitialAd();
+                    showRewardedAd();
+                    showRewardedNewAd1();
+                    showRewardedNewAd2();
+                    showRewardedNewAd3();
+
+                    lastAdTime = currentTime;
+                } else {
+                    Log.d(TAG, "Ad cooldown not completed. Ads will not be shown.");
+                }
 
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(true);
                 btnGraph.setEnabled(!isProfileLoading);
             }
-
         });
 
         btnGraph.setOnClickListener(v -> {
@@ -181,16 +194,23 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     closeMenu();
                 }
                 setFabVisibility(View.GONE);
-                showInterstitialAd();
-                showRewardedAd();
-                showRewardedNewAd2();
-                showRewardedNewAd3();
 
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastAdTime >= AD_COOLDOWN) {
+                    showInterstitialAd();
+                    showRewardedAd();
+                    showRewardedNewAd1();
+                    showRewardedNewAd2();
+                    showRewardedNewAd3();
+
+                    lastAdTime = currentTime;
+                } else {
+                    Log.d(TAG, "Ad cooldown not completed. Ads will not be shown.");
+                }
 
                 btnProfile.setEnabled(!isProfileLoading);
                 btnCalculator.setEnabled(!isProfileLoading);
                 btnGraph.setEnabled(false);
-
             }
         });
 
@@ -304,6 +324,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                             @Override
                             public void onAdDismissedFullScreenContent() {
                                 Log.d(TAG, "Interstitial Ad dismissed.");
+                                mInterstitialAd = null;
                                 loadInterstitialAd();
                             }
 
@@ -318,24 +339,51 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         Log.e(TAG, "Interstitial Ad failed to load: " + loadAdError.getMessage());
                         mInterstitialAd = null;
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> loadInterstitialAd(), 10000); // Retry after 10 seconds
+
                     }
                 });
     }
     private void showInterstitialAd() {
-        long currentTime = System.currentTimeMillis();
-        if ( currentTime - lastAdTime >= AD_COOLDOWN) {
             if(mInterstitialAd != null) {
                 mInterstitialAd.show(this);
-                //lastAdTime = currentTime;
-            }else{
-
-            }
-        } else {
+            }else {
             loadInterstitialAd();
             Log.d(TAG, "Interstitial cooldown not passed.");
         }
     }
 
+    private void loadRewardNewAd1() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, "ca-app-pub-9796820425295040/9846918121", adRequest, new RewardedAdLoadCallback() {
+            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+                rewardedAd1 = rewardednewAd;
+                Log.d(TAG, "RewardedNew Ad 1 loaded.");
+                rewardedAd1.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "RewardedNew Ad 1 dismissed.");
+                        rewardedAd1 = null;
+                        loadRewardNewAd1();
+                    }
+
+                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+                        Log.e(TAG, "Failed to show RewardedNew Ad1: " + adError.getMessage());
+                        rewardedAd1 = null;
+                    }
+                });
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.e(TAG, "RewardedNew Ad 1 failed to load: " + loadAdError.getMessage());
+                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
+                rewardedAd1 = null;
+                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd1(), 10000); // Retry after 10 seconds
+            }
+        });
+    }
 
     private void loadRewardNewAd2() {
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -347,6 +395,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         Log.d(TAG, "RewardedNew Ad 2 dismissed.");
+                        rewardedAd2 = null;
                         loadRewardNewAd2();
                     }
 
@@ -362,8 +411,9 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
                 Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
                 Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
-
                 rewardedAd2 = null;
+                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd2(), 10000); // Retry after 10 seconds
+
 
             }
         });
@@ -378,6 +428,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     @Override
                     public void onAdDismissedFullScreenContent() {
                         Log.d(TAG, "RewardedNew Ad 3 dismissed.");
+                        rewardedAd3 = null;
                         loadRewardNewAd3();
                     }
 
@@ -393,8 +444,21 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 Log.e(TAG, "RewardedNew Ad 3 failed to load: " + loadAdError.getMessage());
                 Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
                 rewardedAd3 = null;
+                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd3(), 10000);
+
             }
         });
+    }
+
+    private void showRewardedNewAd1() {
+        if (rewardedAd1 != null) {
+            rewardedAd1.show(this, rewardItem -> {
+
+            });
+        } else {
+            Log.d(TAG, "Rewarded Ad1 not ready or cooldown not passed.");
+            loadRewardNewAd1();
+        }
     }
 
     private void showRewardedNewAd2() {
@@ -430,6 +494,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                             @Override
                             public void onAdDismissedFullScreenContent() {
                                 Log.d(TAG, "Rewarded Ad dismissed.");
+                                mRewardedAd = null;
                                 loadRewardedAd();
                             }
 
@@ -437,6 +502,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                             public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
                                 Log.e(TAG, "Failed to show Rewarded Ad.");
                                 mRewardedAd = null;
+
                             }
                         });
                     }
@@ -445,6 +511,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         Log.e(TAG, "Rewarded Ad failed to load: " + loadAdError.getMessage());
                         mRewardedAd = null;
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardedAd(), 10000);
                     }
                 });
     }
@@ -464,8 +531,12 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         mBannerAd.setAdUnitId("ca-app-pub-9796820425295040/2726900028");
         mBannerAd.setAdSize(AdSize.BANNER);
 
-        LinearLayout adContainer = findViewById(R.id.bannerAdLayout);
-        adContainer.addView(mBannerAd);
+        if (mBannerAd != null && mBannerAd.getParent() == null) {
+            LinearLayout adContainer = findViewById(R.id.bannerAdLayout);
+            adContainer.addView(mBannerAd);
+        }
+
+
 
         AdRequest adRequest = new AdRequest.Builder().build();
         mBannerAd.loadAd(adRequest);
@@ -480,7 +551,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
             public void onAdFailedToLoad(@NonNull LoadAdError adError) {
                 Log.e(TAG, "Banner Ad failed to load: " + adError.getMessage());
                 Log.e(TAG, "Ad failed to load - Error code: " + adError.getCode() + ", Domain: " + adError.getDomain());
-
+                new Handler(Looper.getMainLooper()).postDelayed(() ->  mBannerAd.loadAd(adRequest), 30000);
             }
 
             @Override
@@ -490,14 +561,31 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         });
     }
 
+    private void loadAds() {
+        loadBannerAd();
+
+        new Handler().postDelayed(this::loadRewardNewAd3, 500);
+
+        new Handler().postDelayed(this::loadRewardNewAd2, 1000);
+
+        new Handler().postDelayed(this::loadRewardNewAd1, 1500);
+
+        new Handler().postDelayed(this::loadRewardedAd, 2000);
+
+        new Handler().postDelayed(this::loadInterstitialAd, 2500);
+    }
+
 
     @Override
     public void onBackPressed() {
         if (isMenuOpen) {
             closeMenu();
         } else {
-            if (mInterstitialAd != null && System.currentTimeMillis() - lastAdTime >= AD_COOLDOWN) {
-                mInterstitialAd.show(this);
+            if (System.currentTimeMillis() - lastAdTime >= AD_COOLDOWN) {
+                showInterstitialAd();
+                showRewardedAd();
+                showRewardedNewAd2();
+                showRewardedNewAd3();
                 lastAdTime = System.currentTimeMillis();
             } else {
                 showExitConfirmationDialog();
@@ -505,6 +593,13 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (mBannerAd != null) {
+            mBannerAd.destroy();
+        }
+        super.onDestroy();
+    }
 
     @Override
     public void onUserEarnedReward(@NonNull RewardItem rewardItem) {

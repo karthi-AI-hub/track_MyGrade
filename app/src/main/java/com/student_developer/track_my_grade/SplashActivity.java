@@ -1,24 +1,34 @@
 package com.student_developer.track_my_grade;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends BaseActivity {
@@ -32,12 +42,38 @@ public class SplashActivity extends BaseActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable networkCheckRunnable;
     private SharedPreferences sharedPref;
+    private static final int NOTIFICATION_PERMISSION_CODE = 100;
+    private boolean notificationPermissionGranted = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_CODE);
+            } else {
+                notificationPermissionGranted = true;
+            }
+        } else {
+            notificationPermissionGranted = true;  // No need for permission check on versions below Android 13
+        }
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("SplashActivity", "Fetching FCM token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    Log.d("SplashActivity", "FCM Token: " + token);
+
+                });
+
 
         database = FirebaseDatabase.getInstance("https://app1-ec550-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
@@ -53,10 +89,15 @@ public class SplashActivity extends BaseActivity {
         ProgressBar progressBar = findViewById(R.id.progressBar);
 
         animateSplashScreen(logo, title,title2, progressBar);
-        handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
+        if (notificationPermissionGranted) {
+            handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
+        }
     }
 
     private void checkNetworkAndProceed() {
+        if (!notificationPermissionGranted) {
+            return;
+        }
         networkCheckRunnable = new Runnable() {
             @Override
             public void run() {
@@ -205,6 +246,44 @@ public class SplashActivity extends BaseActivity {
     public void onBackPressed() {
         showExitConfirmationDialog();
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionGranted = true;
+                handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    Snackbar.make(findViewById(android.R.id.content),
+                                    "Notification permission is required for important updates.",
+                                    Snackbar.LENGTH_LONG)
+                            .setAction("Retry", v -> requestNotificationPermission())
+                            .show();
+                } else {
+                    Snackbar.make(findViewById(android.R.id.content),
+                                    "Notification permission is required for important updates. Please enable it in settings.",
+                                    Snackbar.LENGTH_LONG)
+                            .setAction("Enable", v -> {
+                                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.parse("package:" + getPackageName()));
+                                startActivity(intent);
+                            })
+                            .show();
+                }
+            }
+        }
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    NOTIFICATION_PERMISSION_CODE);
+        }
+    }
+
+
 
     private interface OnAStaffCheckListener {
         void onStaffCheck(boolean isAdmin);
