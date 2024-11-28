@@ -239,9 +239,10 @@
             android:id="@+id/tv_NoCRorGP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dont't have CR or GP? CLICK HERE"
+            android:text="Don't have Credits (CR) or Grade Points (GP)?\nTap here for Calculate GPA based on the Anna University Syllabus only."
             android:textSize="14sp"
             android:textStyle="bold"
+            android:textAlignment="center"
             android:layout_gravity="center"
             android:textColor="@color/blue_600"
             android:layout_marginTop="18dp" />

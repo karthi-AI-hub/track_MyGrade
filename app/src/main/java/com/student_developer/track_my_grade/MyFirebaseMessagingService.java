@@ -80,6 +80,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Show the notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         int notificationId = title.hashCode();
+        notificationManager.notify(notificationId, builder.build());
     }
 }
 

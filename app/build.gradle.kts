@@ -12,8 +12,8 @@ android {
         applicationId = "com.student_developer.track_my_grade"
         minSdk = 25
         targetSdk = 34
-        versionCode = 8
-        versionName = "1.3"
+        versionCode = 10
+        versionName = "1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -93,6 +93,8 @@ dependencies {
     implementation (libs.mpandroidchart)
     implementation("com.google.firebase:firebase-messaging:24.1.0")
     implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.android.play:app-update:2.1.0")
+
 
 }
 
