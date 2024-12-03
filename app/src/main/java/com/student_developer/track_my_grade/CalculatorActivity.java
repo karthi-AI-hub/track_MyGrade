@@ -1,5 +1,7 @@
 package com.student_developer.track_my_grade;
 
+
+import com.unity3d.ads.UnityAds;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -72,7 +74,13 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         setContentView(R.layout.activity_calculator);
 
         MobileAds.initialize(this, initializationStatus -> Log.d(TAG, "AdMob initialized."));
-       loadAds();
+        try {
+            UnityAds.initialize(this, "5739620", true);
+            Log.d(TAG, "Unity Ads initialized successfully.");
+        } catch (Exception e) {
+            Log.e(TAG, "Unity Ads initialization failed: " + e.getMessage(), e);
+        }
+        loadAds();
 
 
         loadFragment(new ProfileFragment());
@@ -141,9 +149,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                     if (currentTime - lastAdTime >= AD_COOLDOWN) {
 //                        showInterstitialAd();
 //                        showRewardedAd();
-                        showRewardedNewAd1();
-                        showRewardedNewAd2();
-                        showRewardedNewAd3();
+                        showAds();
 
                         lastAdTime = currentTime;
                     } else {
@@ -172,10 +178,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 if (currentTime - lastAdTime >= AD_COOLDOWN) {
 //                    showInterstitialAd();
 //                    showRewardedAd();
-                    showRewardedNewAd1();
-                    showRewardedNewAd2();
-                    showRewardedNewAd3();
-
+                    showAds();
                     lastAdTime = currentTime;
                 } else {
                     Log.d(TAG, "Ad cooldown not completed. Ads will not be shown.");
@@ -199,9 +202,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
                 if (currentTime - lastAdTime >= AD_COOLDOWN) {
 //                    showInterstitialAd();
 //                    showRewardedAd();
-                    showRewardedNewAd1();
-                    showRewardedNewAd2();
-                    showRewardedNewAd3();
+                    showAds();
 
                     lastAdTime = currentTime;
                 } else {
@@ -451,6 +452,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     }
 
     private void showRewardedNewAd1() {
+        Log.d(TAG, "Attempting to show Ad 1");
         if (rewardedAd1 != null) {
             rewardedAd1.show(this, rewardItem -> {
             });
@@ -461,6 +463,8 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     }
 
     private void showRewardedNewAd2() {
+        Log.d(TAG, "Attempting to show Ad 2");
+
         if (rewardedAd2 != null) {
             rewardedAd2.show(this, rewardItem -> {
             });
@@ -470,6 +474,8 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         }
     }
     private void showRewardedNewAd3() {
+        Log.d(TAG, "Attempting to show Ad 3");
+
         if (rewardedAd3 != null) {
             rewardedAd3.show(this, rewardItem -> {
             });
@@ -561,15 +567,23 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private void loadAds() {
 //        loadBannerAd();
 
-        new Handler().postDelayed(this::loadRewardNewAd3, 500);
+        new Handler().postDelayed(this::loadRewardNewAd1, 500);
 
-        new Handler().postDelayed(this::loadRewardNewAd2, 1000);
+//        new Handler().postDelayed(this::loadRewardNewAd2, 1000);
 
-        new Handler().postDelayed(this::loadRewardNewAd1, 1500);
+//        new Handler().postDelayed(this::loadRewardNewAd3, 1500);
 
 //        new Handler().postDelayed(this::loadRewardedAd, 2000);
 
 //        new Handler().postDelayed(this::loadInterstitialAd, 2500);
+    }
+
+
+    private void showAds() {
+
+        new Handler().postDelayed(this::showRewardedNewAd1, 1000);
+//        new Handler().postDelayed(this::showRewardedNewAd2, 2000);
+//        new Handler().postDelayed(this::showRewardedNewAd3, 3000);
     }
 
 
@@ -581,9 +595,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
             if (System.currentTimeMillis() - lastAdTime >= AD_COOLDOWN) {
                 //showInterstitialAd();
 //                showRewardedAd();
-                showRewardedNewAd1();
-                showRewardedNewAd2();
-                showRewardedNewAd3();
+                showAds();
                 lastAdTime = System.currentTimeMillis();
             } else {
                 showExitConfirmationDialog();

@@ -2,8 +2,10 @@ package com.student_developer.track_my_grade;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -64,7 +66,9 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
+
         appUpdateManager = AppUpdateManagerFactory.create(this);
+        checkForUpdates();
         installStateUpdatedListener = state -> {
             if (state.installStatus() == InstallStatus.DOWNLOADED) {
                 Snackbar.make(
@@ -75,7 +79,7 @@ public class SplashActivity extends BaseActivity {
             }
         };
         appUpdateManager.registerListener(installStateUpdatedListener);
-        checkForUpdates();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -120,6 +124,9 @@ public class SplashActivity extends BaseActivity {
 
     private void checkNetworkAndProceed() {
         if (!notificationPermissionGranted) {
+            return;
+        }
+        if (isUpdateMandatory) {
             return;
         }
         networkCheckRunnable = new Runnable() {
@@ -315,21 +322,22 @@ public class SplashActivity extends BaseActivity {
         Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
 
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                isUpdateMandatory = true;
-                startUpdateFlow(appUpdateInfo);
-            } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                startUpdateFlow(appUpdateInfo);
-            } else {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                    isUpdateMandatory = true;
+                    startUpdateFlow(appUpdateInfo);
+                } else if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                    startUpdateFlow(appUpdateInfo);
+                }
+            } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
                 proceedToApplication();
             }
         }).addOnFailureListener(e -> {
             Log.e("SplashActivity", "Update check failed", e);
-            proceedToApplication();
+            showRetryUpdateDialog();
         });
     }
+
 
     private void startUpdateFlow(AppUpdateInfo appUpdateInfo) {
         try {
@@ -339,12 +347,21 @@ public class SplashActivity extends BaseActivity {
                     this,
                     UPDATE_REQUEST_CODE
             );
-        } catch (Exception e) {
+        } catch (IntentSender.SendIntentException e) {
             e.printStackTrace();
-            Log.e("SplashActivity", "Update flow failed", e);
+            Log.e("SplashActivity", "Failed to start update flow", e);
+            if (isUpdateMandatory) {
+                showMandatoryUpdateDialog();
+            }
         }
     }
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (appUpdateManager != null && installStateUpdatedListener != null) {
+            appUpdateManager.unregisterListener(installStateUpdatedListener);
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -362,15 +379,37 @@ public class SplashActivity extends BaseActivity {
 
         if (requestCode == UPDATE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
-                Toast.makeText(this, "Update is required to continue using the app.", Toast.LENGTH_LONG).show();
+                Log.e("SplashActivity", "Update failed or canceled");
                 if (isUpdateMandatory) {
-                    finish();
+                    showMandatoryUpdateDialog();
                 }
             } else {
                 proceedToApplication();
             }
         }
     }
+
+    private void showMandatoryUpdateDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Update Required")
+                .setMessage("You must update to the latest version to continue using the app.")
+                .setPositiveButton("Retry", (dialog, which) -> checkForUpdates())
+                .setNegativeButton("Exit", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void showRetryUpdateDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Update Check Failed")
+                .setMessage("Unable to check for updates. Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> checkForUpdates())
+                .setNegativeButton("Exit", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+
     private void proceedToApplication() {
         handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
     }

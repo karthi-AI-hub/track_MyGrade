@@ -12,8 +12,8 @@ android {
         applicationId = "com.student_developer.track_my_grade"
         minSdk = 25
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.5"
+        versionCode = 17
+        versionName = "1.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -94,8 +94,9 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:24.1.0")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.android.play:app-update:2.1.0")
-
-
-}
+    implementation("com.google.android.gms:play-services-ads:23.5.0")
+    implementation("com.unity3d.ads:unity-ads:4.12.4")
+    implementation("com.google.ads.mediation:unity:4.12.5.0")
+    }
 
 apply(plugin = "com.google.gms.google-services")
