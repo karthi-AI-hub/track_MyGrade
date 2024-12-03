@@ -38,3 +38,9 @@
     @com.google.firebase.firestore.ServerTimestamp <methods>;
     @com.google.firebase.firestore.IgnoreExtraProperties <methods>;
 }
+
+-keep class com.unity3d.ads.** { *; }
+-keep class com.google.ads.mediation.unity.** { *; }
+
+-dontwarn android.media.LoudnessCodecController$OnLoudnessCodecUpdateListener
+-dontwarn android.media.LoudnessCodecController

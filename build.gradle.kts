@@ -10,6 +10,10 @@ plugins {
     id("com.google.firebase.crashlytics") version "3.0.2" apply false
 
 }
+repositories {
+    google()
+    mavenCentral()
+}
 
 // Task to clean the project build directory
 tasks.register<Delete>("clean") {

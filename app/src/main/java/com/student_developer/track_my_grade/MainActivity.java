@@ -33,7 +33,7 @@ public class MainActivity extends BaseActivity {
     private Button btn_logOut;
     private BottomNavigationView bottomNavigationView;
    //private RewardedAd[] rewardedAds = new RewardedAd[1];
-   private RewardedAd rewardedAd1, rewardedAd2;
+   //private RewardedAd rewardedAd1, rewardedAd2;
     private static final String TAG = "AdActivity";
 
 
@@ -43,7 +43,7 @@ public class MainActivity extends BaseActivity {
         EdgeToEdge.enable(this);
         MobileAds.initialize(this, initializationStatus -> Log.d(TAG, "AdMob initialized."));
 
-        loadAds();
+        //loadAds();
 
         setContentView(R.layout.activity_main);
         btn_logOut = findViewById(R.id.btn_logout);
@@ -66,8 +66,8 @@ public class MainActivity extends BaseActivity {
 
         bottomNavigationView.findViewById(R.id.nav_second_button).setOnClickListener(v -> {
             loadHome();
-            showRewardedNewAd1();
-            showRewardedNewAd2();
+            //showRewardedNewAd1();
+            //showRewardedNewAd2();
         });
 
         bottomNavigationView.findViewById(R.id.nav_collection_gpa).setOnClickListener(v -> loadCollectionGPA());
@@ -188,102 +188,102 @@ public class MainActivity extends BaseActivity {
 //    }
 //
 //
-    private void loadAds() {
-        new Handler().postDelayed(() -> loadRewardNewAd1(), 0);
-        new Handler().postDelayed(() -> loadRewardNewAd2(), 500);
+//    private void loadAds() {
+//        new Handler().postDelayed(() -> loadRewardNewAd1(), 0);
+//        new Handler().postDelayed(() -> loadRewardNewAd2(), 500);
 //        new Handler().postDelayed(() -> loadAndShowAd("ca-app-pub-3940256099942544/5224354917", rewardedAds, 2), 1000);
 //        new Handler().postDelayed(() -> loadAndShowAd("ca-app-pub-3940256099942544/5224354917", rewardedAds, 3), 1500);
 //        new Handler().postDelayed(() -> loadAndShowAd("ca-app-pub-3940256099942544/5224354917", rewardedAds, 4), 2000);
-   }
-
-    private void loadRewardNewAd1() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        Log.d(TAG, "Attempting to load RewardedNew Ad 1...");
-        RewardedAd.load(this, "ca-app-pub-9796820425295040/9981555588", adRequest, new RewardedAdLoadCallback() {
-            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
-                rewardedAd1 = rewardednewAd;
-                Log.d(TAG, "RewardedNew Ad 1 successfully loaded.");
-                rewardedAd1.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "RewardedNew Ad 1 dismissed.");
-                        rewardedAd1 = null;
-                        loadRewardNewAd1();
-                    }
-
-                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
-                        Log.e(TAG, "Failed to show RewardedNew Ad1: " + adError.getMessage());
-                        rewardedAd1 = null;
-                    }
-                });
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                Log.e(TAG, "RewardedNew Ad 1 failed to load: " + loadAdError.getMessage());
-                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
-                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
-                rewardedAd1 = null;
-                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd1(), 10000); // Retry after 10 seconds
-            }
-        });
-    }
-
-    private void showRewardedNewAd1() {
-        if (rewardedAd1 != null) {
-            rewardedAd1.show(this, rewardItem -> {
-
-            });
-        } else {
-            Log.d(TAG, "Rewarded Ad1 not ready . Reloading...");
-            loadRewardNewAd1();
-        }
-    }
-
-    private void loadRewardNewAd2() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        Log.d(TAG, "Attempting to load RewardedNew Ad 2...");
-        RewardedAd.load(this, "ca-app-pub-9796820425295040/8425793738", adRequest, new RewardedAdLoadCallback() {
-            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
-                rewardedAd2 = rewardednewAd;
-                Log.d(TAG, "RewardedNew Ad 2 successfully loaded.");
-                rewardedAd2.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "RewardedNew Ad 2 dismissed.");
-                        rewardedAd2 = null;
-                        loadRewardNewAd2();
-                    }
-
-                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
-                        Log.e(TAG, "Failed to show RewardedNew Ad2: " + adError.getMessage());
-                        rewardedAd2 = null;
-                    }
-                });
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
-                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
-                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
-                rewardedAd2 = null;
-                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd2(), 20000); // Retry after 10 seconds
-            }
-        });
-    }
-
-    private void showRewardedNewAd2() {
-        if (rewardedAd2 != null) {
-            rewardedAd2.show(this, rewardItem -> {
-
-            });
-        } else {
-            Log.d(TAG, "Rewarded Ad2 not ready . Reloading...");
-            loadRewardNewAd2();
-        }
-    }
-
+//   }
+//
+//    private void loadRewardNewAd1() {
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        Log.d(TAG, "Attempting to load RewardedNew Ad 1...");
+//        RewardedAd.load(this, "ca-app-pub-9796820425295040/9981555588", adRequest, new RewardedAdLoadCallback() {
+//            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+//                rewardedAd1 = rewardednewAd;
+//                Log.d(TAG, "RewardedNew Ad 1 successfully loaded.");
+//                rewardedAd1.setFullScreenContentCallback(new FullScreenContentCallback() {
+//                    @Override
+//                    public void onAdDismissedFullScreenContent() {
+//                        Log.d(TAG, "RewardedNew Ad 1 dismissed.");
+//                        rewardedAd1 = null;
+//                        loadRewardNewAd1();
+//                    }
+//
+//                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+//                        Log.e(TAG, "Failed to show RewardedNew Ad1: " + adError.getMessage());
+//                        rewardedAd1 = null;
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                Log.e(TAG, "RewardedNew Ad 1 failed to load: " + loadAdError.getMessage());
+//                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+//                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
+//                rewardedAd1 = null;
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd1(), 10000); // Retry after 10 seconds
+//            }
+//        });
+//    }
+//
+//    private void showRewardedNewAd1() {
+//        if (rewardedAd1 != null) {
+//            rewardedAd1.show(this, rewardItem -> {
+//
+//            });
+//        } else {
+//            Log.d(TAG, "Rewarded Ad1 not ready . Reloading...");
+//            loadRewardNewAd1();
+//        }
+//    }
+//
+//    private void loadRewardNewAd2() {
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        Log.d(TAG, "Attempting to load RewardedNew Ad 2...");
+//        RewardedAd.load(this, "ca-app-pub-9796820425295040/8425793738", adRequest, new RewardedAdLoadCallback() {
+//            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+//                rewardedAd2 = rewardednewAd;
+//                Log.d(TAG, "RewardedNew Ad 2 successfully loaded.");
+//                rewardedAd2.setFullScreenContentCallback(new FullScreenContentCallback() {
+//                    @Override
+//                    public void onAdDismissedFullScreenContent() {
+//                        Log.d(TAG, "RewardedNew Ad 2 dismissed.");
+//                        rewardedAd2 = null;
+//                        loadRewardNewAd2();
+//                    }
+//
+//                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+//                        Log.e(TAG, "Failed to show RewardedNew Ad2: " + adError.getMessage());
+//                        rewardedAd2 = null;
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
+//                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+//                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
+//                rewardedAd2 = null;
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd2(), 20000); // Retry after 10 seconds
+//            }
+//        });
+//    }
+//
+//    private void showRewardedNewAd2() {
+//        if (rewardedAd2 != null) {
+//            rewardedAd2.show(this, rewardItem -> {
+//
+//            });
+//        } else {
+//            Log.d(TAG, "Rewarded Ad2 not ready . Reloading...");
+//            loadRewardNewAd2();
+//        }
+//    }
+//
 
 
 
@@ -291,8 +291,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        showRewardedNewAd1();
-        showRewardedNewAd2();
+        //showRewardedNewAd1();
+        //showRewardedNewAd2();
         showExitConfirmationDialog();
     }
 }

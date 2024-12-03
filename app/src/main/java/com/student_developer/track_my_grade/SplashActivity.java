@@ -2,8 +2,10 @@ package com.student_developer.track_my_grade;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -22,7 +24,15 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +44,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 public class SplashActivity extends BaseActivity {
 
     private static final int SPLASH_DISPLAY_LENGTH = 3500;
+    private static final int UPDATE_REQUEST_CODE = 123;
     private static final int NETWORK_CHECK_INTERVAL = 1000;
     private String rollNO ,staffName, staffClg;
     private FirebaseDatabase database;
@@ -44,6 +55,10 @@ public class SplashActivity extends BaseActivity {
     private SharedPreferences sharedPref;
     private static final int NOTIFICATION_PERMISSION_CODE = 100;
     private boolean notificationPermissionGranted = false;
+    private AppUpdateManager appUpdateManager;
+    private boolean isUpdateMandatory = false;
+    private InstallStateUpdatedListener installStateUpdatedListener;
+
 
 
     @Override
@@ -51,6 +66,20 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
+
+        appUpdateManager = AppUpdateManagerFactory.create(this);
+        checkForUpdates();
+        installStateUpdatedListener = state -> {
+            if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "An update has been downloaded. Restart to install.",
+                        Snackbar.LENGTH_INDEFINITE
+                ).setAction("Restart", v -> appUpdateManager.completeUpdate()).show();
+            }
+        };
+        appUpdateManager.registerListener(installStateUpdatedListener);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -71,7 +100,6 @@ public class SplashActivity extends BaseActivity {
                     }
                     String token = task.getResult();
                     Log.d("SplashActivity", "FCM Token: " + token);
-
                 });
 
 
@@ -96,6 +124,9 @@ public class SplashActivity extends BaseActivity {
 
     private void checkNetworkAndProceed() {
         if (!notificationPermissionGranted) {
+            return;
+        }
+        if (isUpdateMandatory) {
             return;
         }
         networkCheckRunnable = new Runnable() {
@@ -213,7 +244,7 @@ public class SplashActivity extends BaseActivity {
                 .alpha(1f)
                 .setDuration(1500)
                 .setStartDelay(1000)
-                .withStartAction(() ->title.setVisibility(View.VISIBLE))
+                .withStartAction(() -> title.setVisibility(View.VISIBLE))
                 .start();
 
         title2.setTranslationY(100f);
@@ -222,7 +253,7 @@ public class SplashActivity extends BaseActivity {
                 .alpha(1f)
                 .setDuration(1500)
                 .setStartDelay(1500)
-                .withStartAction(() ->title2.setVisibility(View.VISIBLE))
+                .withStartAction(() -> title2.setVisibility(View.VISIBLE))
                 .start();
 
         progressBar.setAlpha(0f);
@@ -233,14 +264,18 @@ public class SplashActivity extends BaseActivity {
                 .setStartDelay(1500)
                 .start();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (appUpdateManager != null && installStateUpdatedListener != null) {
+            appUpdateManager.unregisterListener(installStateUpdatedListener);
+        }
+
         if (handler != null && networkCheckRunnable != null) {
             handler.removeCallbacks(networkCheckRunnable);
         }
     }
+
 
     @Override
     public void onBackPressed() {
@@ -283,6 +318,101 @@ public class SplashActivity extends BaseActivity {
         }
     }
 
+    private void checkForUpdates() {
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                    isUpdateMandatory = true;
+                    startUpdateFlow(appUpdateInfo);
+                } else if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                    startUpdateFlow(appUpdateInfo);
+                }
+            } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
+                proceedToApplication();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("SplashActivity", "Update check failed", e);
+            showRetryUpdateDialog();
+        });
+    }
+
+
+    private void startUpdateFlow(AppUpdateInfo appUpdateInfo) {
+        try {
+            appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    isUpdateMandatory ? AppUpdateType.IMMEDIATE : AppUpdateType.FLEXIBLE,
+                    this,
+                    UPDATE_REQUEST_CODE
+            );
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+            Log.e("SplashActivity", "Failed to start update flow", e);
+            if (isUpdateMandatory) {
+                showMandatoryUpdateDialog();
+            }
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (appUpdateManager != null && installStateUpdatedListener != null) {
+            appUpdateManager.unregisterListener(installStateUpdatedListener);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                startUpdateFlow(appUpdateInfo);
+            }
+        });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == UPDATE_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                Log.e("SplashActivity", "Update failed or canceled");
+                if (isUpdateMandatory) {
+                    showMandatoryUpdateDialog();
+                }
+            } else {
+                proceedToApplication();
+            }
+        }
+    }
+
+    private void showMandatoryUpdateDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Update Required")
+                .setMessage("You must update to the latest version to continue using the app.")
+                .setPositiveButton("Retry", (dialog, which) -> checkForUpdates())
+                .setNegativeButton("Exit", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void showRetryUpdateDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Update Check Failed")
+                .setMessage("Unable to check for updates. Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> checkForUpdates())
+                .setNegativeButton("Exit", (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+
+    private void proceedToApplication() {
+        handler.postDelayed(this::checkNetworkAndProceed, SPLASH_DISPLAY_LENGTH);
+    }
 
 
     private interface OnAStaffCheckListener {
