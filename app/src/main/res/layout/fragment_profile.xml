@@ -628,6 +628,17 @@
             android:backgroundTint="@color/blue_600"
             android:visibility="gone"
             />
+        <Button
+            android:id="@+id/mvToAd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:text="Enter To Ads"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/blue_600"
+            android:visibility="gone"
+            />
     </LinearLayout>
 
 

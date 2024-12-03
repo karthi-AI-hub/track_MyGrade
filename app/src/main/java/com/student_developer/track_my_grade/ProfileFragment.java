@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
     TextView tvpro1, tvpro2, tvpro3, tvpro4, tvpro5, tvpro6, tvpro7, tvpro8, tvCGPATotal;
     TextView pro_name, pro_roll, pro_reg, pro_dob, pro_clg, pro_dept, pro_phno, pro_email, pro_cgpa;
     ShapeableImageView pro_photo;
-    Button mvTOAdmin;
+    Button mvTOAdmin, mvToAds;
     private FirebaseFirestore db;
     DocumentReference docRef;
     FirebaseDatabase database;
@@ -93,6 +93,8 @@ public class ProfileFragment extends Fragment {
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
         }
+
+        mvToAds = view.findViewById((R.id.mvToAd));
         initializeDepartmentNames();
 
         semesterLayouts = new LinearLayout[]{
@@ -138,12 +140,14 @@ public class ProfileFragment extends Fragment {
 
         if (rollNO.equalsIgnoreCase("22AD045")) {
             mvTOAdmin.setVisibility(View.VISIBLE);
+            mvToAds.setVisibility(View.VISIBLE);
+
         }
         if (rollNO.equalsIgnoreCase("22AD049")) {
             mvTOAdmin.setVisibility(View.VISIBLE);
         }
         mvTOAdmin.setOnClickListener(view1 -> startActivity(new Intent(getActivity(), MainActivity.class)));
-
+//        mvToAds.setOnClickListener(v -> startActivity(new Intent(getActivity(), AdActivity.class)));
 
         tvpro1 = view.findViewById((R.id.tv_pro1));
         tvpro2 = view.findViewById((R.id.tv_pro2));
@@ -165,6 +169,7 @@ public class ProfileFragment extends Fragment {
         pro_clg = view.findViewById((R.id.pro_clg));
         pro_phno = view.findViewById((R.id.pro_phno));
         pro_dept = view.findViewById((R.id.pro_dept));
+
 
         setProText(pro_roll, rollNO);
         setProText(pro_email, email);

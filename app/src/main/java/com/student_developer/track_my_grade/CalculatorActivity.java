@@ -1,6 +1,9 @@
 package com.student_developer.track_my_grade;
 
 
+import com.unity3d.ads.IUnityAdsInitializationListener;
+import com.unity3d.ads.IUnityAdsLoadListener;
+import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.UnityAds;
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -47,9 +50,11 @@ import com.google.android.gms.ads.MobileAds;
 
 import java.util.Calendar;
 
+public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewardListener, IUnityAdsInitializationListener {
 
-public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewardListener {
-
+    private String unityGameID = "5742359";
+    private boolean testMode = false;
+    private String adUnitId = "Rewarded_Android";
     private boolean isProfileLoading = false;
     private boolean isTransactionInProgress = false;
     private ImageView btnProfile,btnCalculator,btnGraph;
@@ -75,13 +80,14 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
 
+        UnityAds.initialize(getApplicationContext(), unityGameID, testMode, this);
         MobileAds.initialize(this, initializationStatus -> Log.d(TAG, "AdMob initialized."));
-        try {
-            UnityAds.initialize(this, "5739620", true);
-            Log.d(TAG, "Unity Ads initialized successfully.");
-        } catch (Exception e) {
-            Log.e(TAG, "Unity Ads initialization failed: " + e.getMessage(), e);
-        }
+//        try {
+//            UnityAds.initialize(this, "5739620", true);
+//            Log.d(TAG, "Unity Ads initialized successfully.");
+//        } catch (Exception e) {
+//            Log.e(TAG, "Unity Ads initialization failed: " + e.getMessage(), e);
+//        }
         loadAds();
 
 
@@ -584,6 +590,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private void showAds() {
 
         new Handler().postDelayed(this::showRewardedNewAd1, 1000);
+        displayRewardedAd();
 //        new Handler().postDelayed(this::showRewardedNewAd2, 2000);
 //        new Handler().postDelayed(this::showRewardedNewAd3, 3000);
     }
@@ -616,6 +623,60 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     @Override
     public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
 
+    }
+
+
+    @Override
+    public void onInitializationComplete() {
+        Log.d("UnityAdsExample", "Unity Ads Initialization Complete");
+    }
+
+    @Override
+    public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+        Log.e("UnityAdsExample", "Unity Ads initialization failed with error: [" + error + "] " + message);
+    }
+
+    public void displayRewardedAd() {
+        UnityAds.load(adUnitId, new CalculatorActivity.UnityAdsLoadListener());
+    }
+
+    private class UnityAdsLoadListener implements IUnityAdsLoadListener {
+        @Override
+        public void onUnityAdsAdLoaded(String placementId) {
+            if (placementId.equals(adUnitId)) {
+                UnityAds.show(CalculatorActivity.this, adUnitId, new CalculatorActivity.UnityAdsShowListener());
+            }
+        }
+
+        @Override
+        public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+            Log.e("UnityAdsExample", "Failed to load ad for " + placementId + " with error: [" + error + "] " + message);
+        }
+    }
+
+    private class UnityAdsShowListener implements IUnityAdsShowListener {
+        @Override
+        public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
+            Log.e("UnityAdsExample", "Unity Ads failed to show ad for " + placementId + " with error: [" + error + "] " + message);
+        }
+
+        @Override
+        public void onUnityAdsShowStart(String placementId) {
+            Log.d("UnityAdsExample", "Ad started: " + placementId);
+        }
+
+        @Override
+        public void onUnityAdsShowClick(String placementId) {
+            Log.d("UnityAdsExample", "Ad clicked: " + placementId);
+        }
+
+        @Override
+        public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
+            if (placementId.equals(adUnitId) && state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
+                Log.d("UnityAdsExample", "User should be rewarded!");
+            }
+
+        }
     }
 }
 
