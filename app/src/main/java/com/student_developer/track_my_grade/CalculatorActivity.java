@@ -63,7 +63,9 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
 //    private AdView mBannerAd;
 //    private InterstitialAd mInterstitialAd;
 //    private RewardedInterstitialAd mRewardedAd;
-    private RewardedAd rewardedAd1, rewardedAd2, rewardedAd3;
+
+    private RewardedAd rewardedAd1;
+    //private RewardedAd rewardedAd2, rewardedAd3;
     private long lastAdTime = 0;
     private static long AD_COOLDOWN = 5 * 60 * 1000;
     private static final String TAG = "CalculatorActivity";
@@ -356,7 +358,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
 
     private void loadRewardNewAd1() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(this, "ca-app-pub-9796820425295040/9846918121", adRequest, new RewardedAdLoadCallback() {
+        RewardedAd.load(this, "ca-app-pub-9796820425295040/5197246157", adRequest, new RewardedAdLoadCallback() {
             public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
                 rewardedAd1 = rewardednewAd;
                 Log.d(TAG, "RewardedNew Ad 1 loaded.");
@@ -386,70 +388,70 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         });
     }
 
-    private void loadRewardNewAd2() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(this, "ca-app-pub-9796820425295040/6899262523", adRequest, new RewardedAdLoadCallback() {
-            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
-                rewardedAd2 = rewardednewAd;
-                Log.d(TAG, "RewardedNew Ad 2 loaded.");
-                rewardedAd2.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "RewardedNew Ad 2 dismissed.");
-                        rewardedAd2 = null;
-                        loadRewardNewAd2();
-                    }
-
-                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
-                        Log.e(TAG, "Failed to show RewardedNew Ad2: " + adError.getMessage());
-                        rewardedAd2 = null;
-                    }
-                });
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
-                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
-                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
-                rewardedAd2 = null;
-                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd2(), 60000);
-
-
-            }
-        });
-    }
-    private void loadRewardNewAd3() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(this, "ca-app-pub-9796820425295040/8663770339", adRequest, new RewardedAdLoadCallback() {
-            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
-                rewardedAd3 = rewardednewAd;
-                Log.d(TAG, "RewardedNew Ad 3 loaded.");
-                rewardedAd3.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "RewardedNew Ad 3 dismissed.");
-                        rewardedAd3 = null;
-                        loadRewardNewAd3();
-                    }
-
-                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
-                        Log.e(TAG, "Failed to show RewardedNew Ad 3: " + adError.getMessage());
-                        rewardedAd3 = null;
-                    }
-                });
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                Log.e(TAG, "RewardedNew Ad 3 failed to load: " + loadAdError.getMessage());
-                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
-                rewardedAd3 = null;
-                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd3(), 60000);
-
-            }
-        });
-    }
+//    private void loadRewardNewAd2() {
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        RewardedAd.load(this, "ca-app-pub-9796820425295040/6899262523", adRequest, new RewardedAdLoadCallback() {
+//            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+//                rewardedAd2 = rewardednewAd;
+//                Log.d(TAG, "RewardedNew Ad 2 loaded.");
+//                rewardedAd2.setFullScreenContentCallback(new FullScreenContentCallback() {
+//                    @Override
+//                    public void onAdDismissedFullScreenContent() {
+//                        Log.d(TAG, "RewardedNew Ad 2 dismissed.");
+//                        rewardedAd2 = null;
+//                        loadRewardNewAd2();
+//                    }
+//
+//                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+//                        Log.e(TAG, "Failed to show RewardedNew Ad2: " + adError.getMessage());
+//                        rewardedAd2 = null;
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                Log.e(TAG, "RewardedNew Ad 2 failed to load: " + loadAdError.getMessage());
+//                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+//                Log.e(TAG, "Response Info: " + loadAdError.getResponseInfo());
+//                rewardedAd2 = null;
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd2(), 60000);
+//
+//
+//            }
+//        });
+//    }
+//    private void loadRewardNewAd3() {
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        RewardedAd.load(this, "ca-app-pub-9796820425295040/8663770339", adRequest, new RewardedAdLoadCallback() {
+//            public void onAdLoaded(@NonNull RewardedAd rewardednewAd) {
+//                rewardedAd3 = rewardednewAd;
+//                Log.d(TAG, "RewardedNew Ad 3 loaded.");
+//                rewardedAd3.setFullScreenContentCallback(new FullScreenContentCallback() {
+//                    @Override
+//                    public void onAdDismissedFullScreenContent() {
+//                        Log.d(TAG, "RewardedNew Ad 3 dismissed.");
+//                        rewardedAd3 = null;
+//                        loadRewardNewAd3();
+//                    }
+//
+//                    public void onAdFailedToShowFullScreenContent(LoadAdError adError) {
+//                        Log.e(TAG, "Failed to show RewardedNew Ad 3: " + adError.getMessage());
+//                        rewardedAd3 = null;
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                Log.e(TAG, "RewardedNew Ad 3 failed to load: " + loadAdError.getMessage());
+//                Log.e(TAG, "Error code: " + loadAdError.getCode() + ", Domain: " + loadAdError.getDomain());
+//                rewardedAd3 = null;
+//                new Handler(Looper.getMainLooper()).postDelayed(() -> loadRewardNewAd3(), 60000);
+//
+//            }
+//        });
+//    }
 
     private void showRewardedNewAd1() {
         Log.d(TAG, "Attempting to show Ad 1");
@@ -462,28 +464,28 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
         }
     }
 
-    private void showRewardedNewAd2() {
-        Log.d(TAG, "Attempting to show Ad 2");
-
-        if (rewardedAd2 != null) {
-            rewardedAd2.show(this, rewardItem -> {
-            });
-        } else {
-            Log.d(TAG, "Rewarded Ad2 not ready or cooldown not passed.");
-            loadRewardNewAd2();
-        }
-    }
-    private void showRewardedNewAd3() {
-        Log.d(TAG, "Attempting to show Ad 3");
-
-        if (rewardedAd3 != null) {
-            rewardedAd3.show(this, rewardItem -> {
-            });
-        } else {
-            Log.d(TAG, "Rewarded Ad3 not ready or cooldown not passed.");
-            loadRewardNewAd3();
-        }
-    }
+//    private void showRewardedNewAd2() {
+//        Log.d(TAG, "Attempting to show Ad 2");
+//
+//        if (rewardedAd2 != null) {
+//            rewardedAd2.show(this, rewardItem -> {
+//            });
+//        } else {
+//            Log.d(TAG, "Rewarded Ad2 not ready or cooldown not passed.");
+//            loadRewardNewAd2();
+//        }
+//    }
+//    private void showRewardedNewAd3() {
+//        Log.d(TAG, "Attempting to show Ad 3");
+//
+//        if (rewardedAd3 != null) {
+//            rewardedAd3.show(this, rewardItem -> {
+//            });
+//        } else {
+//            Log.d(TAG, "Rewarded Ad3 not ready or cooldown not passed.");
+//            loadRewardNewAd3();
+//        }
+//    }
 
 //
 //    private void loadRewardedAd() {
@@ -567,7 +569,7 @@ public class CalculatorActivity extends BaseActivity implements OnUserEarnedRewa
     private void loadAds() {
 //        loadBannerAd();
 
-        new Handler().postDelayed(this::loadRewardNewAd1, 500);
+        new Handler().postDelayed(this::loadRewardNewAd1, 0);
 
 //        new Handler().postDelayed(this::loadRewardNewAd2, 1000);
 
